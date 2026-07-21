@@ -1,0 +1,970 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Data Automation Studio — Design System
+   Dark-first · Glossy · Enterprise SaaS
+   ============================================================ */
+
+@theme inline {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-numeric: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-elevated: var(--elevated);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--primary-foreground);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--primary);
+  --color-chart-2: var(--accent);
+  --color-chart-3: var(--secondary-accent);
+  --color-chart-4: var(--info);
+  --color-chart-5: var(--success);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--ring);
+}
+
+:root {
+  --radius: 12px;
+
+  /* Surfaces */
+  --background: #0e1828;
+  --surface: #142033;
+  --card: #18253c;
+  --card-foreground: #ffffff;
+  --elevated: #1d2d47;
+  --popover: #18253c;
+  --popover-foreground: #ffffff;
+  --foreground: #ffffff;
+
+  /* Brand */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --accent: #5b8cff;
+  --accent-foreground: #ffffff;
+  --secondary: #17233a;
+  --secondary-foreground: #ffffff;
+  --secondary-accent: #7c3aed;
+
+  /* Status */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Text */
+  --muted: #17233a;
+  --muted-foreground: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Borders / rings */
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #5b8cff;
+
+  /* Sidebar */
+  --sidebar: transparent;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: rgba(91, 140, 255, 0.1);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+
+  /* Ambient background (GradientOrbs) */
+  --orb-base: #0f1724;
+  --orb-blue-1: rgba(59, 130, 246, 0.16);
+  --orb-teal-1: rgba(20, 184, 166, 0.12);
+  --orb-blue-2: rgba(59, 130, 246, 0.16);
+  --orb-teal-2: rgba(6, 182, 212, 0.10);
+  --orb-purple: rgba(139, 92, 246, 0.05);
+  --orb-center: rgba(12, 20, 34, 0.55);
+  --orb-grid: rgba(255, 255, 255, 0.6);
+  --orb-vignette-mid: rgba(10, 18, 30, 0.6);
+  --orb-vignette: rgba(6, 12, 22, 0.85);
+
+  /* Gradients */
+  --gradient-hero: radial-gradient(
+      1200px 600px at 15% 0%,
+      rgba(91, 140, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 85% 20%,
+      rgba(124, 58, 237, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 400px at 50% 100%,
+      rgba(37, 99, 235, 0.12),
+      transparent 60%
+    );
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #5b8cff 50%, #7c3aed 100%);
+  --gradient-accent: linear-gradient(135deg, #5b8cff 0%, #06b6d4 100%);
+  --gradient-card: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  --gradient-border: linear-gradient(
+    135deg,
+    rgba(91, 140, 255, 0.4),
+    rgba(124, 58, 237, 0.2) 50%,
+    rgba(255, 255, 255, 0.04)
+  );
+
+  /* Shadows */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 0 1px rgba(91, 140, 255, 0.2),
+    0 20px 60px -20px rgba(37, 99, 235, 0.55);
+  --shadow-soft: 0 8px 32px -12px rgba(0, 0, 0, 0.4);
+
+  /* Sidebar glass */
+  --sidebar-glass-from: rgba(20, 26, 44, 0.85);
+  --sidebar-glass-to: rgba(12, 16, 28, 0.9);
+  --sidebar-hover: rgba(255, 255, 255, 0.04);
+  --sidebar-active-edge: rgba(12, 16, 28, 0.4);
+  --sidebar-badge-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-badge-border: rgba(255, 255, 255, 0.15);
+  --sidebar-footer-bg: rgba(255, 255, 255, 0.02);
+  --sidebar-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="light"] {
+  /* Surfaces */
+  --background: #f1f5f9;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --elevated: #f8fafc;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --foreground: #0f172a;
+
+  /* Brand */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --accent: #4f7cf7;
+  --accent-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #0f172a;
+  --secondary-accent: #7c3aed;
+
+  /* Status */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  /* Text */
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --text-muted: #475569;
+
+  /* Borders / rings */
+  --border: rgba(15, 23, 42, 0.12);
+  --input: rgba(15, 23, 42, 0.14);
+  --ring: #2563eb;
+
+  /* Ambient background (GradientOrbs) */
+  --orb-base: #f1f5f9;
+  --orb-blue-1: rgba(59, 130, 246, 0.08);
+  --orb-teal-1: rgba(20, 184, 166, 0.06);
+  --orb-blue-2: rgba(59, 130, 246, 0.08);
+  --orb-teal-2: rgba(6, 182, 212, 0.06);
+  --orb-purple: rgba(139, 92, 246, 0.04);
+  --orb-center: rgba(226, 232, 240, 0.55);
+  --orb-grid: rgba(15, 23, 42, 0.18);
+  --orb-vignette-mid: rgba(226, 232, 240, 0.65);
+  --orb-vignette: rgba(241, 245, 249, 0.9);
+
+  /* Gradients */
+  --gradient-hero: radial-gradient(
+      1200px 600px at 15% 0%,
+      rgba(91, 140, 255, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 85% 20%,
+      rgba(124, 58, 237, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 400px at 50% 100%,
+      rgba(37, 99, 235, 0.08),
+      transparent 60%
+    );
+  --gradient-card: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  --gradient-border: linear-gradient(
+    135deg,
+    rgba(91, 140, 255, 0.5),
+    rgba(124, 58, 237, 0.3) 50%,
+    rgba(15, 23, 42, 0.04)
+  );
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px -14px rgba(15, 23, 42, 0.18);
+  --shadow-elevated: 0 4px 10px rgba(15, 23, 42, 0.06),
+    0 28px 56px -20px rgba(15, 23, 42, 0.22);
+  --shadow-glow: 0 0 0 1px rgba(37, 99, 235, 0.25),
+    0 20px 60px -20px rgba(37, 99, 235, 0.25);
+  --shadow-soft: 0 8px 32px -12px rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] [data-sidebar="sidebar"] {
+  --sidebar: transparent !important;
+  --sidebar-glass-from: #0e1828 !important;
+  --sidebar-glass-to: #0c101c !important;
+  --sidebar-foreground: #ffffff !important;
+  --sidebar-accent-foreground: #ffffff !important;
+  --foreground: #ffffff !important;
+  --muted-foreground: rgba(255, 255, 255, 0.7) !important;
+  --text-muted: rgba(255, 255, 255, 0.6) !important;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-image: radial-gradient(
+        1000px 700px at 10% -10%,
+        rgba(91, 140, 255, 0.08),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 700px at 110% 10%,
+        rgba(124, 58, 237, 0.08),
+        transparent 60%
+      ),
+      radial-gradient(
+        600px 400px at 50% 120%,
+        rgba(6, 182, 212, 0.06),
+        transparent 60%
+      );
+    background-attachment: fixed;
+  }
+
+  [data-theme="light"] body {
+    background-image:
+      radial-gradient(1200px 800px at -10% -20%, rgba(148, 163, 184, 0.06), transparent 55%),
+      radial-gradient(1000px 700px at 110% 10%, rgba(148, 163, 184, 0.05), transparent 55%),
+      radial-gradient(600px 400px at 50% 120%, rgba(148, 163, 184, 0.04), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(91, 140, 255, 0.35);
+    color: #fff;
+  }
+
+  [data-theme="light"] ::selection {
+    background: rgba(37, 99, 235, 0.2);
+    color: #0f172a;
+  }
+}
+
+/* -------------------- Utilities -------------------- */
+
+@utility glass {
+  background-color: color-mix(in oklab, var(--card) 65%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--border);
+}
+
+@utility glass-strong {
+  background-color: color-mix(in oklab, var(--card) 85%, transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--border);
+}
+
+@utility gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility gradient-border {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-border);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility glow-border {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(91, 140, 255, 0.9) 0%,
+      rgba(37, 99, 235, 0.75) 30%,
+      rgba(124, 58, 237, 0.75) 60%,
+      rgba(6, 182, 212, 0.55) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility glow-outer {
+  box-shadow:
+    0 0 0 1px rgba(91, 140, 255, 0.35),
+    0 0 80px -15px rgba(91, 140, 255, 0.35),
+    0 0 120px -30px rgba(124, 58, 237, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+@utility shine {
+
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.8s ease;
+  }
+  &:hover::after {
+    transform: translateX(100%);
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+[data-theme="light"] .scrollbar-thin {
+  scrollbar-color: rgba(15, 23, 42, 0.15) transparent;
+}
+
+[data-theme="light"] .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+/* Typography scale helpers */
+@utility text-display {
+  font-size: 48px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+@utility text-h1 {
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+}
+@utility text-h2 {
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+@utility text-h3 {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+}
+@utility text-h4 {
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91, 140, 255, 0.35); }
+  50% { box-shadow: 0 0 0 12px rgba(91, 140, 255, 0); }
+}
+@keyframes dash {
+  to { stroke-dashoffset: -200; }
+}
+
+/* Light-theme card/surface clarity: raise translucent card backgrounds so
+   cards feel solid and elevated against the ambient orbs backdrop. */
+[data-theme="light"] .bg-card\/60 { background-color: rgba(255, 255, 255, 0.92); }
+[data-theme="light"] .bg-card\/50 { background-color: rgba(255, 255, 255, 0.88); }
+[data-theme="light"] .bg-card\/40 { background-color: rgba(255, 255, 255, 0.82); }
+
+/* ============================================================
+   Glossy premium cards (light theme)
+   Soft, solid white surface with gentle depth — no blue cast.
+   ============================================================ */
+.glossy-card { position: relative; isolation: isolate; }
+
+[data-theme="light"] .glossy-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(252,253,255,0.96) 100%);
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 1px 2px rgba(15,23,42,0.04),
+    0 8px 20px -10px rgba(15, 23, 42, 0.14),
+    0 20px 40px -22px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+[data-theme="light"] .glossy-card::before {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 30%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+[data-theme="light"] .glossy-card::after {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit;
+  background: radial-gradient(120% 60% at 50% -12%, rgba(255,255,255,0.45) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
+}
+
+[data-theme="light"] .glossy-card:hover {
+  border-color: rgba(148,163,184,0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    0 2px 4px rgba(15,23,42,0.05),
+    0 12px 26px -12px rgba(15, 23, 42, 0.18),
+    0 26px 48px -24px rgba(15, 23, 42, 0.14);
+}
+[data-theme="light"] a.glossy-card:focus-visible,
+[data-theme="light"] button.glossy-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Soft tinted variants — each card carries a subtle wash of its accent color,
+   matching the hero card's softness (never harsh). Applied on top of the
+   base glossy-card via a second class. */
+[data-theme="light"] .glossy-card--primary {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(37, 99, 235, 0.10) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(37, 99, 235, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,251,255,0.94) 100%);
+  border-color: rgba(37, 99, 235, 0.16);
+}
+[data-theme="light"] .glossy-card--success {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(16, 185, 129, 0.10) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(6, 182, 212, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(247,254,251,0.94) 100%);
+  border-color: rgba(16, 185, 129, 0.16);
+}
+[data-theme="light"] .glossy-card--warning {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(245, 158, 11, 0.10) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(249, 115, 22, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,251,245,0.94) 100%);
+  border-color: rgba(245, 158, 11, 0.18);
+}
+[data-theme="light"] .glossy-card--danger {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(239, 68, 68, 0.09) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(249, 115, 22, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,249,249,0.94) 100%);
+  border-color: rgba(239, 68, 68, 0.16);
+}
+[data-theme="light"] .glossy-card--info {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(6, 182, 212, 0.10) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(59, 130, 246, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(245,253,255,0.94) 100%);
+  border-color: rgba(6, 182, 212, 0.16);
+}
+[data-theme="light"] .glossy-card--secondary {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(124, 58, 237, 0.10) 0%, transparent 55%),
+    radial-gradient(120% 80% at 0% 100%, rgba(91, 140, 255, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(251,249,255,0.94) 100%);
+  border-color: rgba(124, 58, 237, 0.16);
+}
+
+
+/* Initials avatars — dark, legible text in light theme */
+[data-theme="light"] .initials-avatar {
+  background: linear-gradient(135deg, #e0ecff 0%, #c7dcff 100%) !important;
+  color: #2563eb !important;
+  --tw-ring-color: rgba(37, 99, 235, 0.20);
+}
+
+/* ============================================================
+   Hero glow surface (light theme)
+   Soft blue → lavender → white wash inside the card only,
+   matching the reference dashboard header.
+   ============================================================ */
+[data-theme="light"] .hero-glow-light {
+  background:
+    radial-gradient(1200px 600px at 0% 50%, rgba(59, 130, 246, 0.14) 0%, transparent 55%),
+    radial-gradient(1100px 600px at 100% 50%, rgba(124, 58, 237, 0.14) 0%, transparent 55%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(255, 255, 255, 0.88) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 10px 30px -12px rgba(15, 23, 42, 0.12);
+}
+
+/* ============================================================
+   Muted status tones in light theme
+   Reduce chip / badge saturation so the UI feels clean.
+   ============================================================ */
+[data-theme="light"] .bg-success\/15  { background-color: rgba(16, 185, 129, 0.08); }
+[data-theme="light"] .text-success    { color: #059669; }
+[data-theme="light"] .ring-success\/25 { --tw-ring-color: rgba(16, 185, 129, 0.18); }
+
+[data-theme="light"] .bg-warning\/15  { background-color: rgba(245, 158, 11, 0.08); }
+[data-theme="light"] .text-warning    { color: #d97706; }
+[data-theme="light"] .ring-warning\/25 { --tw-ring-color: rgba(245, 158, 11, 0.18); }
+
+[data-theme="light"] .bg-danger\/15   { background-color: rgba(239, 68, 68, 0.08); }
+[data-theme="light"] .text-danger     { color: #dc2626; }
+[data-theme="light"] .ring-danger\/25  { --tw-ring-color: rgba(239, 68, 68, 0.18); }
+
+[data-theme="light"] .bg-accent\/15   { background-color: rgba(79, 124, 247, 0.08); }
+[data-theme="light"] .text-accent     { color: #4f7cf7; }
+[data-theme="light"] .ring-accent\/25  { --tw-ring-color: rgba(79, 124, 247, 0.18); }
+
+[data-theme="light"] .bg-primary\/15  { background-color: rgba(37, 99, 235, 0.08); }
+[data-theme="light"] .text-primary    { color: #2563eb; }
+[data-theme="light"] .ring-primary\/25 { --tw-ring-color: rgba(37, 99, 235, 0.18); }
+
+[data-theme="light"] .bg-info\/15     { background-color: rgba(6, 182, 212, 0.08); }
+[data-theme="light"] .text-info       { color: #0891b2; }
+[data-theme="light"] .ring-info\/25    { --tw-ring-color: rgba(6, 182, 212, 0.18); }
+
+
+
+
+
+/* ============================================================
+   Numeric font (Geist) — apply to KPIs, numbers, charts, tables
+   ============================================================ */
+@utility font-numeric {
+  font-family: var(--font-numeric);
+  font-feature-settings: "tnum", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums,
+.font-mono,
+.recharts-text,
+.recharts-cartesian-axis-tick text,
+.recharts-label,
+.recharts-tooltip-label,
+.recharts-tooltip-item {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Force sidebar and all its children to always resolve in
+   dark theme variables even when the page is in light theme.
+   ============================================================ */
+[data-sidebar="sidebar"] {
+  --background: #0e1828;
+  --surface: #142033;
+  --card: #18253c;
+  --card-foreground: #ffffff;
+  --elevated: #1d2d47;
+  --popover: #18253c;
+  --popover-foreground: #ffffff;
+  --foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #5b8cff;
+
+  --muted: #17233a;
+  --muted-foreground: #94a3b8;
+  --text-muted: #64748b;
+
+  --sidebar: transparent;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: rgba(91, 140, 255, 0.1);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+
+  --sidebar-glass-from: rgba(20, 26, 44, 0.85);
+  --sidebar-glass-to: rgba(12, 16, 28, 0.9);
+  --sidebar-hover: rgba(255, 255, 255, 0.04);
+  --sidebar-active-edge: rgba(12, 16, 28, 0.4);
+  --sidebar-badge-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-badge-border: rgba(255, 255, 255, 0.15);
+  --sidebar-footer-bg: rgba(255, 255, 255, 0.02);
+  --sidebar-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+[data-sidebar="sidebar"] .scrollbar-thin {
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+[data-sidebar="sidebar"] .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Custom strict padding for login page */
+.login-container-strict {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Base login card styling */
+.login-card-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.login-hero-wrapper {
+  width: 100%;
+  max-width: 1000px;
+}
+
+@media (min-width: 1920px) {
+  .login-hero-wrapper {
+    max-width: 1400px;
+  }
+}
+
+/* Fluid responsive rules for smaller height viewports */
+@media (max-height: 850px) {
+  .login-hero-section {
+    gap: 0.5rem !important;
+  }
+  .login-illustration-left,
+  .login-illustration-right {
+    max-height: 32vh !important;
+    max-width: min(340px, 35vh) !important;
+  }
+}
+
+@media (max-height: 750px) {
+  .login-hero-section {
+    gap: 0.35rem !important;
+  }
+  .login-illustration-left,
+  .login-illustration-right {
+    max-height: 26vh !important;
+    max-width: min(280px, 28vh) !important;
+  }
+}
+
+/* ============================================================
+   Table Behavior Enhancements
+   ============================================================ */
+
+/* 1. Force table container layout and horizontal scrolling */
+.table-container-scrollable {
+  overflow-x: auto !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+.table-container-scrollable table {
+  width: max-content !important;
+  min-width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* 2. Prevent multi-line text wrapping on all headers and cells */
+.table-container-scrollable th,
+.table-container-scrollable td {
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+}
+
+/* 3. Row height consistency & border styling with separate borders */
+.table-container-scrollable tr {
+  height: 52px !important; /* Enforce uniform row height */
+}
+
+.table-container-scrollable th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="light"] .table-container-scrollable th {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.table-container-scrollable td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="light"] .table-container-scrollable td {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+}
+
+.table-container-scrollable tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* 4. Sticky Column Utilities */
+
+/* Base Sticky position and z-index */
+.table-sticky-col-1,
+.table-sticky-col-1-wide,
+.table-sticky-col-2,
+.table-sticky-col-2-wide,
+.table-sticky-single-left,
+.table-sticky-actions {
+  position: sticky !important;
+  z-index: 20 !important;
+}
+
+/* Checkbox Column 1 (sticky at left: 0, width exactly 48px) */
+.table-container-scrollable .table-sticky-col-1 {
+  left: 0 !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  text-align: center !important;
+}
+
+/* Wide Checkbox Column 1 (sticky at left: 0, width exactly 56px) */
+.table-container-scrollable .table-sticky-col-1-wide {
+  left: 0 !important;
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  text-align: center !important;
+}
+
+/* Column 2: Name/Identifier (sticky at left: 48px, following 48px Col 1 Checkbox) */
+.table-container-scrollable .table-sticky-col-2 {
+  left: 48px !important;
+}
+
+/* Column 2: Name/Identifier Wide (sticky at left: 56px, following 56px Col 1 Checkbox) */
+.table-container-scrollable .table-sticky-col-2-wide {
+  left: 56px !important;
+}
+
+/* Single Left Sticky Column (sticky at left: 0) */
+.table-container-scrollable .table-sticky-single-left {
+  left: 0 !important;
+}
+
+/* Actions Column (sticky at right: 0) */
+.table-container-scrollable .table-sticky-actions {
+  right: 0 !important;
+}
+
+/* 5. Seamless Background Matching (Uniform Translucent Background for All Cells) */
+
+/* All table headers have the exact same background (no special sticky highlighting) */
+.table-container-scrollable th {
+  background-color: rgba(22, 34, 53, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+[data-theme="light"] .table-container-scrollable th {
+  background-color: rgba(241, 245, 249, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* All table data cells have the exact same background (no special sticky highlighting) */
+.table-container-scrollable td {
+  background-color: rgba(20, 30, 48, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+[data-theme="light"] .table-container-scrollable td {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* Uniform Row Hover matching for all cells */
+.table-container-scrollable tr:hover th,
+.table-container-scrollable tr:hover td {
+  background-color: rgba(24, 37, 60, 0.95) !important;
+}
+
+[data-theme="light"] .table-container-scrollable tr:hover th,
+[data-theme="light"] .table-container-scrollable tr:hover td {
+  background-color: rgba(241, 245, 249, 0.95) !important;
+}
+
+
+/* ============================================================
+   Hardware-Accelerated Floating Animations (CSS Composited)
+   ============================================================ */
+
+@keyframes smoothFloatUp {
+  0%, 100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(-3px) translateZ(0);
+  }
+}
+
+@keyframes smoothFloatDown {
+  0%, 100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(3px) translateZ(0);
+  }
+}
+
+.animate-smooth-float-1 {
+  animation: smoothFloatUp 5.5s ease-in-out infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.animate-smooth-float-2 {
+  animation: smoothFloatDown 6s ease-in-out infinite;
+  animation-delay: 0.6s;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.animate-smooth-float-3 {
+  animation: smoothFloatUp 6.5s ease-in-out infinite;
+  animation-delay: 1.2s;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.animate-smooth-float-4 {
+  animation: smoothFloatDown 7s ease-in-out infinite;
+  animation-delay: 0.3s;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* End login responsive layout styles */
+
+
+
+
+

@@ -124,7 +124,8 @@ function LayersPage() {
       const saved = localStorage.getItem(STORAGE_KEY_LAYERS);
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
         } catch (e) {
           console.error("Failed to parse saved layers:", e);
         }
@@ -147,6 +148,11 @@ function LayersPage() {
   const [statusFilter, setStatusFilter] = useState("all-statuses");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sync pagination index with active page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, entityFilter, sensitivityFilter, statusFilter]);
 
   // Form Fields state
   const [formEntity, setFormEntity] = useState("");
@@ -602,23 +608,6 @@ function LayersPage() {
     );
   }
 
-  // List search filtering
-  const [currentPageIndex, setCurrentPageIndex] = useState(1);
-
-  // Sync pagination index with active page changes
-  useEffect(() => {
-    setCurrentPageIndex(1);
-  }, [query, entityFilter, sensitivityFilter, statusFilter]);
-
-  const finalFilteredLayers = useMemo(() => {
-    return filteredLayers;
-  }, [filteredLayers]);
-
-  const finalPaginatedLayers = useMemo(() => {
-    const start = (currentPageIndex - 1) * pageSize;
-    return finalFilteredLayers.slice(start, start + pageSize);
-  }, [finalFilteredLayers, currentPageIndex, pageSize]);
-
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -760,7 +749,7 @@ function LayersPage() {
               </tr>
             </thead>
             <tbody>
-              {finalPaginatedLayers.length === 0 ? (
+              {paginatedLayers.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + 1} className="px-5 py-20">
                     <div className="flex flex-col items-center gap-3 text-center">
@@ -782,7 +771,7 @@ function LayersPage() {
                   </td>
                 </tr>
               ) : (
-                finalPaginatedLayers.map((layer) => (
+                paginatedLayers.map((layer) => (
                   <tr key={layer.dbName} className="group transition-colors hover:bg-foreground/[0.02] border-b border-border/40">
                     <td className="py-3 px-4 w-12 text-center">
                       <input type="checkbox" className="rounded border-border/65 cursor-pointer" />
@@ -847,8 +836,8 @@ function LayersPage() {
         <TablePagination
           totalItems={filteredLayers.length}
           pageSize={pageSize}
-          currentPage={currentPageIndex}
-          onPageChange={setCurrentPageIndex}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
           onPageSizeChange={setPageSize}
           itemNameSingular="layer"
           itemNamePlural="layers"

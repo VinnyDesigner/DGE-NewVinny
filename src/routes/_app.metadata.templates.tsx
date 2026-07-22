@@ -622,7 +622,7 @@ function MetadataRegistryPage() {
                     onClick={() => {
                       toast.success("Metadata template imported successfully!");
                     }}
-                    className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#008fa2] hover:bg-[#007a8c] px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft border-none"
+                    className="inline-flex h-9 items-center gap-2 rounded-full bg-[#008fa2] hover:bg-[#007a8c] px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft border-none"
                   >
                     <Upload className="h-4 w-4" /> Import
                   </button>
@@ -632,7 +632,7 @@ function MetadataRegistryPage() {
                       handleResetForm();
                       setIsEditMode(false);
                     }}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Cancel
                   </button>
@@ -660,7 +660,7 @@ function MetadataRegistryPage() {
                       setIsEditMode(true);
                       setActiveViewTab("overview");
                     }}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#008fa2] hover:bg-[#007a8c] px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft border-none"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft border-none"
                   >
                     <Pencil className="h-3.5 w-3.5" /> Edit Metadata
                   </button>

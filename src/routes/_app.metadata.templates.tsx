@@ -550,185 +550,174 @@ function MetadataRegistryPage() {
 
   if (viewingRecord) {
     return (
-      <div className="space-y-6">
-        {/* Breadcrumb / Back Navigation */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/85">
-          <button
-            onClick={() => {
-              setViewingRecord(null);
-            }}
-            className="hover:text-foreground transition cursor-pointer flex items-center gap-1.5"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Metadata Registry
-          </button>
-          <span>&gt;</span>
-          <span className="text-foreground">{isEditMode ? "Edit Metadata" : "View Metadata"}</span>
-        </div>
+      <div className="h-[calc(100vh-140px)] flex flex-col overflow-hidden gap-4">
+        {/* Fixed Header Content Block */}
+        <div className="shrink-0 space-y-4">
+          {/* Breadcrumb / Back Navigation */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/85">
+            <button
+              onClick={() => {
+                setViewingRecord(null);
+              }}
+              className="hover:text-foreground transition cursor-pointer flex items-center gap-1.5"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Metadata Registry
+            </button>
+            <span>&gt;</span>
+            <span className="text-foreground">{isEditMode ? "Edit Metadata" : "View Metadata"}</span>
+          </div>
 
-        {/* Detailed Header Card Container */}
-        <div className="relative bg-card/30 border border-border/50 rounded-xl p-5 shadow-soft space-y-4 overflow-hidden">
-          {/* Top Gradient Border */}
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" />
-          
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-            <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
-                <FileText className="h-5.5 w-5.5" />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-[18px] font-black text-foreground tracking-tight leading-none">
-                    {formData.title}
-                  </h2>
-                  <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
-                    {viewingRecord.status}
-                  </span>
+          {/* Detailed Header Card Container */}
+          <div className="relative bg-card/30 border border-border/50 rounded-xl p-5 shadow-soft space-y-4 overflow-hidden">
+            {/* Top Gradient Border */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" />
+            
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+              <div className="flex items-center gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+                  <FileText className="h-5.5 w-5.5" />
                 </div>
-                
-                {/* Secondary Meta Row */}
-                <div className="flex items-center gap-3.5 text-[12px] font-semibold text-muted-foreground/80 flex-wrap">
-                  <div className="flex items-center gap-1.5">
-                    <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-extrabold text-[9px]">
-                      AD
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="text-[18px] font-black text-foreground tracking-tight leading-none">
+                      {formData.title}
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+                      {viewingRecord.status}
                     </span>
-                    <span>Abu Dhabi Digital Authority</span>
                   </div>
-                  <span className="text-muted-foreground/45">•</span>
-                  <div className="flex items-center gap-1">
-                    <Database className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    <span>Layer #165</span>
-                  </div>
-                  <span className="text-muted-foreground/45">•</span>
-                  <div className="flex items-center gap-1">
-                    <Shield className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    <span>{viewingRecord.standard}</span>
-                  </div>
-                  <span className="text-muted-foreground/45">•</span>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    <span>Updated {formData.lastUpdated}</span>
+                  
+                  {/* Secondary Meta Row */}
+                  <div className="flex items-center gap-3.5 text-[12px] font-semibold text-muted-foreground/80 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-extrabold text-[9px]">
+                        AD
+                      </span>
+                      <span>Abu Dhabi Digital Authority</span>
+                    </div>
+                    <span className="text-muted-foreground/45">•</span>
+                    <div className="flex items-center gap-1">
+                      <Database className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      <span>Layer #165</span>
+                    </div>
+                    <span className="text-muted-foreground/45">•</span>
+                    <div className="flex items-center gap-1">
+                      <Shield className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      <span>{viewingRecord.standard}</span>
+                    </div>
+                    <span className="text-muted-foreground/45">•</span>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      <span>Updated {formData.lastUpdated}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Dropdown standards & Edit Button */}
+              {isEditMode ? (
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast.success("Metadata template imported successfully!");
+                    }}
+                    className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#008fa2] hover:bg-[#007a8c] px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft border-none"
+                  >
+                    <Upload className="h-4 w-4" /> Import
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleResetForm();
+                      setIsEditMode(false);
+                    }}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" /> Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2.5">
+                  <Select value={selectedStandard} onValueChange={setSelectedStandard} disabled={true}>
+                    <SelectTrigger className="h-9 w-[260px] rounded-full border-border/60 bg-card/65 dark:bg-card/25 text-[12.5px] font-semibold text-foreground/85 hover:bg-card/90 transition disabled:opacity-90 disabled:cursor-default">
+                      <div className="flex items-center gap-2 truncate">
+                        <FileText className="h-4 w-4 text-muted-foreground/75 shrink-0" />
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
+                      <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
+                      <SelectItem value="INSPIRE Metadata Directive" className="cursor-pointer text-[12.5px]">INSPIRE Metadata Directive</SelectItem>
+                      <SelectItem value="ISO 19139 Metadata Implementation Specification" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Specification</SelectItem>
+                      <SelectItem value="ISO 19139 Metadata Implementation Specification (Arabic)" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Spec (AR)</SelectItem>
+                      <SelectItem value="North American Profile of ISO19115 2003" className="cursor-pointer text-[12.5px]">North American Profile of ISO19115 2003</SelectItem>
+                      <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <button
+                    onClick={() => {
+                      setIsEditMode(true);
+                      setActiveViewTab("overview");
+                    }}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#008fa2] hover:bg-[#007a8c] px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft border-none"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Edit Metadata
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Dropdown standards & Edit Button */}
-            {isEditMode ? (
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    toast.success("Metadata template imported successfully!");
-                  }}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
-                >
-                  <Upload className="h-4 w-4" /> Import
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleResetForm();
-                    setIsEditMode(false);
-                  }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleResetForm();
-                    setIsEditMode(false);
-                  }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
-                >
-                  Discard
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSaveMetadata();
-                    setIsEditMode(false);
-                  }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
-                >
-                  Save Metadata
-                </button>
+            {/* Completeness Bar in single line */}
+            <div className="pt-3 border-t border-border/40 flex items-center gap-4">
+              <span className="text-[10.5px] font-extrabold text-muted-foreground/75 uppercase tracking-wider shrink-0">
+                Completeness
+              </span>
+              <div className="h-1.5 flex-1 rounded-full bg-border/40 overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                  style={{ width: `${viewingRecord.completeness}%` }}
+                />
               </div>
-            ) : (
-              <div className="flex items-center gap-2.5">
-                <Select value={selectedStandard} onValueChange={setSelectedStandard} disabled={true}>
-                  <SelectTrigger className="h-9 w-[260px] rounded-full border-border/60 bg-card/65 dark:bg-card/25 text-[12.5px] font-semibold text-foreground/85 hover:bg-card/90 transition disabled:opacity-90 disabled:cursor-default">
-                    <div className="flex items-center gap-2 truncate">
-                      <FileText className="h-4 w-4 text-muted-foreground/75 shrink-0" />
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
-                    <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
-                    <SelectItem value="INSPIRE Metadata Directive" className="cursor-pointer text-[12.5px]">INSPIRE Metadata Directive</SelectItem>
-                    <SelectItem value="ISO 19139 Metadata Implementation Specification" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Specification</SelectItem>
-                    <SelectItem value="ISO 19139 Metadata Implementation Specification (Arabic)" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Spec (AR)</SelectItem>
-                    <SelectItem value="North American Profile of ISO19115 2003" className="cursor-pointer text-[12.5px]">North American Profile of ISO19115 2003</SelectItem>
-                    <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
-                  </SelectContent>
-                </Select>
-                <button
-                  onClick={() => setIsEditMode(true)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft"
-                >
-                  <Pencil className="h-3.5 w-3.5" /> Edit Metadata
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Completeness Bar in single line */}
-          <div className="pt-3 border-t border-border/40 flex items-center gap-4">
-            <span className="text-[10.5px] font-extrabold text-muted-foreground/75 uppercase tracking-wider shrink-0">
-              Completeness
-            </span>
-            <div className="h-1.5 flex-1 rounded-full bg-border/40 overflow-hidden">
-              <div
-                className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                style={{ width: `${viewingRecord.completeness}%` }}
-              />
+              <span className="text-[13px] font-black text-foreground shrink-0">
+                {viewingRecord.completeness}%
+              </span>
             </div>
-            <span className="text-[13px] font-black text-foreground shrink-0">
-              {viewingRecord.completeness}%
-            </span>
           </div>
+
+          {/* Tab selection pill bar */}
+          {!isEditMode && (
+            <div className="flex items-center gap-1 bg-card/45 dark:bg-card/25 border border-border/60 p-1.5 rounded-xl w-fit">
+              <button
+                onClick={() => setActiveViewTab("overview")}
+                className={cn(
+                  "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
+                  activeViewTab === "overview"
+                    ? "bg-card text-foreground shadow-soft border border-border/40"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Globe className="h-4 w-4" /> Overview
+              </button>
+              <button
+                onClick={() => setActiveViewTab("versions")}
+                className={cn(
+                  "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
+                  activeViewTab === "versions"
+                    ? "bg-card text-foreground shadow-soft border border-border/40"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Clock className="h-4 w-4" /> Versions
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Tab selection pill bar */}
-        <div className="flex items-center gap-1 bg-card/45 dark:bg-card/25 border border-border/60 p-1.5 rounded-xl w-fit">
-          <button
-            onClick={() => setActiveViewTab("overview")}
-            className={cn(
-              "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
-              activeViewTab === "overview"
-                ? "bg-card text-foreground shadow-soft border border-border/40"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Globe className="h-4 w-4" /> Overview
-          </button>
-          <button
-            onClick={() => setActiveViewTab("versions")}
-            className={cn(
-              "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
-              activeViewTab === "versions"
-                ? "bg-card text-foreground shadow-soft border border-border/40"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Clock className="h-4 w-4" /> Versions
-          </button>
-        </div>
-
-        {/* Content Tabs Area */}
-        {activeViewTab === "overview" ? (
-          <div className="space-y-4">
+        {/* Scrollable Content Sections Block */}
+        <div className="flex-1 overflow-y-auto pr-1.5 pb-8 space-y-4 scrollbar-thin">
+          {isEditMode || activeViewTab === "overview" ? (
+            <div className="space-y-4">
             
             {/* 1. Item Description */}
             <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
@@ -1998,40 +1987,207 @@ function MetadataRegistryPage() {
             )}
           </div>
         ) : (
-          /* Versions Tab */
-          <div className="bg-card/20 border border-border/50 rounded-xl p-6 shadow-soft space-y-4">
-            <h3 className="text-[15px] font-bold text-foreground">Metadata Version History</h3>
-            <div className="relative border-l-2 border-border/60 pl-5 ml-2.5 space-y-5">
+          /* Versions Tab - Only shown when activeViewTab is versions and NOT in edit mode */
+          <div className="bg-card/20 border border-border/50 rounded-xl p-6 shadow-soft space-y-5">
+            <div className="space-y-1">
+              <h3 className="text-[15px] font-extrabold text-foreground">Version History</h3>
+              <p className="text-[12px] text-muted-foreground/80">8 versions - a version is captured on every save - supports governance and auditability</p>
+            </div>
+            
+            <div className="relative border-l-2 border-border/60 pl-5 ml-2.5 space-y-6">
+              {/* v8 */}
               <div className="relative">
-                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white ring-4 ring-background">
-                  <Check className="h-2.5 w-2.5" />
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
                 </span>
-                <div className="text-[13px] font-bold text-foreground">Version 1.2 (Active Draft)</div>
-                <div className="text-[12px] text-muted-foreground mt-0.5">Updated on {formData.lastUpdated} by Mohammed Al Shamsi</div>
-                <div className="text-[12.5px] text-foreground/80 mt-1.5">Modified tags and bounding box coordinates for accuracy.</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="text-[13px] font-black text-foreground">v8</div>
+                  <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10.5px] font-extrabold border border-cyan-500/20">Current</span>
+                </div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated purpose ar, tags ar</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 21 Jul 2026, 11:16
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">81%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "81%" }} />
+                  </div>
+                </div>
               </div>
+
+              {/* v7 */}
               <div className="relative">
-                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-4 ring-background">
-                  <Check className="h-2.5 w-2.5" />
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
                 </span>
-                <div className="text-[13px] font-bold text-foreground">Version 1.1</div>
-                <div className="text-[12px] text-muted-foreground mt-0.5">Approved on 2026-07-15 by QAQC reviewer</div>
-                <div className="text-[12.5px] text-foreground/80 mt-1.5">First official metadata compliance check passed.</div>
+                <div className="text-[13px] font-black text-foreground">v7</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated title ar</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 21 Jul 2026, 11:16
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">81%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "81%" }} />
+                  </div>
+                </div>
               </div>
+
+              {/* v6 */}
               <div className="relative">
-                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-white ring-4 ring-background">
-                  <Check className="h-2.5 w-2.5" />
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
                 </span>
-                <div className="text-[13px] font-bold text-foreground">Version 1.0</div>
-                <div className="text-[12px] text-muted-foreground mt-0.5">Created on 2026-07-10 by Systems Automation</div>
-                <div className="text-[12.5px] text-foreground/80 mt-1.5">Initial ingestion from source FGDB schema mapping.</div>
+                <div className="text-[13px] font-black text-foreground">v6</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated title, supported languages, title ar</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 20 Jul 2026, 15:53
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">81%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "81%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* v5 */}
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
+                </span>
+                <div className="text-[13px] font-black text-foreground">v5</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated contact phone</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 20 Jul 2026, 15:20
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">81%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "81%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* v4 */}
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
+                </span>
+                <div className="text-[13px] font-black text-foreground">v4</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated contact role</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 20 Jul 2026, 14:56
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">82%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "82%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* v3 */}
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
+                </span>
+                <div className="text-[13px] font-black text-foreground">v3</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated x min, x max, y min, y max</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 20 Jul 2026, 11:44
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">82%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "82%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* v2 */}
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
+                </span>
+                <div className="text-[13px] font-black text-foreground">v2</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Updated contact phone, scale, geographic extent, bounding box +9 more</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 20 Jul 2026, 08:57
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by portal
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">82%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: "82%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* v1 */}
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-border/40 ring-4 ring-background">
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/45" />
+                </span>
+                <div className="text-[13px] font-black text-foreground">1</div>
+                <div className="text-[12.5px] text-foreground/90 mt-1">Imported from data layer #165</div>
+                <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground/75 mt-1">
+                  <Clock className="h-3 w-3" /> 14 Jul 2026, 05:30
+                  <span>•</span>
+                  <User className="h-3 w-3" /> by seed
+                </div>
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider">
+                    <span>Completeness at this version</span>
+                    <span className="text-foreground">0%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div className="h-full bg-blue-500/20 rounded-full" style={{ width: "0%" }} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6">

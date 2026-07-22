@@ -578,10 +578,13 @@ function MetadataRegistryPage() {
           <div className="space-y-4">
             
             {/* 1. Item Description */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, itemDescription: !prev.itemDescription }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.itemDescription && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <FileText className="h-4.5 w-4.5 text-emerald-500" /> Item Description
@@ -690,10 +693,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 2. Topics and Keywords */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, topicsKeywords: !prev.topicsKeywords }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.topicsKeywords && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
@@ -848,10 +854,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 3. Citation — Dates */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, citationDates: !prev.citationDates }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.citationDates && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Calendar className="h-4.5 w-4.5 text-orange-500" /> Citation — Dates
@@ -864,43 +873,55 @@ function MetadataRegistryPage() {
               </div>
 
               {openSections.citationDates && (
-                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Created</label>
-                    <input
-                      type="text"
-                      value={formData.created}
-                      onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={formData.created}
+                        onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 pl-3 pr-10 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                    </div>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
-                    <input
-                      type="text"
-                      value={formData.published}
-                      onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={formData.published}
+                        onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 pl-3 pr-10 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                    </div>
                   </div>
-                  <div className="space-y-1.5 md:col-span-2">
+                  <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Revised</label>
-                    <input
-                      type="text"
-                      value={formData.revised}
-                      onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={formData.revised}
+                        onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 pl-3 pr-10 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
             {/* 4. Citation Contacts */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, citationContacts: !prev.citationContacts }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.citationContacts && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <User className="h-4.5 w-4.5 text-blue-500" /> Citation Contacts
@@ -1018,10 +1039,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 5. Locales — Language */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, localesLanguage: !prev.localesLanguage }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.localesLanguage && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-teal-500" /> Locales — Language
@@ -1067,10 +1091,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 6. Resource Details */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, resourceDetails: !prev.resourceDetails }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.resourceDetails && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Database className="h-4.5 w-4.5 text-slate-500" /> Resource Details
@@ -1095,8 +1122,11 @@ function MetadataRegistryPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border/60">
                         <SelectItem value="Completed" className="cursor-pointer text-[13px]">Completed</SelectItem>
-                        <SelectItem value="Ongoing" className="cursor-pointer text-[13px]">Ongoing</SelectItem>
+                        <SelectItem value="Historical Archive" className="cursor-pointer text-[13px]">Historical Archive</SelectItem>
+                        <SelectItem value="Obsolete" className="cursor-pointer text-[13px]">Obsolete</SelectItem>
+                        <SelectItem value="On Going" className="cursor-pointer text-[13px]">On Going</SelectItem>
                         <SelectItem value="Planned" className="cursor-pointer text-[13px]">Planned</SelectItem>
+                        <SelectItem value="Required" className="cursor-pointer text-[13px]">Required</SelectItem>
                         <SelectItem value="Under Development" className="cursor-pointer text-[13px]">Under Development</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1105,22 +1135,36 @@ function MetadataRegistryPage() {
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Character Set <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <Select
                       value={formData.resourceCharSet}
-                      onChange={(e) => setFormData(prev => ({ ...prev, resourceCharSet: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, resourceCharSet: val }))}
+                    >
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select character set..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60">
+                        <SelectItem value="UTF-8" className="cursor-pointer text-[13px]">UTF-8</SelectItem>
+                        <SelectItem value="UTF-16" className="cursor-pointer text-[13px]">UTF-16</SelectItem>
+                        <SelectItem value="UCS-2" className="cursor-pointer text-[13px]">UCS-2</SelectItem>
+                        <SelectItem value="UCS-4" className="cursor-pointer text-[13px]">UCS-4</SelectItem>
+                        <SelectItem value="US-ASCII" className="cursor-pointer text-[13px]">US-ASCII</SelectItem>
+                        <SelectItem value="ISO-8859-1" className="cursor-pointer text-[13px]">ISO-8859-1</SelectItem>
+                        <SelectItem value="Windows-1256" className="cursor-pointer text-[13px]">Windows-1256</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               )}
             </div>
 
             {/* 7. Extents — Bounding Box */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, extentsBoundingBox: !prev.extentsBoundingBox }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.extentsBoundingBox && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-purple-500" /> Extents — Bounding Box
@@ -1202,10 +1246,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 8. Maintenance */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, maintenance: !prev.maintenance }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.maintenance && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <RefreshCw className="h-4.5 w-4.5 text-orange-500" /> Maintenance
@@ -1269,10 +1316,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 9. Spatial Reference — Reference System */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, spatialReference: !prev.spatialReference }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.spatialReference && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-blue-500" /> Spatial Reference — Reference System
@@ -1313,10 +1363,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 10. Quality */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, quality: !prev.quality }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.quality && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Shield className="h-4.5 w-4.5 text-emerald-500" /> Quality
@@ -1362,10 +1415,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 11. Lineage / Data Source */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, lineageDataSource: !prev.lineageDataSource }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.lineageDataSource && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Database className="h-4.5 w-4.5 text-emerald-500" /> Lineage / Data Source
@@ -1411,10 +1467,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 12. Fields — Entity and Attribute Information */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, fieldsInfo: !prev.fieldsInfo }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.fieldsInfo && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
@@ -1442,10 +1501,13 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 13. Standards & Compliance */}
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+            <div className="border border-border/60 rounded-xl overflow-visible bg-card/10 dark:bg-card/5">
               <div
                 onClick={() => setOpenSections(prev => ({ ...prev, standardsCompliance: !prev.standardsCompliance }))}
-                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+                className={cn(
+                  "bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15 rounded-t-xl",
+                  !openSections.standardsCompliance && "rounded-b-xl"
+                )}
               >
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <ShieldCheck className="h-4.5 w-4.5 text-blue-500" /> Standards & Compliance
@@ -1746,9 +1808,7 @@ function MetadataRegistryPage() {
           <table className="w-full text-left border-collapse table-fixed min-w-[1000px]">
             <thead>
               <tr className={cn("border-b border-border/70 text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground/90", isLight ? "bg-slate-50" : "bg-card/35")}>
-                <th className="py-3 px-4 w-12 text-center">
-                  <input type="checkbox" className="rounded border-border/60 cursor-pointer" />
-                </th>
+
                 
                 {/* Dynamic Table Headers */}
                 {columnsConfig.map((col) => {
@@ -1773,10 +1833,7 @@ function MetadataRegistryPage() {
                     key={rec.id}
                     className="hover:bg-card/25 transition-colors group"
                   >
-                    {/* Checkbox */}
-                    <td className="py-3.5 px-4 text-center">
-                      <input type="checkbox" className="rounded border-border/60 cursor-pointer" />
-                    </td>
+
 
                     {/* Layer Name Column */}
                     {(columnsConfig[0].locked || visibleColumns.layerName) && (

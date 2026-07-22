@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/app/AppSidebar";
 import { AppTopbar } from "@/components/app/AppTopbar";
 import { GradientOrbs } from "@/components/app/GradientOrbs";
 import { ThemeProvider, useTheme } from "@/lib/theme";
+import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -31,9 +32,10 @@ function ThemedAppShell() {
           <main className="w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-3 py-6 sm:px-4 lg:px-5">
             <Outlet />
           </main>
-
         </SidebarInset>
       </div>
+      <Toaster />
     </SidebarProvider>
   );
 }
+

@@ -750,13 +750,16 @@ function MetadataRegistryPage() {
                                 !isEditingMetadata ? "cursor-not-allowed opacity-80" : "cursor-pointer"
                               )}
                             >
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                disabled={!isEditingMetadata}
-                                readOnly
-                                className="h-4.5 w-4.5 rounded border border-border/60 text-primary accent-primary cursor-pointer disabled:cursor-not-allowed shrink-0"
-                              />
+                              <div
+                                className={cn(
+                                  "h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 transition-all",
+                                  isChecked
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-card/50"
+                                )}
+                              >
+                                {isChecked && <Check className="h-3 w-3 stroke-[3.5]" />}
+                              </div>
                               <span className="truncate">{topic}</span>
                             </button>
                           );

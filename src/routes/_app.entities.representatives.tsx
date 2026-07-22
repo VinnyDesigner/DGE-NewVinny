@@ -428,9 +428,9 @@ function RepsPage() {
         {/* Main Grid: Tabs and Content enclosed in a Full Card Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Full Card Form Container */}
-          <div className="lg:col-span-9 bg-card/30 border border-border/50 rounded-xl overflow-hidden shadow-soft flex flex-col">
+          <div className="lg:col-span-9 bg-card/30 border border-border/50 rounded-xl shadow-soft flex flex-col">
             {/* Attached Tab Selection Header */}
-            <div className="border-b border-border/50 bg-elevated/40 p-4">
+            <div className="border-b border-border/50 bg-elevated/40 p-4 rounded-t-xl">
               <div className="bg-card/85 dark:bg-card/45 border border-border/60 rounded-xl p-1.5 flex flex-wrap gap-1.5 items-center w-fit shadow-soft">
                 {(["profile", "account", "security", "access"] as const).map((tabId) => {
                   const active = activeTab === tabId;
@@ -461,8 +461,8 @@ function RepsPage() {
               {activeTab === "profile" && (
                 <div className="space-y-5">
                   {/* Entity Assignment */}
-                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
-                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                  <div className="rounded-xl border border-border/50 bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30 rounded-t-xl">
                       <Building2 className="h-4 w-4 text-accent" />
                       <div>
                         <h3 className="text-[14px] font-semibold text-foreground">Entity Assignment</h3>
@@ -491,7 +491,7 @@ function RepsPage() {
                         </button>
 
                         {isEntityDropdownOpen && (
-                          <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 space-y-2">
+                          <div className="absolute z-50 top-full mt-1.5 left-0 w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 space-y-2">
                             <div className="relative flex items-center">
                               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                               <input

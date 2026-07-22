@@ -8,6 +8,7 @@ import {
   Edit3,
   Trash2,
   Settings,
+  X,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/tools/parameters")({
   head: () => ({
@@ -129,6 +131,20 @@ function ToolParametersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Modal states
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Form states for adding parameter
+  const [paramTool, setParamTool] = useState("Select a tool...");
+  const [paramKey, setParamKey] = useState("");
+  const [paramName, setParamName] = useState("");
+  const [paramDescription, setParamDescription] = useState("");
+  const [paramValue, setParamValue] = useState("");
+  const [paramCategory, setParamCategory] = useState("");
+  const [paramDataType, setParamDataType] = useState("string");
+  const [paramDefaultValue, setParamDefaultValue] = useState("");
+  const [paramRequired, setParamRequired] = useState(false);
+
   // Filters logic
   const filteredParams = useMemo(() => {
     return parameters.filter((p) => {
@@ -202,6 +218,42 @@ function ToolParametersPage() {
     return styles[tool] ? (isLight ? styles[tool].light : styles[tool].dark) : "";
   };
 
+  const handleAddParameter = () => {
+    if (paramTool === "Select a tool...") {
+      toast.error("Please select a tool");
+      return;
+    }
+    if (!paramKey) {
+      toast.error("Please enter a parameter key");
+      return;
+    }
+
+    const newParam = {
+      id: `param-${parameters.length + 1}`,
+      name: paramName || paramKey.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+      key: paramKey,
+      tool: paramTool,
+      description: paramDescription || "—",
+      status: "Active",
+    };
+
+    setParameters((prev) => [...prev, newParam]);
+
+    // Reset form states
+    setParamTool("Select a tool...");
+    setParamKey("");
+    setParamName("");
+    setParamDescription("");
+    setParamValue("");
+    setParamCategory("");
+    setParamDataType("string");
+    setParamDefaultValue("");
+    setParamRequired(false);
+    setIsAddModalOpen(false);
+
+    toast.success("New parameter added successfully!");
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -228,7 +280,10 @@ function ToolParametersPage() {
             </div>
           </div>
 
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-b from-primary to-primary/90 px-3.5 py-2 text-[14px] font-medium text-white shadow-sm hover:from-primary/95 transition cursor-pointer">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-b from-primary to-primary/90 px-3.5 py-2 text-[14px] font-medium text-white shadow-sm hover:from-primary/95 transition cursor-pointer"
+          >
             <Plus className="h-4 w-4" /> Add parameter
           </button>
         </div>
@@ -415,6 +470,205 @@ function ToolParametersPage() {
           itemNamePlural="parameters"
         />
       </Surface>
+
+      {/* Add Parameter Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-border/80 bg-card/95 text-foreground shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-border/40 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                  <SlidersHorizontal className="h-5.5 w-5.5" />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-black text-foreground">Add parameter</h3>
+                  <p className="text-[11.5px] text-muted-foreground/80 mt-0.5 leading-relaxed">
+                    Choose the tool, then define the parameter. Values are stored as text; engines parse types on read.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="rounded-lg p-1 text-muted-foreground/75 hover:bg-muted/10 hover:text-foreground transition cursor-pointer"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            {/* Form Fields Grid */}
+            <div className="space-y-4 py-1">
+              
+              {/* SCOPE & IDENTITY */}
+              <div className="space-y-3">
+                <span className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider block">Scope & Identity</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Tool <span className="text-destructive">*</span></label>
+                    <select
+                      value={paramTool}
+                      onChange={(e) => setParamTool(e.target.value)}
+                      className="h-9 w-full rounded-lg border border-border/60 bg-background/50 pl-3 pr-8 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 8px center",
+                        backgroundSize: "14px"
+                      }}
+                    >
+                      <option value="Select a tool...">Select a tool...</option>
+                      <option value="Global Parameters">Global Parameters</option>
+                      <option value="Data Analyzer">Data Analyzer</option>
+                      <option value="Data Collection Engine">Data Collection Engine</option>
+                      <option value="Data Discovery Engine">Data Discovery Engine</option>
+                      <option value="Data Loading">Data Loading</option>
+                      <option value="Data Quality Engine">Data Quality Engine</option>
+                      <option value="Database Compress">Database Compress</option>
+                      <option value="Delta Sync Engine">Delta Sync Engine</option>
+                      <option value="External Data Sync Engine">External Data Sync Engine</option>
+                      <option value="Internal Data Sync Engine">Internal Data Sync Engine</option>
+                      <option value="Metadata Validation Engine">Metadata Validation Engine</option>
+                      <option value="Scheduling Service">Scheduling Service</option>
+                      <option value="Workspace Setup Engine">Workspace Setup Engine</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Parameter key <span className="text-destructive">*</span></label>
+                    <input
+                      type="text"
+                      value={paramKey}
+                      onChange={(e) => setParamKey(e.target.value)}
+                      placeholder="e.g. WORKSPACE_BASE_PATH"
+                      className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Parameter name</label>
+                  <input
+                    type="text"
+                    value={paramName}
+                    onChange={(e) => setParamName(e.target.value)}
+                    placeholder="Operator-friendly name (optional)"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Description</label>
+                  <input
+                    type="text"
+                    value={paramDescription}
+                    onChange={(e) => setParamDescription(e.target.value)}
+                    placeholder="What this parameter controls..."
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+              </div>
+
+              {/* VALUE & TYPE */}
+              <div className="space-y-3 pt-2">
+                <span className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider block">Value & Type</span>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Value</label>
+                  <input
+                    type="text"
+                    value={paramValue}
+                    onChange={(e) => setParamValue(e.target.value)}
+                    placeholder="Stored as VARCHAR(4000)"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Category</label>
+                    <input
+                      type="text"
+                      value={paramCategory}
+                      onChange={(e) => setParamCategory(e.target.value)}
+                      placeholder="Pick an existing category or type a new one"
+                      className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Data type</label>
+                    <select
+                      value={paramDataType}
+                      onChange={(e) => setParamDataType(e.target.value)}
+                      className="h-9 w-full rounded-lg border border-border/60 bg-background/50 pl-3 pr-8 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer appearance-none font-semibold"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 8px center",
+                        backgroundSize: "14px"
+                      }}
+                    >
+                      <option value="— none —">— none —</option>
+                      <option value="string">string</option>
+                      <option value="number">number</option>
+                      <option value="boolean">boolean</option>
+                      <option value="json">json</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Default value</label>
+                  <input
+                    type="text"
+                    value={paramDefaultValue}
+                    onChange={(e) => setParamDefaultValue(e.target.value)}
+                    placeholder="Optional fallback value (operator-shown)"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* FLAGS */}
+              <div className="space-y-3 pt-2">
+                <span className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider block">Flags</span>
+                <div 
+                  onClick={() => setParamRequired(!paramRequired)}
+                  className="flex items-center justify-between p-3.5 rounded-lg border border-border/60 bg-background/50 cursor-pointer hover:bg-muted/5 transition select-none animate-in duration-200"
+                >
+                  <span className="text-[13px] font-semibold text-foreground">Required</span>
+                  <div className={cn(
+                    "h-4 w-4 rounded border flex items-center justify-center transition",
+                    paramRequired 
+                      ? "bg-primary border-primary text-white" 
+                      : "border-border bg-card"
+                  )}>
+                    {paramRequired && <span className="text-[9px] font-black">✓</span>}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex justify-end gap-2.5 border-t border-border/40 pt-4 mt-2">
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddParameter}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
+              >
+                Add parameter
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

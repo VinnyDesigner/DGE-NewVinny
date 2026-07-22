@@ -178,7 +178,7 @@ function AnimatedLogo() {
 
 function FloatingKeywords() {
   return (
-    <div className="my-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 select-none login-hero-subheading leading-snug tracking-[-0.02em] font-bold text-[clamp(1rem,2vw,3.5rem)]">
+    <div className="my-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 select-none login-hero-subheading leading-snug tracking-[-0.01em] font-bold text-[28px]">
       <span className="text-primary inline-block animate-smooth-float-1">
         Automate,
       </span>
@@ -454,7 +454,7 @@ function Login() {
                       damping: 18,
                       x: { duration: 0.3 }
                     }}
-                    className="relative text-[clamp(1.5rem,3.2vw,5.5rem)] font-extrabold leading-[1.08] tracking-[-0.02em] bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent drop-shadow-[0_4px_16px_rgba(56,189,248,0.25)] login-hero-heading cursor-default select-none"
+                    className="relative text-[42px] font-bold leading-tight tracking-[-0.01em] bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent drop-shadow-[0_4px_16px_rgba(56,189,248,0.25)] login-hero-heading cursor-default select-none"
                   >
                     <span className="whitespace-nowrap">Data Automation Studio</span>
                   </motion.div>
@@ -463,7 +463,7 @@ function Login() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className="inline-flex w-fit items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-[clamp(0.6rem,0.8vw,1.5rem)] py-[clamp(0.2rem,0.3vw,0.6rem)] text-[clamp(10px,0.7vw,20px)] font-semibold tracking-wide text-success shrink-0"
+                    className="inline-flex w-fit items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-[12px] font-semibold tracking-wide text-success shrink-0"
                   >
                     <span className="relative flex h-[clamp(6px,0.4vw,12px)] w-[clamp(6px,0.4vw,12px)]">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70" />
@@ -487,7 +487,7 @@ function Login() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.25 }}
-                className="mt-2 max-w-[clamp(600px,45vw,1500px)] text-[clamp(0.8rem,1.1vw,2rem)] leading-relaxed text-muted-foreground login-hero-paragraph"
+                className="mt-2 max-w-[550px] text-[15px] leading-relaxed text-muted-foreground/85 login-hero-paragraph"
               >
                 A secure command center for government-grade data workflows —
                 orchestrating validation, transformation, metadata and quality

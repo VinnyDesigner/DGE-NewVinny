@@ -11,11 +11,17 @@ import {
   Compass,
   Wrench,
   ChevronDown,
+  Pencil,
+  X,
+  Shield,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
 import { TablePagination } from "@/components/app/TablePagination";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/quality/rules")({
   head: () => ({
@@ -37,7 +43,13 @@ type Category =
   | "Schema"
   | "Field Validation"
   | "Geometry"
+  | "Spatial"
+  | "Data Quality"
+  | "Business Rule"
   | "Topology"
+  | "Completeness"
+  | "Uniqueness"
+  | "Custom"
   | "Consistency"
   | "Transformation"
   | "Standardization";
@@ -51,6 +63,11 @@ type Rule = {
   severity: Severity;
   enabled: boolean;
   status: Status;
+  parameter?: string;
+  sequence?: string;
+  enforcement?: string;
+  targetField?: string;
+  tags?: string;
 };
 
 type TabKey =
@@ -216,6 +233,23 @@ function QualityRulesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Modal states
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
+  const [isEditingParam, setIsEditingParam] = useState(false);
+  const [editingParamValue, setEditingParamValue] = useState("");
+
+  // Form states for adding custom rule
+  const [ruleName, setRuleName] = useState("");
+  const [ruleCategory, setRuleCategory] = useState<Category>("Custom");
+  const [ruleSeverity, setRuleSeverity] = useState<Severity>("warning");
+  const [ruleExpression, setRuleExpression] = useState("");
+  const [ruleTargetField, setRuleTargetField] = useState("*");
+  const [ruleSequence, setRuleSequence] = useState("050");
+  const [ruleAppliesTo, setRuleAppliesTo] = useState("All datasets");
+  const [ruleTags, setRuleTags] = useState("");
+  const [ruleDescription, setRuleDescription] = useState("");
+
   // Reset page to 1 when filters or tabs change
   useEffect(() => {
     setCurrentPage(1);
@@ -263,12 +297,72 @@ function QualityRulesPage() {
   }, [filtered, currentPage, pageSize]);
 
   const toggleEnabled = (id: string) => {
-    setRulesByTab((prev) => ({
-      ...prev,
-      [activeTab]: prev[activeTab].map((r) =>
-        r.id === id ? { ...r, enabled: !r.enabled } : r,
-      ),
-    }));
+    setRulesByTab((prev) => {
+      const copy = { ...prev };
+      Object.keys(copy).forEach((key) => {
+        copy[key as TabKey] = copy[key as TabKey].map((r) =>
+          r.id === id ? { ...r, enabled: !r.enabled } : r
+        );
+      });
+      return copy;
+    });
+    setSelectedRule((prev) => (prev && prev.id === id ? { ...prev, enabled: !prev.enabled } : prev));
+  };
+
+  const handleAddRule = () => {
+    if (!ruleName || !ruleDescription || !ruleExpression) {
+      toast.error("Please fill in all required fields marked with *");
+      return;
+    }
+    const newId = `RULE_${String(rulesByTab.all.length + 1).padStart(2, "0")}`;
+    const newRule: Rule = {
+      id: newId,
+      name: ruleName,
+      description: ruleDescription,
+      appliesTo: ruleAppliesTo,
+      category: ruleCategory,
+      severity: ruleSeverity,
+      enabled: false, // starts disabled
+      status: "New Proposed",
+      parameter: ruleExpression,
+      sequence: ruleSequence,
+      targetField: ruleTargetField,
+      tags: ruleTags,
+    };
+
+    setRulesByTab((prev) => {
+      const copy = { ...prev };
+      copy.all = [...(prev.all || []), newRule];
+      
+      const getTabForKey = (cat: Category): TabKey => {
+        if (cat === "Schema") return "base";
+        if (cat === "Field Validation") return "attribute";
+        if (cat === "Geometry" || cat === "Topology" || cat === "Spatial") return "spatial";
+        if (cat === "Consistency") return "consistency";
+        if (cat === "Transformation") return "transformation";
+        if (cat === "Standardization") return "standardization";
+        return "all";
+      };
+      
+      const targetTab = getTabForKey(ruleCategory);
+      if (targetTab !== "all" && copy[targetTab]) {
+        copy[targetTab] = [...(prev[targetTab] || []), newRule];
+      }
+      return copy;
+    });
+
+    // Reset fields
+    setRuleName("");
+    setRuleCategory("Custom");
+    setRuleSeverity("warning");
+    setRuleExpression("");
+    setRuleTargetField("*");
+    setRuleSequence("050");
+    setRuleAppliesTo("All datasets");
+    setRuleTags("");
+    setRuleDescription("");
+    setIsAddModalOpen(false);
+    toast.success("New custom rule added successfully!");
   };
 
   return (
@@ -355,7 +449,10 @@ function QualityRulesPage() {
 
           <div className="flex-1 min-w-[10px]" />
 
-          <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-success px-4 text-[13px] font-semibold text-white shadow-card transition hover:bg-success/90">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-success px-4 text-[13px] font-semibold text-white shadow-card transition hover:bg-success/90 cursor-pointer"
+          >
             <Plus className="h-4 w-4" />
             Add Custom Rule
           </button>
@@ -423,7 +520,14 @@ function QualityRulesPage() {
                   </Td>
                   <Td className="pr-6 table-sticky-actions">
                     <div className="flex items-center justify-end gap-1.5">
-                      <IconBtn tone="info" label="View">
+                      <IconBtn
+                        tone="info"
+                        label="View"
+                        onClick={() => {
+                          setSelectedRule(r);
+                          setIsEditingParam(false);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </IconBtn>
                       <IconBtn
@@ -465,6 +569,377 @@ function QualityRulesPage() {
           itemNamePlural="rules"
         />
       </Surface>
+
+      {/* Add Custom Rule Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl rounded-xl border border-border/80 bg-card/95 text-foreground shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-border/40 pb-3">
+              <div className="flex items-center gap-2 text-[15px] font-black text-foreground">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-success/20 text-success">
+                  <Plus className="h-4.5 w-4.5" />
+                </div>
+                <span>New Quality Rule</span>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="rounded-lg p-1 text-muted-foreground/75 hover:bg-muted/10 hover:text-foreground transition cursor-pointer"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            {/* Form Fields Grid */}
+            <div className="space-y-4 py-1">
+              {/* Row 1: Name, Category, Severity */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-6 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Rule Name <span className="text-destructive">*</span></label>
+                  <input
+                    type="text"
+                    value={ruleName}
+                    onChange={(e) => setRuleName(e.target.value)}
+                    placeholder="e.g. Geometry Validity Check"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Category</label>
+                  <select
+                    value={ruleCategory}
+                    onChange={(e) => setRuleCategory(e.target.value as Category)}
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 pl-3 pr-8 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 8px center",
+                      backgroundSize: "14px"
+                    }}
+                  >
+                    <option value="Schema">Schema</option>
+                    <option value="Geometry">Geometry</option>
+                    <option value="Spatial">Spatial</option>
+                    <option value="Data Quality">Data Quality</option>
+                    <option value="Business Rule">Business Rule</option>
+                    <option value="Topology">Topology</option>
+                    <option value="Completeness">Completeness</option>
+                    <option value="Uniqueness">Uniqueness</option>
+                    <option value="Custom">Custom</option>
+                    <option value="Field Validation">Field Validation</option>
+                    <option value="Consistency">Consistency</option>
+                    <option value="Transformation">Transformation</option>
+                    <option value="Standardization">Standardization</option>
+                  </select>
+                </div>
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Severity</label>
+                  <select
+                    value={ruleSeverity}
+                    onChange={(e) => setRuleSeverity(e.target.value as Severity)}
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 pl-3 pr-8 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 8px center",
+                      backgroundSize: "14px"
+                    }}
+                  >
+                    <option value="error">Error</option>
+                    <option value="warning">Warning</option>
+                    <option value="info">Info</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: Expression, Target Field, Sequence */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-6 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Rule Expression / SQL <span className="text-destructive">*</span></label>
+                  <input
+                    type="text"
+                    value={ruleExpression}
+                    onChange={(e) => setRuleExpression(e.target.value)}
+                    placeholder="e.g. ST_IsValid(SHAPE) = TRUE"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Target Field</label>
+                  <input
+                    type="text"
+                    value={ruleTargetField}
+                    onChange={(e) => setRuleTargetField(e.target.value)}
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Sequence #</label>
+                  <input
+                    type="text"
+                    value={ruleSequence}
+                    onChange={(e) => setRuleSequence(e.target.value)}
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Applies To & Tags */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Applies To <span className="text-destructive">*</span></label>
+                  <div className="flex gap-2">
+                    {["All datasets", "Feature classes", "Tables"].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setRuleAppliesTo(option)}
+                        className={cn(
+                          "h-8 px-3 rounded-full text-[12.5px] font-bold transition cursor-pointer border",
+                          ruleAppliesTo === option
+                            ? "bg-accent/15 border-accent/40 text-accent font-extrabold"
+                            : "bg-background border-border/60 text-muted-foreground/80 hover:bg-muted/10 hover:text-foreground"
+                        )}
+                      >
+                        {ruleAppliesTo === option ? "✓ " : ""}{option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Tags (Comma-Sep)</label>
+                  <input
+                    type="text"
+                    value={ruleTags}
+                    onChange={(e) => setRuleTags(e.target.value)}
+                    placeholder="e.g. spatial, critical"
+                    className="h-9 w-full rounded-lg border border-border/60 bg-background/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  />
+                </div>
+              </div>
+
+              {/* Row 4: Description */}
+              <div className="space-y-1.5">
+                <label className="text-[11.5px] font-extrabold text-muted-foreground/90 uppercase tracking-wider block">Description <span className="text-destructive">*</span></label>
+                <textarea
+                  value={ruleDescription}
+                  onChange={(e) => setRuleDescription(e.target.value)}
+                  placeholder="Brief description of what this rule checks..."
+                  rows={3}
+                  className="w-full rounded-lg border border-border/60 bg-background/50 px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Info Disclaimer */}
+            <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground/75 bg-muted/5 border border-border/30 rounded-lg p-2.5">
+              <span className="text-info font-black">ℹ</span>
+              <span>New rules start disabled — enable when ready.</span>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex justify-end gap-2 border-t border-border/40 pt-4 mt-1">
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddRule}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
+              >
+                + Add Rule
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View/Edit Rule Details Modal */}
+      {selectedRule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-xl border border-border/80 bg-card/95 text-foreground shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-border/40 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                  <Shield className="h-5.5 w-5.5" />
+                </div>
+                <div>
+                  <div className="text-[15px] font-black text-foreground">{selectedRule.name}</div>
+                  <div className="font-mono text-[11px] text-muted-foreground uppercase mt-0.5 tracking-wider">
+                    {selectedRule.id.replace("RULE_", "VERIFY_")} · seq:{selectedRule.sequence || "1"}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] font-bold border transition cursor-pointer",
+                    selectedRule.enabled
+                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                      : "bg-muted/10 border-border text-muted-foreground"
+                  )}
+                  onClick={() => toggleEnabled(selectedRule.id)}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", selectedRule.enabled ? "bg-emerald-500" : "bg-muted-foreground/60")} />
+                  {selectedRule.enabled ? "Enabled" : "Disabled"}
+                </span>
+                <button
+                  onClick={() => { setSelectedRule(null); setIsEditingParam(false); }}
+                  className="rounded-lg p-1 text-muted-foreground/75 hover:bg-muted/10 hover:text-foreground transition cursor-pointer"
+                >
+                  <X className="h-4.5 w-4.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider">Description</h4>
+              <div className="rounded-lg border border-border/40 bg-elevated/25 p-3.5 text-[13px] text-foreground/90 leading-relaxed">
+                {selectedRule.description}
+              </div>
+            </div>
+
+            {/* Classification Grid */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider">Classification</h4>
+              <div className="rounded-lg border border-border/40 bg-elevated/15 p-3.5 grid grid-cols-2 md:grid-cols-4 gap-y-3.5 gap-x-5">
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Rule ID</div>
+                  <div className="text-[13.5px] font-black text-foreground mt-1">{selectedRule.id.replace("RULE_", "")}</div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Sequence</div>
+                  <div className="text-[13.5px] font-black text-foreground mt-1">#{selectedRule.sequence || "1"}</div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Category</div>
+                  <div className="mt-1">
+                    <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-foreground">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      {selectedRule.category}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Severity</div>
+                  <div className="mt-1">
+                    <span className={cn(
+                      "inline-flex items-center rounded-md px-1.5 py-0.5 text-[11.5px] font-bold capitalize",
+                      severityChip(selectedRule.severity)
+                    )}>
+                      {selectedRule.severity}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Enforcement</div>
+                  <div className="mt-1">
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-bold border",
+                      selectedRule.severity === "error"
+                        ? "bg-rose-500/10 border-rose-500/20 text-rose-500"
+                        : selectedRule.severity === "warning"
+                          ? "bg-amber-500/10 border-amber-500/20 text-amber-500"
+                          : "bg-blue-500/10 border-blue-500/20 text-blue-500"
+                    )}>
+                      {selectedRule.severity === "error" ? "Strict" : "Standard"}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Applies To</div>
+                  <div className="mt-1">
+                    <span className="inline-flex items-center rounded border border-border/80 bg-background/50 px-1.5 py-0.5 text-[11px] font-bold text-foreground/85">
+                      {selectedRule.appliesTo}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10.5px] font-bold text-muted-foreground/75 uppercase tracking-wider">Target Field</div>
+                  <div className="text-[13px] font-mono text-foreground mt-1">{selectedRule.targetField || "*"}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rule Expression / Parameter */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] font-extrabold text-muted-foreground/75 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>&lt;/&gt;</span> Rule Expression / Parameter
+                </h4>
+                {!isEditingParam && (
+                  <button
+                    onClick={() => {
+                      setIsEditingParam(true);
+                      setEditingParamValue(selectedRule.parameter || "");
+                    }}
+                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-2.5 text-[11px] font-bold text-foreground transition cursor-pointer"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                )}
+              </div>
+              
+              {isEditingParam ? (
+                <div className="rounded-lg border border-border/40 bg-elevated/25 p-3.5 space-y-3">
+                  <textarea
+                    value={editingParamValue}
+                    onChange={(e) => setEditingParamValue(e.target.value)}
+                    placeholder="Rule parameter (format depends on the rule)"
+                    rows={4}
+                    className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 font-mono text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                  />
+                  <p className="text-[11.5px] text-muted-foreground/80 leading-relaxed">
+                    Per-rule parameter stored on the rule and read live by the engine on its next run. Not every rule consumes this value.
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsEditingParam(false)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background hover:bg-muted/10 px-3 text-[12px] font-bold text-foreground transition cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        const updatedRule = { ...selectedRule, parameter: editingParamValue };
+                        setSelectedRule(updatedRule);
+                        setRulesByTab((prev) => {
+                          const copy = { ...prev };
+                          Object.keys(copy).forEach((key) => {
+                            copy[key as TabKey] = copy[key as TabKey].map((r) =>
+                              r.id === selectedRule.id ? updatedRule : r
+                            );
+                          });
+                          return copy;
+                        });
+                        setIsEditingParam(false);
+                        toast.success("Rule parameter expression saved successfully!");
+                      }}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 px-3 text-[12px] font-bold text-white transition cursor-pointer shadow-soft border-none"
+                    >
+                      ✓ Save Expression
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border/40 bg-elevated/25 p-3.5">
+                  <pre className="font-mono text-[12.5px] text-muted-foreground/90 overflow-x-auto whitespace-pre-wrap">
+                    {selectedRule.parameter || "— not set —"}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

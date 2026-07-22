@@ -60,11 +60,6 @@ export function AppTopbar() {
         <span className="text-[22px] xs:text-[24px] sm:text-[26px] md:text-[27px] lg:text-[28px] font-black tracking-tight text-foreground">
           Data Automation Studio
         </span>
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success ring-1 ring-inset ring-success/20">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
-          <span className="hidden xl:inline">SYSTEM OPERATIONAL</span>
-          <span className="xl:hidden hidden sm:inline">OPERATIONAL</span>
-        </div>
       </div>
 
       {/* Search & Actions */}

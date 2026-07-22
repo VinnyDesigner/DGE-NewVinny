@@ -106,10 +106,10 @@ export function AppSidebar() {
                                 "group/item relative h-auto min-h-11 overflow-hidden rounded-xl px-3 py-2 text-[15px] font-medium text-white transition-all",
                                 "group-data-[collapsible=icon]:!min-h-10 group-data-[collapsible=icon]:!h-10 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:!py-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:!gap-0",
                                 "hover:bg-[var(--sidebar-hover)] hover:text-white",
-                                !isLight && "data-[active=true]:!bg-[radial-gradient(120%_140%_at_50%_50%,rgba(37,99,235,0.22)_0%,rgba(37,99,235,0.08)_55%,var(--sidebar-active-edge)_100%)]",
+                                !isLight && "data-[active=true]:!bg-[radial-gradient(120%_140%_at_50%_50%,rgba(37,99,235,0.12)_0%,rgba(37,99,235,0.04)_55%,transparent_100%)]",
                                 !isLight && "data-[active=true]:text-sidebar-accent-foreground",
-                                !isLight && "data-[active=true]:ring-1 data-[active=true]:ring-inset data-[active=true]:ring-[rgba(91,140,255,0.55)]",
-                                !isLight && "data-[active=true]:shadow-[0_0_0_1px_rgba(37,99,235,0.35),0_8px_24px_-8px_rgba(37,99,235,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]",
+                                !isLight && "data-[active=true]:ring-[0.5px] data-[active=true]:ring-inset data-[active=true]:ring-[rgba(91,140,255,0.25)]",
+                                !isLight && "data-[active=true]:shadow-[0_2px_4px_rgba(37,99,235,0.08),inset_0_1px_0_rgba(255,255,255,0.04)]",
                                 isLight && active && "!bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,252,0.95)_40%,rgba(241,245,249,0.92)_100%)]",
                                 isLight && active && "border border-slate-400/25 !shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(15,23,42,0.05),0_6px_16px_-6px_rgba(15,23,42,0.08)]",
                                 isLight && active && "text-[#0f172a]",
@@ -118,8 +118,8 @@ export function AppSidebar() {
                               <Link to={item.url} className="flex w-full items-center gap-3">
                                 {active && !isLight && (
                                   <>
-                                    <span className="pointer-events-none absolute inset-0 rounded-xl bg-[radial-gradient(1px_1px_at_20%_30%,rgba(255,255,255,0.6),transparent_60%),radial-gradient(1px_1px_at_70%_60%,rgba(255,255,255,0.45),transparent_60%),radial-gradient(1px_1px_at_85%_25%,rgba(255,255,255,0.5),transparent_60%),radial-gradient(1px_1px_at_40%_80%,rgba(255,255,255,0.35),transparent_60%)] opacity-70" />
-                                    <span className="pointer-events-none absolute inset-y-0 right-0 w-1/3 rounded-r-xl bg-[linear-gradient(90deg,transparent_0%,rgba(91,140,255,0.35)_100%)]" />
+                                    <span className="pointer-events-none absolute inset-0 rounded-xl bg-[radial-gradient(1px_1px_at_20%_30%,rgba(255,255,255,0.3),transparent_60%),radial-gradient(1px_1px_at_70%_60%,rgba(255,255,255,0.25),transparent_60%),radial-gradient(1px_1px_at_85%_25%,rgba(255,255,255,0.25),transparent_60%),radial-gradient(1px_1px_at_40%_80%,rgba(255,255,255,0.2),transparent_60%)] opacity-30" />
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 w-1/3 rounded-r-xl bg-[linear-gradient(90deg,transparent_0%,rgba(91,140,255,0.12)_100%)]" />
                                   </>
                                 )}
                                 {active && isLight && (
@@ -164,28 +164,29 @@ export function AppSidebar() {
             </Collapsible>
           );
         })}
-      </SidebarContent>
 
-      <SidebarFooter className="space-y-3 p-3 group-data-[collapsible=icon]:hidden">
-        <div className="space-y-2.5 rounded-xl border border-foreground/5 bg-[var(--sidebar-footer-bg)] p-3">
-          <div>
-            <div className="mb-1 flex items-center justify-between text-[14px]">
-              <span className="text-white">Storage</span>
-              <span className="text-white font-semibold">64%</span>
+        {/* Scrollable Storage Widget */}
+        <div className="mt-8 mb-4 px-3 group-data-[collapsible=icon]:hidden">
+          <div className="space-y-2.5 rounded-xl border border-foreground/5 bg-[var(--sidebar-footer-bg)] p-3">
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[14px]">
+                <span className="text-white">Storage</span>
+                <span className="text-white font-semibold">64%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-foreground/5">
+                <div className="h-full w-[64%] rounded-full bg-linear-to-r from-primary to-accent" />
+              </div>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-foreground/5">
-              <div className="h-full w-[64%] rounded-full bg-linear-to-r from-primary to-accent" />
+            <div className="flex items-center gap-2 pt-1 text-[14px]">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+              </span>
+              <span className="text-white font-medium">All systems operational</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2 pt-1 text-[14px]">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            <span className="text-white font-medium">All systems operational</span>
           </div>
         </div>
-      </SidebarFooter>
+      </SidebarContent>
     </Sidebar>
   );
 }

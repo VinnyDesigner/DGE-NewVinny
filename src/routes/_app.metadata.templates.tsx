@@ -26,6 +26,7 @@ import {
   Settings,
   ShieldCheck,
   List,
+  Upload,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -217,6 +218,80 @@ function MetadataRegistryPage() {
         : "border-border/40 bg-muted/20 dark:bg-muted/10 text-muted-foreground/90 cursor-default select-text focus:ring-0",
       additionalClasses
     );
+  };
+
+  const getFieldViewValue = (val: string) => {
+    return (
+      <div className="w-full min-h-[36px] flex items-center rounded-lg border border-border/25 bg-muted/5 dark:bg-muted/10 px-3 text-[13.5px] font-semibold text-foreground dark:text-white select-text">
+        {val || "—"}
+      </div>
+    );
+  };
+
+  const getFieldViewTextArea = (val: string) => {
+    return (
+      <div className="w-full min-h-[72px] py-2 rounded-lg border border-border/25 bg-muted/5 dark:bg-muted/10 px-3 text-[13.5px] font-semibold text-foreground dark:text-white select-text whitespace-pre-wrap leading-relaxed">
+        {val || "—"}
+      </div>
+    );
+  };
+
+  const handleResetForm = () => {
+    if (viewingRecord) {
+      setFormData({
+        title: viewingRecord.layerName || "",
+        titleAr: "—",
+        tags: "highways, arterials",
+        tagsAr: "—",
+        summary: "Transport planning and navigation",
+        summaryAr: "—",
+        description: "Comprehensive road network dataset covering all classified roads within the emirate.",
+        descriptionAr: "—",
+        useLimit: "Not for commercial use",
+        useLimitAr: "—",
+        topicCategories: "Transportation",
+        themeKeywords: "test keyword",
+        securityClassification: "Official",
+        created: "2026-07-17",
+        published: "—",
+        revised: "—",
+        contactName: "Mohammed Al Shamsi",
+        contactOrg: "Dept of Municipalities & Transport",
+        contactPosition: "GIS Manager",
+        contactRole: "Resource Provider",
+        contactEmail: "m.shamsi@dmt.gov.ae",
+        contactPhone: "+971 45112448",
+        locale: "English (en), Arabic (ar)",
+        localeAbstract: "—",
+        resourceStatus: "Ongoing",
+        resourceCharSet: "UTF-8",
+        west: "51.4971",
+        east: "56.0181",
+        south: "22.6315",
+        north: "25.2512",
+        geographicExtent: "Emirate",
+        geometryType: "Polyline",
+        scale: "1:25000",
+        updateFrequency: "Quarterly",
+        customFrequency: "90",
+        nextUpdate: "2026-10-17",
+        lastUpdated: "2026-07-21",
+        reviewDate: "2027-07-21",
+        spatialCode: "EPSG:32640",
+        spatialCodeName: "WGS 84 / UTM zone 40N",
+        dataQuality: "Positional accuracy ±2m.",
+        accuracyNotes: "",
+        validationNotes: "",
+        lineageSource: "GPS surveys",
+        lineageMedium: "Online Link",
+        lineageRefSystem: "WGS 84",
+        entityAttribute: "Road centerlines with classifications",
+        metaStandard: "ESRI",
+        metaOwner: "Abu Dhabi Digital Authority",
+        metaSourceType: "FGDB1",
+        metaPublished: "—",
+      });
+    }
   };
 
   // Sections collapse/expand state
@@ -487,7 +562,7 @@ function MetadataRegistryPage() {
             <ArrowLeft className="h-3.5 w-3.5" /> Metadata Registry
           </button>
           <span>&gt;</span>
-          <span className="text-foreground">View Metadata</span>
+          <span className="text-foreground">{isEditMode ? "Edit Metadata" : "View Metadata"}</span>
         </div>
 
         {/* Detailed Header Card Container */}
@@ -538,42 +613,74 @@ function MetadataRegistryPage() {
             </div>
 
             {/* Dropdown standards & Edit Button */}
-            <div className="flex items-center gap-2.5">
-              <Select value={selectedStandard} onValueChange={setSelectedStandard} disabled={!isEditMode}>
-                <SelectTrigger className="h-9 w-[260px] rounded-full border-border/60 bg-card/65 dark:bg-card/25 text-[12.5px] font-semibold text-foreground/85 hover:bg-card/90 transition disabled:opacity-90 disabled:cursor-default">
-                  <div className="flex items-center gap-2 truncate">
-                    <FileText className="h-4 w-4 text-muted-foreground/75 shrink-0" />
-                    <SelectValue />
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
-                  <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
-                  <SelectItem value="INSPIRE Metadata Directive" className="cursor-pointer text-[12.5px]">INSPIRE Metadata Directive</SelectItem>
-                  <SelectItem value="ISO 19139 Metadata Implementation Specification" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Specification</SelectItem>
-                  <SelectItem value="ISO 19139 Metadata Implementation Specification (Arabic)" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Spec (AR)</SelectItem>
-                  <SelectItem value="North American Profile of ISO19115 2003" className="cursor-pointer text-[12.5px]">North American Profile of ISO19115 2003</SelectItem>
-                  <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
-                </SelectContent>
-              </Select>
-              {isEditMode ? (
+            {isEditMode ? (
+              <div className="flex items-center gap-2.5">
                 <button
+                  type="button"
+                  onClick={() => {
+                    toast.success("Metadata template imported successfully!");
+                  }}
+                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
+                >
+                  <Upload className="h-4 w-4" /> Import
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleResetForm();
+                    setIsEditMode(false);
+                  }}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleResetForm();
+                    setIsEditMode(false);
+                  }}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted/10 px-4 text-[13px] font-bold text-foreground transition cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  type="button"
                   onClick={() => {
                     handleSaveMetadata();
                     setIsEditMode(false);
                   }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-700 dark:hover:bg-emerald-600 px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
                 >
-                  <Check className="h-4 w-4" /> Save Metadata
+                  Save Metadata
                 </button>
-              ) : (
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <Select value={selectedStandard} onValueChange={setSelectedStandard} disabled={true}>
+                  <SelectTrigger className="h-9 w-[260px] rounded-full border-border/60 bg-card/65 dark:bg-card/25 text-[12.5px] font-semibold text-foreground/85 hover:bg-card/90 transition disabled:opacity-90 disabled:cursor-default">
+                    <div className="flex items-center gap-2 truncate">
+                      <FileText className="h-4 w-4 text-muted-foreground/75 shrink-0" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
+                    <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
+                    <SelectItem value="INSPIRE Metadata Directive" className="cursor-pointer text-[12.5px]">INSPIRE Metadata Directive</SelectItem>
+                    <SelectItem value="ISO 19139 Metadata Implementation Specification" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Specification</SelectItem>
+                    <SelectItem value="ISO 19139 Metadata Implementation Specification (Arabic)" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Spec (AR)</SelectItem>
+                    <SelectItem value="North American Profile of ISO19115 2003" className="cursor-pointer text-[12.5px]">North American Profile of ISO19115 2003</SelectItem>
+                    <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
+                  </SelectContent>
+                </Select>
                 <button
                   onClick={() => setIsEditMode(true)}
                   className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft"
                 >
                   <Pencil className="h-3.5 w-3.5" /> Edit Metadata
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Completeness Bar in single line */}
@@ -646,123 +753,145 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.title)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title (Arabic)</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.titleAr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, titleAr: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.titleAr}
+                        onChange={(e) => setFormData(prev => ({ ...prev, titleAr: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.titleAr)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.tags}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.tags}
+                        onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.tags)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags (Arabic)</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.tagsAr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tagsAr: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.tagsAr}
+                        onChange={(e) => setFormData(prev => ({ ...prev, tagsAr: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.tagsAr)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Purpose)</label>
-                    <textarea
-                      rows={2}
-                      readOnly={!isEditMode}
-                      value={formData.summary}
-                      onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
-                      className={cn(
-                        "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
-                        isEditMode 
-                          ? "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40" 
-                          : "border-border/40 bg-muted/20 dark:bg-muted/10 text-muted-foreground/90 cursor-default select-text focus:ring-0"
-                      )}
-                    />
+                    {isEditMode ? (
+                      <textarea
+                        rows={2}
+                        value={formData.summary}
+                        onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+                        className={cn(
+                          "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
+                          "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40"
+                        )}
+                      />
+                    ) : (
+                      getFieldViewTextArea(formData.summary)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Arabic)</label>
-                    <textarea
-                      rows={2}
-                      readOnly={!isEditMode}
-                      value={formData.summaryAr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, summaryAr: e.target.value }))}
-                      className={cn(
-                        "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
-                        isEditMode 
-                          ? "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40" 
-                          : "border-border/40 bg-muted/20 dark:bg-muted/10 text-muted-foreground/90 cursor-default select-text focus:ring-0"
-                      )}
-                    />
+                    {isEditMode ? (
+                      <textarea
+                        rows={2}
+                        value={formData.summaryAr}
+                        onChange={(e) => setFormData(prev => ({ ...prev, summaryAr: e.target.value }))}
+                        className={cn(
+                          "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
+                          "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40"
+                        )}
+                      />
+                    ) : (
+                      getFieldViewTextArea(formData.summaryAr)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Abstract)</label>
-                    <textarea
-                      rows={3}
-                      readOnly={!isEditMode}
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      className={cn(
-                        "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
-                        isEditMode 
-                          ? "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40" 
-                          : "border-border/40 bg-muted/20 dark:bg-muted/10 text-muted-foreground/90 cursor-default select-text focus:ring-0"
-                      )}
-                    />
+                    {isEditMode ? (
+                      <textarea
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        className={cn(
+                          "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
+                          "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40"
+                        )}
+                      />
+                    ) : (
+                      getFieldViewTextArea(formData.description)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Arabic)</label>
-                    <textarea
-                      rows={3}
-                      readOnly={!isEditMode}
-                      value={formData.descriptionAr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, descriptionAr: e.target.value }))}
-                      className={cn(
-                        "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
-                        isEditMode 
-                          ? "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40" 
-                          : "border-border/40 bg-muted/20 dark:bg-muted/10 text-muted-foreground/90 cursor-default select-text focus:ring-0"
-                      )}
-                    />
+                    {isEditMode ? (
+                      <textarea
+                        rows={3}
+                        value={formData.descriptionAr}
+                        onChange={(e) => setFormData(prev => ({ ...prev, descriptionAr: e.target.value }))}
+                        className={cn(
+                          "w-full rounded-lg border p-3 text-[13px] font-semibold focus:outline-none resize-none transition-colors",
+                          "border-border/70 bg-card/65 dark:bg-card/25 text-foreground focus:ring-1 focus:ring-primary/40"
+                        )}
+                      />
+                    ) : (
+                      getFieldViewTextArea(formData.descriptionAr)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.useLimit}
-                      onChange={(e) => setFormData(prev => ({ ...prev, useLimit: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.useLimit}
+                        onChange={(e) => setFormData(prev => ({ ...prev, useLimit: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.useLimit)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation (Arabic)</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.useLimitAr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, useLimitAr: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.useLimitAr}
+                        onChange={(e) => setFormData(prev => ({ ...prev, useLimitAr: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.useLimitAr)
+                    )}
                   </div>
                 </div>
               )}
@@ -867,12 +996,7 @@ function MetadataRegistryPage() {
                         )}
                       </>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.topicCategories || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.topicCategories)
                     )}
                   </div>
 
@@ -898,12 +1022,7 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.securityClassification || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.securityClassification)
                     )}
                   </div>
 
@@ -914,7 +1033,7 @@ function MetadataRegistryPage() {
                       "flex flex-wrap gap-2 items-center min-h-[38px] p-1.5 rounded-lg border transition-colors",
                       isEditMode
                         ? "border-border/70 bg-card/65 dark:bg-card/25"
-                        : "border-border/40 bg-muted/20 dark:bg-muted/10 cursor-default"
+                        : "border-border/25 bg-muted/5 dark:bg-muted/10 cursor-default"
                     )}>
                       {(formData.themeKeywords ? formData.themeKeywords.split(",").map(k => k.trim()).filter(Boolean) : []).map((kw, i, arr) => (
                         <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
@@ -984,42 +1103,51 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Created</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.created}
-                        onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
-                        className={getInputClassName("pl-3 pr-10")}
-                      />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
-                    </div>
+                    {isEditMode ? (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.created}
+                          onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
+                          className={getInputClassName("pl-3 pr-10")}
+                        />
+                        <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                      </div>
+                    ) : (
+                      getFieldViewValue(formData.created)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.published}
-                        onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
-                        className={getInputClassName("pl-3 pr-10")}
-                      />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
-                    </div>
+                    {isEditMode ? (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.published}
+                          onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
+                          className={getInputClassName("pl-3 pr-10")}
+                        />
+                        <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                      </div>
+                    ) : (
+                      getFieldViewValue(formData.published)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Revised</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.revised}
-                        onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
-                        className={getInputClassName("pl-3 pr-10")}
-                      />
-                      <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
-                    </div>
+                    {isEditMode ? (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.revised}
+                          onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
+                          className={getInputClassName("pl-3 pr-10")}
+                        />
+                        <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                      </div>
+                    ) : (
+                      getFieldViewValue(formData.revised)
+                    )}
                   </div>
                 </div>
               )}
@@ -1050,37 +1178,46 @@ function MetadataRegistryPage() {
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Name <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.contactName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.contactName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.contactName)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Organization <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.contactOrg}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactOrg: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.contactOrg}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactOrg: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.contactOrg)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Position <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.contactPosition}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.contactPosition}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.contactPosition)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
@@ -1114,50 +1251,53 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.contactRole || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.contactRole)
                     )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Email <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.contactEmail}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                      className={getInputClassName("text-primary")}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.contactEmail}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+                        className={getInputClassName("text-primary")}
+                      />
+                    ) : (
+                      <div className="w-full min-h-[36px] flex items-center rounded-lg border border-border/25 bg-muted/5 dark:bg-muted/10 px-3 text-[13.5px] font-semibold text-primary dark:text-cyan-400 select-text">
+                        {formData.contactEmail || "—"}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Phone</label>
-                    <div className="flex gap-2">
-                      <Select defaultValue="+971 UAE" disabled={!isEditMode}>
-                        <SelectTrigger className="h-9 w-[130px] shrink-0 border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground disabled:opacity-90 disabled:cursor-default">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border-border/60">
-                          <SelectItem value="+971 UAE" className="cursor-pointer text-[13px]">+971 UAE</SelectItem>
-                          <SelectItem value="+966 KSA" className="cursor-pointer text-[13px]">+966 KSA</SelectItem>
-                          <SelectItem value="+965 KWT" className="cursor-pointer text-[13px]">+965 KWT</SelectItem>
-                          <SelectItem value="+968 OMN" className="cursor-pointer text-[13px]">+968 OMN</SelectItem>
-                          <SelectItem value="+974 QTR" className="cursor-pointer text-[13px]">+974 QTR</SelectItem>
-                          <SelectItem value="+973 BHR" className="cursor-pointer text-[13px]">+973 BHR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.contactPhone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                        className={getInputClassName()}
-                      />
-                    </div>
+                    {isEditMode ? (
+                      <div className="flex gap-2">
+                        <Select defaultValue="+971 UAE">
+                          <SelectTrigger className="h-9 w-[130px] shrink-0 border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border/60">
+                            <SelectItem value="+971 UAE" className="cursor-pointer text-[13px]">+971 UAE</SelectItem>
+                            <SelectItem value="+966 KSA" className="cursor-pointer text-[13px]">+966 KSA</SelectItem>
+                            <SelectItem value="+965 KWT" className="cursor-pointer text-[13px]">+965 KWT</SelectItem>
+                            <SelectItem value="+968 OMN" className="cursor-pointer text-[13px]">+968 OMN</SelectItem>
+                            <SelectItem value="+974 QTR" className="cursor-pointer text-[13px]">+974 QTR</SelectItem>
+                            <SelectItem value="+973 BHR" className="cursor-pointer text-[13px]">+973 BHR</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <input
+                          type="text"
+                          value={formData.contactPhone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                          className={getInputClassName()}
+                        />
+                      </div>
+                    ) : (
+                      getFieldViewValue(formData.contactPhone)
+                    )}
                   </div>
                 </div>
               )}
@@ -1203,23 +1343,21 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.locale || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.locale)
                     )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Abstract (locale)</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.localeAbstract}
-                      onChange={(e) => setFormData(prev => ({ ...prev, localeAbstract: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.localeAbstract}
+                        onChange={(e) => setFormData(prev => ({ ...prev, localeAbstract: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.localeAbstract)
+                    )}
                   </div>
                 </div>
               )}
@@ -1267,12 +1405,7 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.resourceStatus || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.resourceStatus)
                     )}
                   </div>
                   <div className="space-y-1.5">
@@ -1298,12 +1431,7 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.resourceCharSet || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.resourceCharSet)
                     )}
                   </div>
                 </div>
@@ -1335,51 +1463,63 @@ function MetadataRegistryPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
-                      <input
-                        type="number"
-                        step="any"
-                        readOnly={!isEditMode}
-                        value={formData.west}
-                        onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
-                        className={getInputClassName("cursor-pointer")}
-                        style={isEditMode ? ({ appearance: 'auto', WebkitAppearance: 'auto' } as any) : ({ appearance: 'none', WebkitAppearance: 'none' } as any)}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          step="any"
+                          value={formData.west}
+                          onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
+                          className={getInputClassName("cursor-pointer")}
+                          style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.west)
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
-                      <input
-                        type="number"
-                        step="any"
-                        readOnly={!isEditMode}
-                        value={formData.east}
-                        onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
-                        className={getInputClassName("cursor-pointer")}
-                        style={isEditMode ? ({ appearance: 'auto', WebkitAppearance: 'auto' } as any) : ({ appearance: 'none', WebkitAppearance: 'none' } as any)}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          step="any"
+                          value={formData.east}
+                          onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
+                          className={getInputClassName("cursor-pointer")}
+                          style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.east)
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
-                      <input
-                        type="number"
-                        step="any"
-                        readOnly={!isEditMode}
-                        value={formData.north}
-                        onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
-                        className={getInputClassName("cursor-pointer")}
-                        style={isEditMode ? ({ appearance: 'auto', WebkitAppearance: 'auto' } as any) : ({ appearance: 'none', WebkitAppearance: 'none' } as any)}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          step="any"
+                          value={formData.north}
+                          onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
+                          className={getInputClassName("cursor-pointer")}
+                          style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.north)
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
-                      <input
-                        type="number"
-                        step="any"
-                        readOnly={!isEditMode}
-                        value={formData.south}
-                        onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
-                        className={getInputClassName("cursor-pointer")}
-                        style={isEditMode ? ({ appearance: 'auto', WebkitAppearance: 'auto' } as any) : ({ appearance: 'none', WebkitAppearance: 'none' } as any)}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          step="any"
+                          value={formData.south}
+                          onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
+                          className={getInputClassName("cursor-pointer")}
+                          style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.south)
+                      )}
                     </div>
                   </div>
 
@@ -1406,33 +1546,34 @@ function MetadataRegistryPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <input
-                          type="text"
-                          readOnly
-                          value={formData.geometryType || "—"}
-                          className={getInputClassName()}
-                        />
+                        getFieldViewValue(formData.geometryType)
                       )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.geographicExtent}
-                        onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
-                        className={getInputClassName()}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={formData.geographicExtent}
+                          onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
+                          className={getInputClassName()}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.geographicExtent)
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale Denominator</label>
-                      <input
-                        type="text"
-                        readOnly={!isEditMode}
-                        value={formData.scale}
-                        onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
-                        className={getInputClassName()}
-                      />
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={formData.scale}
+                          onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
+                          className={getInputClassName()}
+                        />
+                      ) : (
+                        getFieldViewValue(formData.scale)
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1488,53 +1629,60 @@ function MetadataRegistryPage() {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <input
-                        type="text"
-                        readOnly
-                        value={formData.updateFrequency || "—"}
-                        className={getInputClassName()}
-                      />
+                      getFieldViewValue(formData.updateFrequency)
                     )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Custom Frequency</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.customFrequency}
-                      onChange={(e) => setFormData(prev => ({ ...prev, customFrequency: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.customFrequency}
+                        onChange={(e) => setFormData(prev => ({ ...prev, customFrequency: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.customFrequency)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Next Update</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.nextUpdate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, nextUpdate: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.nextUpdate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nextUpdate: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.nextUpdate)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Last Updated</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.lastUpdated}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lastUpdated: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.lastUpdated}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lastUpdated: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.lastUpdated)
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Review Date</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.reviewDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, reviewDate: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.reviewDate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, reviewDate: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.reviewDate)
+                    )}
                   </div>
                 </div>
               )}
@@ -1565,25 +1713,31 @@ function MetadataRegistryPage() {
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Code <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.spatialCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, spatialCode: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.spatialCode}
+                        onChange={(e) => setFormData(prev => ({ ...prev, spatialCode: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.spatialCode)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
                       Code Name <span className="text-destructive">*</span>
                     </label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.spatialCodeName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, spatialCodeName: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.spatialCodeName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, spatialCodeName: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.spatialCodeName)
+                    )}
                   </div>
                 </div>
               )}
@@ -1612,33 +1766,42 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Data Quality</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.dataQuality}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dataQuality: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.dataQuality}
+                        onChange={(e) => setFormData(prev => ({ ...prev, dataQuality: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.dataQuality)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Accuracy Notes</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.accuracyNotes}
-                      onChange={(e) => setFormData(prev => ({ ...prev, accuracyNotes: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.accuracyNotes}
+                        onChange={(e) => setFormData(prev => ({ ...prev, accuracyNotes: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.accuracyNotes)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Validation Notes</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.validationNotes}
-                      onChange={(e) => setFormData(prev => ({ ...prev, validationNotes: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.validationNotes}
+                        onChange={(e) => setFormData(prev => ({ ...prev, validationNotes: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.validationNotes)
+                    )}
                   </div>
                 </div>
               )}
@@ -1667,33 +1830,42 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.lineageSource}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lineageSource: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.lineageSource}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lineageSource: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.lineageSource)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Medium Name</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.lineageMedium}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lineageMedium: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.lineageMedium}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lineageMedium: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.lineageMedium)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Reference System</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.lineageRefSystem}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lineageRefSystem: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.lineageRefSystem}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lineageRefSystem: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.lineageRefSystem)
+                    )}
                   </div>
                 </div>
               )}
@@ -1722,13 +1894,16 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Entity and Attribute Information</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.entityAttribute}
-                      onChange={(e) => setFormData(prev => ({ ...prev, entityAttribute: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.entityAttribute}
+                        onChange={(e) => setFormData(prev => ({ ...prev, entityAttribute: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.entityAttribute)
+                    )}
                   </div>
                 </div>
               )}
@@ -1757,47 +1932,70 @@ function MetadataRegistryPage() {
                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Metadata Standard</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.metaStandard}
-                      onChange={(e) => setFormData(prev => ({ ...prev, metaStandard: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.metaStandard}
+                        onChange={(e) => setFormData(prev => ({ ...prev, metaStandard: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.metaStandard)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Owner</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.metaOwner}
-                      onChange={(e) => setFormData(prev => ({ ...prev, metaOwner: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.metaOwner}
+                        onChange={(e) => setFormData(prev => ({ ...prev, metaOwner: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.metaOwner)
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Type</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.metaSourceType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, metaSourceType: e.target.value }))}
-                      className={getInputClassName()}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
-                    <input
-                      type="text"
-                      readOnly={!isEditMode}
-                      value={formData.metaPublished}
-                      onChange={(e) => setFormData(prev => ({ ...prev, metaPublished: e.target.value }))}
-                      className={getInputClassName()}
-                    />
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={formData.metaSourceType}
+                        onChange={(e) => setFormData(prev => ({ ...prev, metaSourceType: e.target.value }))}
+                        className={getInputClassName()}
+                      />
+                    ) : (
+                      getFieldViewValue(formData.metaSourceType)
+                    )}
                   </div>
                 </div>
               )}
             </div>
+            {isEditMode && (
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/40 mt-6 animate-in fade-in duration-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleResetForm();
+                    setIsEditMode(false);
+                  }}
+                  className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-4 text-[13px] font-bold text-foreground hover:bg-muted/10 transition cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSaveMetadata();
+                    setIsEditMode(false);
+                  }}
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-[13px] font-bold text-white transition cursor-pointer shadow-soft"
+                >
+                  Save Metadata
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           /* Versions Tab */

@@ -204,10 +204,26 @@ function MetadataRegistryPage() {
 
   // Detailed View state
   const [viewingRecord, setViewingRecord] = useState<RegistryRecord | null>(null);
-  const [isEditingMetadata, setIsEditingMetadata] = useState(false);
   const [isTopicDropdownOpen, setIsTopicDropdownOpen] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState("ISO 19139 Metadata Implementation Specification");
   const [activeViewTab, setActiveViewTab] = useState("overview");
+
+  // Sections collapse/expand state
+  const [openSections, setOpenSections] = useState({
+    itemDescription: true,
+    topicsKeywords: true,
+    citationDates: true,
+    citationContacts: true,
+    localesLanguage: true,
+    resourceDetails: true,
+    extentsBoundingBox: true,
+    maintenance: true,
+    spatialReference: true,
+    quality: true,
+    lineageDataSource: true,
+    fieldsInfo: true,
+    standardsCompliance: true,
+  });
 
   // Extensive form states prefilled for selected record
   const [formData, setFormData] = useState({
@@ -443,7 +459,6 @@ function MetadataRegistryPage() {
           : r
       )
     );
-    setIsEditingMetadata(false);
     toast.success("Metadata record updated successfully!");
   };
 
@@ -455,7 +470,6 @@ function MetadataRegistryPage() {
           <button
             onClick={() => {
               setViewingRecord(null);
-              setIsEditingMetadata(false);
             }}
             className="hover:text-foreground transition cursor-pointer flex items-center gap-1.5"
           >
@@ -509,22 +523,12 @@ function MetadataRegistryPage() {
                   <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
                 </SelectContent>
               </Select>
-
-              {isEditingMetadata ? (
-                <button
-                  onClick={handleSaveMetadata}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
-                >
-                  <Check className="h-4 w-4" /> Save Metadata
-                </button>
-              ) : (
-                <button
-                  onClick={() => setIsEditingMetadata(true)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
-                >
-                  <Pencil className="h-4 w-4" /> Edit Metadata
-                </button>
-              )}
+              <button
+                onClick={handleSaveMetadata}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
+              >
+                <Check className="h-4 w-4" /> Save Metadata
+              </button>
             </div>
           </div>
 
@@ -571,705 +575,929 @@ function MetadataRegistryPage() {
 
         {/* Content Tabs Area */}
         {activeViewTab === "overview" ? (
-          <div className="bg-card/20 border border-border/50 rounded-xl p-6 shadow-soft space-y-6">
+          <div className="space-y-4">
             
             {/* 1. Item Description */}
-            <div className="space-y-4">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <FileText className="h-4.5 w-4.5 text-emerald-500" /> Item Description
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title (Arabic)</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.titleAr}
-                    onChange={(e) => setFormData(prev => ({ ...prev, titleAr: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.tags}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags (Arabic)</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.tagsAr}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tagsAr: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Purpose)</label>
-                  <textarea
-                    rows={2}
-                    disabled={!isEditingMetadata}
-                    value={formData.summary}
-                    onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
-                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Arabic)</label>
-                  <textarea
-                    rows={2}
-                    disabled={!isEditingMetadata}
-                    value={formData.summaryAr}
-                    onChange={(e) => setFormData(prev => ({ ...prev, summaryAr: e.target.value }))}
-                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Abstract)</label>
-                  <textarea
-                    rows={3}
-                    disabled={!isEditingMetadata}
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Arabic)</label>
-                  <textarea
-                    rows={3}
-                    disabled={!isEditingMetadata}
-                    value={formData.descriptionAr}
-                    onChange={(e) => setFormData(prev => ({ ...prev, descriptionAr: e.target.value }))}
-                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.useLimit}
-                    onChange={(e) => setFormData(prev => ({ ...prev, useLimit: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation (Arabic)</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.useLimitAr}
-                    onChange={(e) => setFormData(prev => ({ ...prev, useLimitAr: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, itemDescription: !prev.itemDescription }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <FileText className="h-4.5 w-4.5 text-emerald-500" /> Item Description
+                </h3>
+                {openSections.itemDescription ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+              
+              {openSections.itemDescription && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title</label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title (Arabic)</label>
+                    <input
+                      type="text"
+                      value={formData.titleAr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, titleAr: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags</label>
+                    <input
+                      type="text"
+                      value={formData.tags}
+                      onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags (Arabic)</label>
+                    <input
+                      type="text"
+                      value={formData.tagsAr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, tagsAr: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Purpose)</label>
+                    <textarea
+                      rows={2}
+                      value={formData.summary}
+                      onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+                      className="w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Arabic)</label>
+                    <textarea
+                      rows={2}
+                      value={formData.summaryAr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, summaryAr: e.target.value }))}
+                      className="w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Abstract)</label>
+                    <textarea
+                      rows={3}
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Arabic)</label>
+                    <textarea
+                      rows={3}
+                      value={formData.descriptionAr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, descriptionAr: e.target.value }))}
+                      className="w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation</label>
+                    <input
+                      type="text"
+                      value={formData.useLimit}
+                      onChange={(e) => setFormData(prev => ({ ...prev, useLimit: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation (Arabic)</label>
+                    <input
+                      type="text"
+                      value={formData.useLimitAr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, useLimitAr: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 2. Topics and Keywords */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5 relative">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
-                    Topic Categories <span className="text-destructive">*</span>
-                  </label>
-                  
-                  {/* Dropdown Trigger */}
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsTopicDropdownOpen(prev => !prev);
-                    }}
-                    className={cn(
-                      "h-9 w-full rounded-lg border px-3 text-[13px] font-semibold text-foreground flex items-center justify-between transition-all select-none cursor-pointer bg-card/60 dark:bg-card/20 border-border/70 hover:border-primary/50",
-                      isTopicDropdownOpen && "border-primary ring-1 ring-primary/45"
-                    )}
-                  >
-                    <span className="truncate">
-                      {formData.topicCategories || "Select topic categories..."}
-                    </span>
-                    {isTopicDropdownOpen ? (
-                      <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, topicsKeywords: !prev.topicsKeywords }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
+                </h3>
+                {openSections.topicsKeywords ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
+              </div>
+
+              {openSections.topicsKeywords && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200 overflow-visible">
+                  <div className="space-y-1.5 relative">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Topic Categories <span className="text-destructive">*</span>
+                    </label>
+                    
+                    {/* Dropdown Trigger */}
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsTopicDropdownOpen(prev => !prev);
+                      }}
+                      className={cn(
+                        "h-9 w-full rounded-lg border px-3 text-[13px] font-semibold text-foreground flex items-center justify-between transition-all select-none cursor-pointer bg-card/65 dark:bg-card/25 border-border/70 hover:border-primary/50",
+                        isTopicDropdownOpen && "border-primary ring-1 ring-primary/45"
+                      )}
+                    >
+                      <span className="truncate">
+                        {formData.topicCategories || "Select topic categories..."}
+                      </span>
+                      {isTopicDropdownOpen ? (
+                        <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                    </div>
+
+                    {/* Dropdown Menu positioned absolute */}
+                    {isTopicDropdownOpen && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute left-0 top-[calc(100%+4px)] w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 z-[60] space-y-0.5"
+                      >
+                        <div className="max-h-60 overflow-y-auto pr-1">
+                          {ALL_TOPIC_CATEGORIES.map((topic) => {
+                            const selectedList = formData.topicCategories
+                              ? formData.topicCategories.split(", ").filter(Boolean)
+                              : [];
+                            const isChecked = selectedList.includes(topic);
+                            
+                            return (
+                              <button
+                                key={topic}
+                                type="button"
+                                onClick={() => {
+                                  let updated: string[];
+                                  if (isChecked) {
+                                    updated = selectedList.filter(t => t !== topic);
+                                  } else {
+                                    updated = [...selectedList, topic];
+                                  }
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    topicCategories: updated.join(", ")
+                                  }));
+                                }}
+                                className="flex w-full items-center gap-3 px-2.5 py-2 hover:bg-foreground/[0.04] rounded-lg transition text-left text-[13px] font-semibold text-foreground/90 cursor-pointer"
+                              >
+                                <div
+                                  className={cn(
+                                    "h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 transition-all",
+                                    isChecked
+                                      ? "border-primary bg-primary text-primary-foreground"
+                                      : "border-border bg-card/50"
+                                  )}
+                                >
+                                  {isChecked && <Check className="h-3 w-3 stroke-[3.5]" />}
+                                </div>
+                                <span className="truncate">{topic}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
                   </div>
 
-                  {/* Dropdown Menu Portal positioned absolute */}
-                  {isTopicDropdownOpen && (
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute left-0 top-[calc(100%+4px)] w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 z-[60] space-y-0.5"
+                  {/* Security Classification Select Dropdown */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Security Classification <span className="text-destructive">*</span>
+                    </label>
+                    <Select
+                      value={formData.securityClassification}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, securityClassification: val }))}
                     >
-                      <div className="max-h-60 overflow-y-auto pr-1">
-                        {ALL_TOPIC_CATEGORIES.map((topic) => {
-                          const selectedList = formData.topicCategories
-                            ? formData.topicCategories.split(", ").filter(Boolean)
-                            : [];
-                          const isChecked = selectedList.includes(topic);
-                          
-                          return (
-                            <button
-                              key={topic}
-                              type="button"
-                              disabled={!isEditingMetadata}
-                              onClick={() => {
-                                if (!isEditingMetadata) return;
-                                let updated: string[];
-                                if (isChecked) {
-                                  updated = selectedList.filter(t => t !== topic);
-                                } else {
-                                  updated = [...selectedList, topic];
-                                }
-                                setFormData(prev => ({
-                                  ...prev,
-                                  topicCategories: updated.join(", ")
-                                }));
-                              }}
-                              className={cn(
-                                "flex w-full items-center gap-3 px-2.5 py-2 hover:bg-foreground/[0.04] rounded-lg transition text-left text-[13px] font-semibold text-foreground/90",
-                                !isEditingMetadata ? "cursor-not-allowed opacity-80" : "cursor-pointer"
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  "h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 transition-all",
-                                  isChecked
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border bg-card/50"
-                                )}
-                              >
-                                {isChecked && <Check className="h-3 w-3 stroke-[3.5]" />}
-                              </div>
-                              <span className="truncate">{topic}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select classification..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60">
+                        <SelectItem value="Unclassified" className="cursor-pointer text-[13px]">Unclassified</SelectItem>
+                        <SelectItem value="Restricted" className="cursor-pointer text-[13px]">Restricted</SelectItem>
+                        <SelectItem value="Confidential" className="cursor-pointer text-[13px]">Confidential</SelectItem>
+                        <SelectItem value="Secret" className="cursor-pointer text-[13px]">Secret</SelectItem>
+                        <SelectItem value="Top Secret" className="cursor-pointer text-[13px]">Top Secret</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Theme Keywords Chip Component */}
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Theme Keywords</label>
+                    <div className="flex flex-wrap gap-2 items-center min-h-[38px] p-1.5 rounded-lg border border-border/70 bg-card/65 dark:bg-card/25">
+                      {(formData.themeKeywords ? formData.themeKeywords.split(",").map(k => k.trim()).filter(Boolean) : []).map((kw, i, arr) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                          {kw}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = arr.filter((_, idx) => idx !== i);
+                              setFormData(prev => ({ ...prev, themeKeywords: updated.join(", ") }));
+                            }}
+                            className="hover:text-rose-500 transition font-black ml-0.5 text-sm cursor-pointer leading-none"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        type="text"
+                        placeholder="Add keyword (Press Enter)..."
+                        className="flex-1 bg-transparent border-0 p-0 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-0 min-w-[150px]"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const val = e.currentTarget.value.trim();
+                            const current = formData.themeKeywords ? formData.themeKeywords.split(",").map(k => k.trim()).filter(Boolean) : [];
+                            if (val && !current.includes(val)) {
+                              const updated = [...current, val];
+                              setFormData(prev => ({ ...prev, themeKeywords: updated.join(", ") }));
+                              e.currentTarget.value = "";
+                            }
+                          }
+                        }}
+                      />
                     </div>
-                  )}
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Theme Keywords</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.themeKeywords}
-                    onChange={(e) => setFormData(prev => ({ ...prev, themeKeywords: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Security Classification</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.securityClassification}
-                    onChange={(e) => setFormData(prev => ({ ...prev, securityClassification: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             {/* 3. Citation — Dates */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Calendar className="h-4.5 w-4.5 text-orange-500" /> Citation — Dates
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Created</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.created}
-                    onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.published}
-                    onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Revised</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.revised}
-                    onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, citationDates: !prev.citationDates }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Calendar className="h-4.5 w-4.5 text-orange-500" /> Citation — Dates
+                </h3>
+                {openSections.citationDates ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.citationDates && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Created</label>
+                    <input
+                      type="text"
+                      value={formData.created}
+                      onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
+                    <input
+                      type="text"
+                      value={formData.published}
+                      onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Revised</label>
+                    <input
+                      type="text"
+                      value={formData.revised}
+                      onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 4. Citation Contacts */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <User className="h-4.5 w-4.5 text-blue-500" /> Citation Contacts
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Name</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Organization</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactOrg}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactOrg: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Position</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactPosition}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Role</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactRole}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactRole: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Email</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 text-primary"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Phone</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.contactPhone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, citationContacts: !prev.citationContacts }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <User className="h-4.5 w-4.5 text-blue-500" /> Citation Contacts
+                </h3>
+                {openSections.citationContacts ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.citationContacts && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200 overflow-visible">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Name <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Organization <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactOrg}
+                      onChange={(e) => setFormData(prev => ({ ...prev, contactOrg: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Position <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactPosition}
+                      onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Role <span className="text-destructive">*</span>
+                    </label>
+                    <Select
+                      value={formData.contactRole}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, contactRole: val }))}
+                    >
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select role..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60 max-h-60 overflow-y-auto">
+                        <SelectItem value="Resource Provider" className="cursor-pointer text-[13px]">Resource Provider</SelectItem>
+                        <SelectItem value="Custodian" className="cursor-pointer text-[13px]">Custodian</SelectItem>
+                        <SelectItem value="Owner" className="cursor-pointer text-[13px]">Owner</SelectItem>
+                        <SelectItem value="User" className="cursor-pointer text-[13px]">User</SelectItem>
+                        <SelectItem value="Distributor" className="cursor-pointer text-[13px]">Distributor</SelectItem>
+                        <SelectItem value="Originator" className="cursor-pointer text-[13px]">Originator</SelectItem>
+                        <SelectItem value="Point of Contact" className="cursor-pointer text-[13px]">Point of Contact</SelectItem>
+                        <SelectItem value="Principal Investigator" className="cursor-pointer text-[13px]">Principal Investigator</SelectItem>
+                        <SelectItem value="Processor" className="cursor-pointer text-[13px]">Processor</SelectItem>
+                        <SelectItem value="Publisher" className="cursor-pointer text-[13px]">Publisher</SelectItem>
+                        <SelectItem value="Author" className="cursor-pointer text-[13px]">Author</SelectItem>
+                        <SelectItem value="Co-Author" className="cursor-pointer text-[13px]">Co-Author</SelectItem>
+                        <SelectItem value="Collaborator" className="cursor-pointer text-[13px]">Collaborator</SelectItem>
+                        <SelectItem value="Editor" className="cursor-pointer text-[13px]">Editor</SelectItem>
+                        <SelectItem value="Mediator" className="cursor-pointer text-[13px]">Mediator</SelectItem>
+                        <SelectItem value="Rights Holder" className="cursor-pointer text-[13px]">Rights Holder</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Email <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactEmail}
+                      onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-primary focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Phone</label>
+                    <div className="flex gap-2">
+                      <Select defaultValue="+971 UAE">
+                        <SelectTrigger className="h-9 w-[130px] shrink-0 border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border/60">
+                          <SelectItem value="+971 UAE" className="cursor-pointer text-[13px]">+971 UAE</SelectItem>
+                          <SelectItem value="+966 KSA" className="cursor-pointer text-[13px]">+966 KSA</SelectItem>
+                          <SelectItem value="+965 KWT" className="cursor-pointer text-[13px]">+965 KWT</SelectItem>
+                          <SelectItem value="+968 OMN" className="cursor-pointer text-[13px]">+968 OMN</SelectItem>
+                          <SelectItem value="+974 QTR" className="cursor-pointer text-[13px]">+974 QTR</SelectItem>
+                          <SelectItem value="+973 BHR" className="cursor-pointer text-[13px]">+973 BHR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <input
+                        type="text"
+                        value={formData.contactPhone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 5. Locales — Language */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Globe className="h-4.5 w-4.5 text-teal-500" /> Locales — Language
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Locale</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.locale}
-                    onChange={(e) => setFormData(prev => ({ ...prev, locale: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Abstract (locale)</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.localeAbstract}
-                    onChange={(e) => setFormData(prev => ({ ...prev, localeAbstract: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, localesLanguage: !prev.localesLanguage }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Globe className="h-4.5 w-4.5 text-teal-500" /> Locales — Language
+                </h3>
+                {openSections.localesLanguage ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.localesLanguage && (
+                <div className="p-5 grid grid-cols-1 gap-4 animate-in fade-in duration-200 overflow-visible">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Locale <span className="text-destructive">*</span>
+                    </label>
+                    <Select
+                      value={formData.locale}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, locale: val }))}
+                    >
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select locale..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60">
+                        <SelectItem value="English (en)" className="cursor-pointer text-[13px]">English (en)</SelectItem>
+                        <SelectItem value="Arabic (ar)" className="cursor-pointer text-[13px]">Arabic (ar)</SelectItem>
+                        <SelectItem value="English (en), Arabic (ar)" className="cursor-pointer text-[13px]">English (en), Arabic (ar)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Abstract (locale)</label>
+                    <input
+                      type="text"
+                      value={formData.localeAbstract}
+                      onChange={(e) => setFormData(prev => ({ ...prev, localeAbstract: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 6. Resource Details */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Database className="h-4.5 w-4.5 text-slate-500" /> Resource Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Status</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.resourceStatus}
-                    onChange={(e) => setFormData(prev => ({ ...prev, resourceStatus: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Character Set</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.resourceCharSet}
-                    onChange={(e) => setFormData(prev => ({ ...prev, resourceCharSet: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, resourceDetails: !prev.resourceDetails }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Database className="h-4.5 w-4.5 text-slate-500" /> Resource Details
+                </h3>
+                {openSections.resourceDetails ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.resourceDetails && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200 overflow-visible">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Status</label>
+                    <Select
+                      value={formData.resourceStatus}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, resourceStatus: val }))}
+                    >
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select status..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60">
+                        <SelectItem value="Completed" className="cursor-pointer text-[13px]">Completed</SelectItem>
+                        <SelectItem value="Ongoing" className="cursor-pointer text-[13px]">Ongoing</SelectItem>
+                        <SelectItem value="Planned" className="cursor-pointer text-[13px]">Planned</SelectItem>
+                        <SelectItem value="Under Development" className="cursor-pointer text-[13px]">Under Development</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Character Set <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.resourceCharSet}
+                      onChange={(e) => setFormData(prev => ({ ...prev, resourceCharSet: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 7. Extents — Bounding Box */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Globe className="h-4.5 w-4.5 text-purple-500" /> Extents — Bounding Box
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.west}
-                    onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.east}
-                    onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.south}
-                    onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.north}
-                    onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.geographicExtent}
-                    onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geometry Type</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.geometryType}
-                    onChange={(e) => setFormData(prev => ({ ...prev, geometryType: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.scale}
-                    onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, extentsBoundingBox: !prev.extentsBoundingBox }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Globe className="h-4.5 w-4.5 text-purple-500" /> Extents — Bounding Box
+                </h3>
+                {openSections.extentsBoundingBox ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.extentsBoundingBox && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
+                    <input
+                      type="text"
+                      value={formData.west}
+                      onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
+                    <input
+                      type="text"
+                      value={formData.east}
+                      onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
+                    <input
+                      type="text"
+                      value={formData.south}
+                      onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
+                    <input
+                      type="text"
+                      value={formData.north}
+                      onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
+                    <input
+                      type="text"
+                      value={formData.geographicExtent}
+                      onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geometry Type</label>
+                    <input
+                      type="text"
+                      value={formData.geometryType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, geometryType: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale</label>
+                    <input
+                      type="text"
+                      value={formData.scale}
+                      onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 8. Maintenance */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <RefreshCw className="h-4.5 w-4.5 text-orange-500" /> Maintenance
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Update Frequency</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.updateFrequency}
-                    onChange={(e) => setFormData(prev => ({ ...prev, updateFrequency: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Custom Frequency</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.customFrequency}
-                    onChange={(e) => setFormData(prev => ({ ...prev, customFrequency: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Next Update</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.nextUpdate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nextUpdate: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Last Updated</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.lastUpdated}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastUpdated: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Review Date</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.reviewDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, reviewDate: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, maintenance: !prev.maintenance }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <RefreshCw className="h-4.5 w-4.5 text-orange-500" /> Maintenance
+                </h3>
+                {openSections.maintenance ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.maintenance && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Update Frequency</label>
+                    <input
+                      type="text"
+                      value={formData.updateFrequency}
+                      onChange={(e) => setFormData(prev => ({ ...prev, updateFrequency: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Custom Frequency</label>
+                    <input
+                      type="text"
+                      value={formData.customFrequency}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customFrequency: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Next Update</label>
+                    <input
+                      type="text"
+                      value={formData.nextUpdate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nextUpdate: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Last Updated</label>
+                    <input
+                      type="text"
+                      value={formData.lastUpdated}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lastUpdated: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Review Date</label>
+                    <input
+                      type="text"
+                      value={formData.reviewDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, reviewDate: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 9. Spatial Reference — Reference System */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Globe className="h-4.5 w-4.5 text-blue-500" /> Spatial Reference — Reference System
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Code</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.spatialCode}
-                    onChange={(e) => setFormData(prev => ({ ...prev, spatialCode: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Code Name</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.spatialCodeName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, spatialCodeName: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, spatialReference: !prev.spatialReference }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Globe className="h-4.5 w-4.5 text-blue-500" /> Spatial Reference — Reference System
+                </h3>
+                {openSections.spatialReference ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.spatialReference && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Code <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.spatialCode}
+                      onChange={(e) => setFormData(prev => ({ ...prev, spatialCode: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Code Name <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.spatialCodeName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, spatialCodeName: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 10. Quality */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Shield className="h-4.5 w-4.5 text-emerald-500" /> Quality
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Data Quality</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.dataQuality}
-                    onChange={(e) => setFormData(prev => ({ ...prev, dataQuality: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Accuracy Notes</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.accuracyNotes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, accuracyNotes: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Validation Notes</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.validationNotes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, validationNotes: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, quality: !prev.quality }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Shield className="h-4.5 w-4.5 text-emerald-500" /> Quality
+                </h3>
+                {openSections.quality ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.quality && (
+                <div className="p-5 grid grid-cols-1 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Data Quality</label>
+                    <input
+                      type="text"
+                      value={formData.dataQuality}
+                      onChange={(e) => setFormData(prev => ({ ...prev, dataQuality: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Accuracy Notes</label>
+                    <input
+                      type="text"
+                      value={formData.accuracyNotes}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accuracyNotes: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Validation Notes</label>
+                    <input
+                      type="text"
+                      value={formData.validationNotes}
+                      onChange={(e) => setFormData(prev => ({ ...prev, validationNotes: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 11. Lineage / Data Source */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <Database className="h-4.5 w-4.5 text-emerald-500" /> Lineage / Data Source
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.lineageSource}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lineageSource: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Medium Name</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.lineageMedium}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lineageMedium: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Reference System</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.lineageRefSystem}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lineageRefSystem: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, lineageDataSource: !prev.lineageDataSource }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <Database className="h-4.5 w-4.5 text-emerald-500" /> Lineage / Data Source
+                </h3>
+                {openSections.lineageDataSource ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.lineageDataSource && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source</label>
+                    <input
+                      type="text"
+                      value={formData.lineageSource}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lineageSource: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Medium Name</label>
+                    <input
+                      type="text"
+                      value={formData.lineageMedium}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lineageMedium: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Reference System</label>
+                    <input
+                      type="text"
+                      value={formData.lineageRefSystem}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lineageRefSystem: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 12. Fields — Entity and Attribute Information */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Entity and Attribute Information</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.entityAttribute}
-                    onChange={(e) => setFormData(prev => ({ ...prev, entityAttribute: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, fieldsInfo: !prev.fieldsInfo }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
+                </h3>
+                {openSections.fieldsInfo ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.fieldsInfo && (
+                <div className="p-5 grid grid-cols-1 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Entity and Attribute Information</label>
+                    <input
+                      type="text"
+                      value={formData.entityAttribute}
+                      onChange={(e) => setFormData(prev => ({ ...prev, entityAttribute: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 13. Standards & Compliance */}
-            <div className="space-y-4 pt-4 border-t border-border/40">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                <ShieldCheck className="h-4.5 w-4.5 text-blue-500" /> Standards & Compliance
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Metadata Standard</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.metaStandard}
-                    onChange={(e) => setFormData(prev => ({ ...prev, metaStandard: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Owner</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.metaOwner}
-                    onChange={(e) => setFormData(prev => ({ ...prev, metaOwner: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Type</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.metaSourceType}
-                    onChange={(e) => setFormData(prev => ({ ...prev, metaSourceType: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.metaPublished}
-                    onChange={(e) => setFormData(prev => ({ ...prev, metaPublished: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
-                </div>
+            <div className="border border-border/60 rounded-xl overflow-hidden bg-card/10 dark:bg-card/5">
+              <div
+                onClick={() => setOpenSections(prev => ({ ...prev, standardsCompliance: !prev.standardsCompliance }))}
+                className="bg-primary/5 dark:bg-primary/10 border-b border-border/40 px-4 py-3 flex items-center justify-between cursor-pointer select-none transition-colors hover:bg-primary/8 dark:hover:bg-primary/15"
+              >
+                <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
+                  <ShieldCheck className="h-4.5 w-4.5 text-blue-500" /> Standards & Compliance
+                </h3>
+                {openSections.standardsCompliance ? (
+                  <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
               </div>
+
+              {openSections.standardsCompliance && (
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Metadata Standard</label>
+                    <input
+                      type="text"
+                      value={formData.metaStandard}
+                      onChange={(e) => setFormData(prev => ({ ...prev, metaStandard: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Owner</label>
+                    <input
+                      type="text"
+                      value={formData.metaOwner}
+                      onChange={(e) => setFormData(prev => ({ ...prev, metaOwner: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Type</label>
+                    <input
+                      type="text"
+                      value={formData.metaSourceType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, metaSourceType: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
+                    <input
+                      type="text"
+                      value={formData.metaPublished}
+                      onChange={(e) => setFormData(prev => ({ ...prev, metaPublished: e.target.value }))}
+                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            
           </div>
         ) : (
           /* Versions Tab */
@@ -1650,10 +1878,7 @@ function MetadataRegistryPage() {
                           <Eye className="h-3.5 w-3.5" />
                         </button>
                         <button 
-                          onClick={() => {
-                            setViewingRecord(rec);
-                            setIsEditingMetadata(true);
-                          }}
+                          onClick={() => setViewingRecord(rec)}
                           className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition cursor-pointer" 
                           title="Edit record"
                         >

@@ -359,8 +359,10 @@ function EntitiesPage() {
               </div>
             </div>
 
-            {/* Section 1: Required Information */}
-            <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
+            {/* Scrollable Form Sections Area */}
+            <div className="max-h-[calc(100vh-250px)] overflow-y-auto pr-3 scrollbar-thin space-y-5">
+              {/* Section 1: Required Information */}
+              <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
               <button
                 onClick={() => toggleSection("required")}
                 className="w-full px-5 py-4 flex items-center justify-between border-b border-border/50 bg-elevated/40 hover:bg-elevated/60 transition-colors cursor-pointer"
@@ -668,6 +670,7 @@ function EntitiesPage() {
               )}
             </div>
           </div>
+        </div>
 
           {/* Right Side: Live Preview Panel */}
           <div className="lg:col-span-3 lg:sticky lg:top-6 space-y-4">

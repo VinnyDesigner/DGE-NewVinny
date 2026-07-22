@@ -657,7 +657,7 @@ function LayersPage() {
       <Surface className="!p-0 overflow-hidden">
         {/* Filters ribbon matching Image 3 dropdown layout */}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-4">
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -707,7 +707,7 @@ function LayersPage() {
             </SelectContent>
           </Select>
 
-          <div className="flex-1 min-w-[10px]" />
+
 
           {/* Action buttons columns & reload */}
           <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-card/50 px-3 text-[13px] font-bold text-muted-foreground hover:text-foreground transition cursor-pointer">

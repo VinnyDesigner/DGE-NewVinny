@@ -2212,7 +2212,7 @@ function MetadataRegistryPage() {
         {/* Filters Ribbon */}
         <div className="flex flex-wrap items-center gap-3 mb-5">
           {/* Search box */}
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -2277,7 +2277,7 @@ function MetadataRegistryPage() {
           )}
 
           {/* Right Action buttons */}
-          <div className="ml-auto flex items-center gap-2 relative">
+          <div className="flex items-center gap-2 relative">
             {/* Columns Toggle Popover Button */}
             <div className="relative">
               <button

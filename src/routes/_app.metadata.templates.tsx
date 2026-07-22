@@ -232,6 +232,11 @@ function MetadataRegistryPage() {
     lineageSource: "",
     lineageMedium: "",
     lineageRefSystem: "",
+    entityAttribute: "",
+    metaStandard: "",
+    metaOwner: "",
+    metaSourceType: "",
+    metaPublished: "",
   });
 
   useEffect(() => {
@@ -283,6 +288,11 @@ function MetadataRegistryPage() {
         lineageSource: "GPS survey 2023",
         lineageMedium: "—",
         lineageRefSystem: "WGS 1946",
+        entityAttribute: "—",
+        metaStandard: "ESRI",
+        metaOwner: "Abu Dhabi Digital Authority",
+        metaSourceType: "FGDB1",
+        metaPublished: "No",
       });
     }
   }, [viewingRecord]);
@@ -1097,10 +1107,71 @@ function MetadataRegistryPage() {
             </div>
 
             {/* 12. Fields — Entity and Attribute Information */}
-            <div className="space-y-4 pt-4 border-t border-border/40 pb-2">
-              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 pb-1">
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
                 <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
               </h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Entity and Attribute Information</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.entityAttribute}
+                    onChange={(e) => setFormData(prev => ({ ...prev, entityAttribute: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 13. Standards & Compliance */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <ShieldCheck className="h-4.5 w-4.5 text-blue-500" /> Standards & Compliance
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Metadata Standard</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.metaStandard}
+                    onChange={(e) => setFormData(prev => ({ ...prev, metaStandard: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Owner</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.metaOwner}
+                    onChange={(e) => setFormData(prev => ({ ...prev, metaOwner: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Type</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.metaSourceType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, metaSourceType: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.metaPublished}
+                    onChange={(e) => setFormData(prev => ({ ...prev, metaPublished: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
             </div>
             
           </div>

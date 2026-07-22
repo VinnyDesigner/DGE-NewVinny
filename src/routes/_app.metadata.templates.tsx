@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import {
-  SlidersHorizontal,
   Search,
   Download,
   Plus,
@@ -18,6 +17,15 @@ import {
   RefreshCw,
   LayoutDashboard,
   Filter,
+  ArrowLeft,
+  Tag,
+  Calendar,
+  User,
+  Users,
+  Globe,
+  Settings,
+  ShieldCheck,
+  List,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -170,6 +178,115 @@ function MetadataRegistryPage() {
     reviewDate: false,
   });
 
+  // Detailed View state
+  const [viewingRecord, setViewingRecord] = useState<RegistryRecord | null>(null);
+  const [isEditingMetadata, setIsEditingMetadata] = useState(false);
+  const [selectedStandard, setSelectedStandard] = useState("ISO 19139 Metadata Implementation Specification");
+  const [activeViewTab, setActiveViewTab] = useState("overview");
+
+  // Extensive form states prefilled for selected record
+  const [formData, setFormData] = useState({
+    title: "",
+    titleAr: "",
+    tags: "",
+    tagsAr: "",
+    summary: "",
+    summaryAr: "",
+    description: "",
+    descriptionAr: "",
+    useLimit: "",
+    useLimitAr: "",
+    topicCategories: "",
+    themeKeywords: "",
+    securityClassification: "",
+    created: "",
+    published: "",
+    revised: "",
+    contactName: "",
+    contactOrg: "",
+    contactPosition: "",
+    contactRole: "",
+    contactEmail: "",
+    contactPhone: "",
+    locale: "",
+    localeAbstract: "",
+    resourceStatus: "",
+    resourceCharSet: "",
+    west: "",
+    east: "",
+    south: "",
+    north: "",
+    geographicExtent: "",
+    geometryType: "",
+    scale: "",
+    updateFrequency: "",
+    customFrequency: "",
+    nextUpdate: "",
+    lastUpdated: "",
+    reviewDate: "",
+    spatialCode: "",
+    spatialCodeName: "",
+    dataQuality: "",
+    accuracyNotes: "",
+    validationNotes: "",
+    lineageSource: "",
+    lineageMedium: "",
+    lineageRefSystem: "",
+  });
+
+  useEffect(() => {
+    if (viewingRecord) {
+      setFormData({
+        title: viewingRecord.layerName || "",
+        titleAr: "—",
+        tags: "highways, arterials",
+        tagsAr: "—",
+        summary: "Transport planning and navigation",
+        summaryAr: "—",
+        description: "Comprehensive road network dataset covering all classified roads within the emirate.",
+        descriptionAr: "—",
+        useLimit: "Not for commercial use",
+        useLimitAr: "—",
+        topicCategories: "Transportation",
+        themeKeywords: "test keyword",
+        securityClassification: "Official",
+        created: "2026-07-17",
+        published: "—",
+        revised: "—",
+        contactName: "Mohammed Al Shamsi",
+        contactOrg: "Dept of Municipalities & Transport",
+        contactPosition: "GIS Manager",
+        contactRole: "Resource Provider",
+        contactEmail: "m.shamsi@dmt.gov.ae",
+        contactPhone: "+971 45112448",
+        locale: "English (en), Arabic (ar)",
+        localeAbstract: "—",
+        resourceStatus: "Ongoing",
+        resourceCharSet: "UTF-8",
+        west: "51.4971",
+        east: "56.0181",
+        south: "22.6315",
+        north: "25.2512",
+        geographicExtent: "Emirate",
+        geometryType: "Polyline",
+        scale: "1:25000",
+        updateFrequency: "Quarterly",
+        customFrequency: "90",
+        nextUpdate: "2026-07-30",
+        lastUpdated: viewingRecord.lastUpdated || "2026-07-21",
+        reviewDate: "—",
+        spatialCode: "4326",
+        spatialCodeName: "WGS 1984 (EPSG:4326)",
+        dataQuality: "Positional accuracy ±2m.",
+        accuracyNotes: "—",
+        validationNotes: "—",
+        lineageSource: "GPS survey 2023",
+        lineageMedium: "—",
+        lineageRefSystem: "WGS 1946",
+      });
+    }
+  }, [viewingRecord]);
+
   // Close popovers when clicking outside
   useEffect(() => {
     const handleClose = () => {
@@ -276,6 +393,752 @@ function MetadataRegistryPage() {
     if (score >= 60) return "bg-orange-500";
     return "bg-rose-500";
   };
+
+  const handleSaveMetadata = () => {
+    if (!viewingRecord) return;
+    setRecords((prev) =>
+      prev.map((r) =>
+        r.id === viewingRecord.id
+          ? {
+              ...r,
+              layerName: formData.title,
+              lastUpdated: formData.lastUpdated,
+            }
+          : r
+      )
+    );
+    setIsEditingMetadata(false);
+    toast.success("Metadata record updated successfully!");
+  };
+
+  if (viewingRecord) {
+    return (
+      <div className="space-y-6">
+        {/* Breadcrumb / Back Navigation */}
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/85">
+          <button
+            onClick={() => {
+              setViewingRecord(null);
+              setIsEditingMetadata(false);
+            }}
+            className="hover:text-foreground transition cursor-pointer flex items-center gap-1.5"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Metadata Registry
+          </button>
+          <span>&gt;</span>
+          <span className="text-foreground">View Metadata</span>
+        </div>
+
+        {/* Detailed Header Card Container */}
+        <div className="bg-card/35 border border-border/50 rounded-xl p-5 shadow-soft space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/30 to-secondary-accent/30 text-accent border border-primary/20">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-[20px] font-black text-foreground tracking-tight leading-none">
+                    {formData.title}
+                  </h2>
+                  <span className={cn("px-2 py-0.5 rounded text-[11px] font-extrabold border uppercase", getStatusBadge(viewingRecord.status))}>
+                    {viewingRecord.status}
+                  </span>
+                </div>
+                
+                {/* Secondary Meta Row */}
+                <div className="flex items-center gap-4 text-[12px] font-semibold text-muted-foreground/90 flex-wrap">
+                  <span className="flex items-center gap-1 bg-muted/40 px-2 py-0.5 rounded border border-border/50">
+                    <Database className="h-3.5 w-3.5 text-primary" /> {viewingRecord.entity}
+                  </span>
+                  <span>Layer #165</span>
+                  <span>{viewingRecord.standard}</span>
+                  <span>Updated {formData.lastUpdated}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dropdown standards & Edit Button */}
+            <div className="flex items-center gap-2">
+              <Select value={selectedStandard} onValueChange={setSelectedStandard}>
+                <SelectTrigger className="h-9 w-[260px] border-border/60 bg-card/60 text-[12.5px] font-semibold text-foreground/80 hover:bg-card/90 transition">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
+                  <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
+                  <SelectItem value="INSPIRE Metadata Directive" className="cursor-pointer text-[12.5px]">INSPIRE Metadata Directive</SelectItem>
+                  <SelectItem value="ISO 19139 Metadata Implementation Specification" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Specification</SelectItem>
+                  <SelectItem value="ISO 19139 Metadata Implementation Specification (Arabic)" className="cursor-pointer text-[12.5px]">ISO 19139 Metadata Implementation Spec (AR)</SelectItem>
+                  <SelectItem value="North American Profile of ISO19115 2003" className="cursor-pointer text-[12.5px]">North American Profile of ISO19115 2003</SelectItem>
+                  <SelectItem value="ISO 19115-3 XML Schema Implementation" className="cursor-pointer text-[12.5px]">ISO 19115-3 XML Schema Implementation</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {isEditingMetadata ? (
+                <button
+                  onClick={handleSaveMetadata}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
+                >
+                  <Check className="h-4 w-4" /> Save Metadata
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsEditingMetadata(true)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
+                >
+                  <Pencil className="h-4 w-4" /> Edit Metadata
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Completeness Bar */}
+          <div className="pt-2 border-t border-border/40 space-y-1.5">
+            <div className="flex items-center justify-between text-[11.5px] font-bold text-muted-foreground uppercase tracking-wider">
+              <span>Completeness</span>
+              <span className="text-foreground font-black">{viewingRecord.completeness}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-border/40 overflow-hidden">
+              <div
+                className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                style={{ width: `${viewingRecord.completeness}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Tab selection pill bar */}
+        <div className="flex items-center gap-1 bg-card/45 dark:bg-card/25 border border-border/60 p-1.5 rounded-xl w-fit">
+          <button
+            onClick={() => setActiveViewTab("overview")}
+            className={cn(
+              "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
+              activeViewTab === "overview"
+                ? "bg-card text-foreground shadow-soft border border-border/40"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Globe className="h-4 w-4" /> Overview
+          </button>
+          <button
+            onClick={() => setActiveViewTab("versions")}
+            className={cn(
+              "inline-flex h-8.5 items-center gap-1.5 px-4 rounded-lg text-[13px] font-bold cursor-pointer transition-all",
+              activeViewTab === "versions"
+                ? "bg-card text-foreground shadow-soft border border-border/40"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Clock className="h-4 w-4" /> Versions
+          </button>
+        </div>
+
+        {/* Content Tabs Area */}
+        {activeViewTab === "overview" ? (
+          <div className="bg-card/20 border border-border/50 rounded-xl p-6 shadow-soft space-y-6">
+            
+            {/* 1. Item Description */}
+            <div className="space-y-4">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <FileText className="h-4.5 w-4.5 text-emerald-500" /> Item Description
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Title (Arabic)</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.titleAr}
+                    onChange={(e) => setFormData(prev => ({ ...prev, titleAr: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.tags}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Tags (Arabic)</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.tagsAr}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tagsAr: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Purpose)</label>
+                  <textarea
+                    rows={2}
+                    disabled={!isEditingMetadata}
+                    value={formData.summary}
+                    onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Summary (Arabic)</label>
+                  <textarea
+                    rows={2}
+                    disabled={!isEditingMetadata}
+                    value={formData.summaryAr}
+                    onChange={(e) => setFormData(prev => ({ ...prev, summaryAr: e.target.value }))}
+                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Abstract)</label>
+                  <textarea
+                    rows={3}
+                    disabled={!isEditingMetadata}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Description (Arabic)</label>
+                  <textarea
+                    rows={3}
+                    disabled={!isEditingMetadata}
+                    value={formData.descriptionAr}
+                    onChange={(e) => setFormData(prev => ({ ...prev, descriptionAr: e.target.value }))}
+                    className="w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 p-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 resize-none"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.useLimit}
+                    onChange={(e) => setFormData(prev => ({ ...prev, useLimit: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Use Limitation (Arabic)</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.useLimitAr}
+                    onChange={(e) => setFormData(prev => ({ ...prev, useLimitAr: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Topics and Keywords */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Topic Categories</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.topicCategories}
+                    onChange={(e) => setFormData(prev => ({ ...prev, topicCategories: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Theme Keywords</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.themeKeywords}
+                    onChange={(e) => setFormData(prev => ({ ...prev, themeKeywords: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Security Classification</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.securityClassification}
+                    onChange={(e) => setFormData(prev => ({ ...prev, securityClassification: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Citation — Dates */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Calendar className="h-4.5 w-4.5 text-orange-500" /> Citation — Dates
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Created</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.created}
+                    onChange={(e) => setFormData(prev => ({ ...prev, created: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Published</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.published}
+                    onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Revised</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.revised}
+                    onChange={(e) => setFormData(prev => ({ ...prev, revised: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Citation Contacts */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <User className="h-4.5 w-4.5 text-blue-500" /> Citation Contacts
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Name</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Organization</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactOrg}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactOrg: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Position</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactPosition}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactPosition: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Role</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactRole}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactRole: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Email</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactEmail}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85 text-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Phone</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.contactPhone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Locales — Language */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Globe className="h-4.5 w-4.5 text-teal-500" /> Locales — Language
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Locale</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.locale}
+                    onChange={(e) => setFormData(prev => ({ ...prev, locale: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Abstract (locale)</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.localeAbstract}
+                    onChange={(e) => setFormData(prev => ({ ...prev, localeAbstract: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Resource Details */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Database className="h-4.5 w-4.5 text-slate-500" /> Resource Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Status</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.resourceStatus}
+                    onChange={(e) => setFormData(prev => ({ ...prev, resourceStatus: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Character Set</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.resourceCharSet}
+                    onChange={(e) => setFormData(prev => ({ ...prev, resourceCharSet: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 7. Extents — Bounding Box */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Globe className="h-4.5 w-4.5 text-purple-500" /> Extents — Bounding Box
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.west}
+                    onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.east}
+                    onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.south}
+                    onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.north}
+                    onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.geographicExtent}
+                    onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geometry Type</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.geometryType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, geometryType: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.scale}
+                    onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 8. Maintenance */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <RefreshCw className="h-4.5 w-4.5 text-orange-500" /> Maintenance
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Update Frequency</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.updateFrequency}
+                    onChange={(e) => setFormData(prev => ({ ...prev, updateFrequency: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Custom Frequency</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.customFrequency}
+                    onChange={(e) => setFormData(prev => ({ ...prev, customFrequency: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Next Update</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.nextUpdate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nextUpdate: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Last Updated</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.lastUpdated}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastUpdated: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Review Date</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.reviewDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, reviewDate: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 9. Spatial Reference — Reference System */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Globe className="h-4.5 w-4.5 text-blue-500" /> Spatial Reference — Reference System
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Code</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.spatialCode}
+                    onChange={(e) => setFormData(prev => ({ ...prev, spatialCode: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Code Name</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.spatialCodeName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, spatialCodeName: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 10. Quality */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Shield className="h-4.5 w-4.5 text-emerald-500" /> Quality
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Data Quality</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.dataQuality}
+                    onChange={(e) => setFormData(prev => ({ ...prev, dataQuality: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Accuracy Notes</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.accuracyNotes}
+                    onChange={(e) => setFormData(prev => ({ ...prev, accuracyNotes: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Validation Notes</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.validationNotes}
+                    onChange={(e) => setFormData(prev => ({ ...prev, validationNotes: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 11. Lineage / Data Source */}
+            <div className="space-y-4 pt-4 border-t border-border/40">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
+                <Database className="h-4.5 w-4.5 text-emerald-500" /> Lineage / Data Source
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.lineageSource}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lineageSource: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Medium Name</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.lineageMedium}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lineageMedium: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Source Reference System</label>
+                  <input
+                    type="text"
+                    disabled={!isEditingMetadata}
+                    value={formData.lineageRefSystem}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lineageRefSystem: e.target.value }))}
+                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 12. Fields — Entity and Attribute Information */}
+            <div className="space-y-4 pt-4 border-t border-border/40 pb-2">
+              <h3 className="text-[14.5px] font-extrabold text-foreground flex items-center gap-2 pb-1">
+                <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
+              </h3>
+            </div>
+            
+          </div>
+        ) : (
+          /* Versions Tab */
+          <div className="bg-card/20 border border-border/50 rounded-xl p-6 shadow-soft space-y-4">
+            <h3 className="text-[15px] font-bold text-foreground">Metadata Version History</h3>
+            <div className="relative border-l-2 border-border/60 pl-5 ml-2.5 space-y-5">
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white ring-4 ring-background">
+                  <Check className="h-2.5 w-2.5" />
+                </span>
+                <div className="text-[13px] font-bold text-foreground">Version 1.2 (Active Draft)</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">Updated on {formData.lastUpdated} by Mohammed Al Shamsi</div>
+                <div className="text-[12.5px] text-foreground/80 mt-1.5">Modified tags and bounding box coordinates for accuracy.</div>
+              </div>
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-4 ring-background">
+                  <Check className="h-2.5 w-2.5" />
+                </span>
+                <div className="text-[13px] font-bold text-foreground">Version 1.1</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">Approved on 2026-07-15 by QAQC reviewer</div>
+                <div className="text-[12.5px] text-foreground/80 mt-1.5">First official metadata compliance check passed.</div>
+              </div>
+              <div className="relative">
+                <span className="absolute -left-7.5 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-white ring-4 ring-background">
+                  <Check className="h-2.5 w-2.5" />
+                </span>
+                <div className="text-[13px] font-bold text-foreground">Version 1.0</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">Created on 2026-07-10 by Systems Automation</div>
+                <div className="text-[12.5px] text-foreground/80 mt-1.5">Initial ingestion from source FGDB schema mapping.</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -527,7 +1390,7 @@ function MetadataRegistryPage() {
                           {rec.layerName}
                         </div>
                         <button 
-                          onClick={() => toast.info(`Viewing ${rec.layerName} details`)}
+                          onClick={() => setViewingRecord(rec)}
                           className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-1 cursor-pointer"
                         >
                           <Database className="h-3 w-3" />
@@ -613,14 +1476,17 @@ function MetadataRegistryPage() {
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-2.5">
                         <button 
-                          onClick={() => toast.info(`Viewing ${rec.layerName}`)}
+                          onClick={() => setViewingRecord(rec)}
                           className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition cursor-pointer" 
                           title="View details"
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </button>
                         <button 
-                          onClick={() => toast.info(`Editing ${rec.layerName}`)}
+                          onClick={() => {
+                            setViewingRecord(rec);
+                            setIsEditingMetadata(true);
+                          }}
                           className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition cursor-pointer" 
                           title="Edit record"
                         >

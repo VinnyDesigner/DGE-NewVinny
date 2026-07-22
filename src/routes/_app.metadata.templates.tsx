@@ -2396,7 +2396,7 @@ function MetadataRegistryPage() {
         </div>
 
         {/* Table Container */}
-        <div className="overflow-x-auto relative rounded-xl border border-border/65">
+        <div className="table-container-scrollable overflow-x-auto relative rounded-xl border border-border/65">
           <table className="w-full text-left border-collapse table-fixed min-w-[1000px]">
             <thead>
               <tr className={cn("border-b border-border/70 text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground/90", isLight ? "bg-slate-50" : "bg-card/35")}>
@@ -2415,7 +2415,7 @@ function MetadataRegistryPage() {
                   return null;
                 })}
 
-                <th className="py-3 px-4 w-[160px] text-right">Actions</th>
+                <th className="py-3 px-4 w-[160px] text-right table-sticky-actions">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/55 text-[13.5px]">
@@ -2517,7 +2517,7 @@ function MetadataRegistryPage() {
                     )}
 
                     {/* Actions (Styled matching 3rd image circular buttons) */}
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right table-sticky-actions bg-card group-hover:bg-muted/55 transition-colors">
                       <div className="flex items-center justify-end gap-2.5">
                         <button 
                           onClick={() => {

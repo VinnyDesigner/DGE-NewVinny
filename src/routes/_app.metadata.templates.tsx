@@ -1177,69 +1177,95 @@ function MetadataRegistryPage() {
               </div>
 
               {openSections.extentsBoundingBox && (
-                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
-                    <input
-                      type="text"
-                      value={formData.west}
-                      onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                <div className="p-5 space-y-4 animate-in fade-in duration-200">
+                  {/* First row: 4 coordinate columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">West</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.west}
+                        onChange={(e) => setFormData(prev => ({ ...prev, west: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+                        style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.east}
+                        onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+                        style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.north}
+                        onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+                        style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.south}
+                        onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+                        style={{ appearance: 'auto', WebkitAppearance: 'auto' } as any}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">East</label>
-                    <input
-                      type="text"
-                      value={formData.east}
-                      onChange={(e) => setFormData(prev => ({ ...prev, east: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">South</label>
-                    <input
-                      type="text"
-                      value={formData.south}
-                      onChange={(e) => setFormData(prev => ({ ...prev, south: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">North</label>
-                    <input
-                      type="text"
-                      value={formData.north}
-                      onChange={(e) => setFormData(prev => ({ ...prev, north: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
-                    <input
-                      type="text"
-                      value={formData.geographicExtent}
-                      onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geometry Type</label>
-                    <input
-                      type="text"
-                      value={formData.geometryType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, geometryType: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
-                  </div>
-                  <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale</label>
-                    <input
-                      type="text"
-                      value={formData.scale}
-                      onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+
+                  {/* Second row: 3 fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geometry Type</label>
+                      <Select
+                        value={formData.geometryType}
+                        onValueChange={(val) => setFormData(prev => ({ ...prev, geometryType: val }))}
+                      >
+                        <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                          <SelectValue placeholder="Select geometry type..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border/60">
+                          <SelectItem value="Point" className="cursor-pointer text-[13px]">Point</SelectItem>
+                          <SelectItem value="Multipoint" className="cursor-pointer text-[13px]">Multipoint</SelectItem>
+                          <SelectItem value="Polyline" className="cursor-pointer text-[13px]">Polyline</SelectItem>
+                          <SelectItem value="Polygon" className="cursor-pointer text-[13px]">Polygon</SelectItem>
+                          <SelectItem value="MultiPatch" className="cursor-pointer text-[13px]">MultiPatch</SelectItem>
+                          <SelectItem value="Raster" className="cursor-pointer text-[13px]">Raster</SelectItem>
+                          <SelectItem value="Table" className="cursor-pointer text-[13px]">Table</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Geographic Extent</label>
+                      <input
+                        type="text"
+                        value={formData.geographicExtent}
+                        onChange={(e) => setFormData(prev => ({ ...prev, geographicExtent: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Scale Denominator</label>
+                      <input
+                        type="text"
+                        value={formData.scale}
+                        onChange={(e) => setFormData(prev => ({ ...prev, scale: e.target.value }))}
+                        className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -1267,13 +1293,31 @@ function MetadataRegistryPage() {
               {openSections.maintenance && (
                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Update Frequency</label>
-                    <input
-                      type="text"
+                    <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                      Update Frequency <span className="text-destructive">*</span>
+                    </label>
+                    <Select
                       value={formData.updateFrequency}
-                      onChange={(e) => setFormData(prev => ({ ...prev, updateFrequency: e.target.value }))}
-                      className="h-9 w-full rounded-lg border border-border/70 bg-card/65 dark:bg-card/25 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    />
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, updateFrequency: val }))}
+                    >
+                      <SelectTrigger className="h-9 w-full border-border/70 bg-card/65 dark:bg-card/25 text-[13px] font-semibold text-foreground">
+                        <SelectValue placeholder="Select frequency..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border/60 max-h-60 overflow-y-auto">
+                        <SelectItem value="Continual" className="cursor-pointer text-[13px]">Continual</SelectItem>
+                        <SelectItem value="Daily" className="cursor-pointer text-[13px]">Daily</SelectItem>
+                        <SelectItem value="Weekly" className="cursor-pointer text-[13px]">Weekly</SelectItem>
+                        <SelectItem value="Fortnightly" className="cursor-pointer text-[13px]">Fortnightly</SelectItem>
+                        <SelectItem value="Monthly" className="cursor-pointer text-[13px]">Monthly</SelectItem>
+                        <SelectItem value="Quarterly" className="cursor-pointer text-[13px]">Quarterly</SelectItem>
+                        <SelectItem value="Biannually" className="cursor-pointer text-[13px]">Biannually</SelectItem>
+                        <SelectItem value="Annually" className="cursor-pointer text-[13px]">Annually</SelectItem>
+                        <SelectItem value="As Needed" className="cursor-pointer text-[13px]">As Needed</SelectItem>
+                        <SelectItem value="Irregular" className="cursor-pointer text-[13px]">Irregular</SelectItem>
+                        <SelectItem value="Not Planned" className="cursor-pointer text-[13px]">Not Planned</SelectItem>
+                        <SelectItem value="Unknown" className="cursor-pointer text-[13px]">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Custom Frequency</label>

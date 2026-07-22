@@ -457,7 +457,7 @@ function RepsPage() {
             </div>
 
             {/* Padded Content Area */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 max-h-[calc(100vh-250px)] overflow-y-auto scrollbar-thin">
               {activeTab === "profile" && (
                 <div className="space-y-5">
                   {/* Entity Assignment */}

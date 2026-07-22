@@ -480,39 +480,60 @@ function MetadataRegistryPage() {
         </div>
 
         {/* Detailed Header Card Container */}
-        <div className="bg-card/35 border border-border/50 rounded-xl p-5 shadow-soft space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/30 to-secondary-accent/30 text-accent border border-primary/20">
-                <FileText className="h-6 w-6" />
+        <div className="relative bg-card/30 border border-border/50 rounded-xl p-5 shadow-soft space-y-4 overflow-hidden">
+          {/* Top Gradient Border */}
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" />
+          
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+                <FileText className="h-5.5 w-5.5" />
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-[20px] font-black text-foreground tracking-tight leading-none">
+                  <h2 className="text-[18px] font-black text-foreground tracking-tight leading-none">
                     {formData.title}
                   </h2>
-                  <span className={cn("px-2 py-0.5 rounded text-[11px] font-extrabold border uppercase", getStatusBadge(viewingRecord.status))}>
+                  <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
                     {viewingRecord.status}
                   </span>
                 </div>
                 
                 {/* Secondary Meta Row */}
-                <div className="flex items-center gap-4 text-[12px] font-semibold text-muted-foreground/90 flex-wrap">
-                  <span className="flex items-center gap-1 bg-muted/40 px-2 py-0.5 rounded border border-border/50">
-                    <Database className="h-3.5 w-3.5 text-primary" /> {viewingRecord.entity}
-                  </span>
-                  <span>Layer #165</span>
-                  <span>{viewingRecord.standard}</span>
-                  <span>Updated {formData.lastUpdated}</span>
+                <div className="flex items-center gap-3.5 text-[12px] font-semibold text-muted-foreground/80 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-extrabold text-[9px]">
+                      AD
+                    </span>
+                    <span>Abu Dhabi Digital Authority</span>
+                  </div>
+                  <span className="text-muted-foreground/45">•</span>
+                  <div className="flex items-center gap-1">
+                    <Database className="h-3.5 w-3.5 text-muted-foreground/60" />
+                    <span>Layer #165</span>
+                  </div>
+                  <span className="text-muted-foreground/45">•</span>
+                  <div className="flex items-center gap-1">
+                    <Shield className="h-3.5 w-3.5 text-muted-foreground/60" />
+                    <span>{viewingRecord.standard}</span>
+                  </div>
+                  <span className="text-muted-foreground/45">•</span>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
+                    <span>Updated {formData.lastUpdated}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Dropdown standards & Edit Button */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Select value={selectedStandard} onValueChange={setSelectedStandard}>
-                <SelectTrigger className="h-9 w-[260px] border-border/60 bg-card/60 text-[12.5px] font-semibold text-foreground/80 hover:bg-card/90 transition">
-                  <SelectValue />
+                <SelectTrigger className="h-9 w-[260px] rounded-full border-border/60 bg-card/65 dark:bg-card/25 text-[12.5px] font-semibold text-foreground/85 hover:bg-card/90 transition">
+                  <div className="flex items-center gap-2 truncate">
+                    <FileText className="h-4 w-4 text-muted-foreground/75 shrink-0" />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent className="bg-popover border border-border/60 max-w-[280px]">
                   <SelectItem value="FGDC CSDGM Metadata" className="cursor-pointer text-[12.5px]">FGDC CSDGM Metadata</SelectItem>
@@ -525,25 +546,27 @@ function MetadataRegistryPage() {
               </Select>
               <button
                 onClick={handleSaveMetadata}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground hover:bg-primary/95 transition cursor-pointer shadow-soft"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 px-4 text-[13px] font-extrabold text-white transition cursor-pointer shadow-soft"
               >
-                <Check className="h-4 w-4" /> Save Metadata
+                <Pencil className="h-3.5 w-3.5" /> Edit Metadata
               </button>
             </div>
           </div>
 
-          {/* Completeness Bar */}
-          <div className="pt-2 border-t border-border/40 space-y-1.5">
-            <div className="flex items-center justify-between text-[11.5px] font-bold text-muted-foreground uppercase tracking-wider">
-              <span>Completeness</span>
-              <span className="text-foreground font-black">{viewingRecord.completeness}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-border/40 overflow-hidden">
+          {/* Completeness Bar in single line */}
+          <div className="pt-3 border-t border-border/40 flex items-center gap-4">
+            <span className="text-[10.5px] font-extrabold text-muted-foreground/75 uppercase tracking-wider shrink-0">
+              Completeness
+            </span>
+            <div className="h-1.5 flex-1 rounded-full bg-border/40 overflow-hidden">
               <div
                 className="h-full bg-blue-500 rounded-full transition-all duration-500"
                 style={{ width: `${viewingRecord.completeness}%` }}
               />
             </div>
+            <span className="text-[13px] font-black text-foreground shrink-0">
+              {viewingRecord.completeness}%
+            </span>
           </div>
         </div>
 

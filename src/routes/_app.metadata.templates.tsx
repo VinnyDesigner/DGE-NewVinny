@@ -731,11 +731,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <FileText className="h-4.5 w-4.5 text-emerald-500" /> Item Description
                 </h3>
-                {openSections.itemDescription ? (
+                {isEditMode && (openSections.itemDescription ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
               
               {openSections.itemDescription && (
@@ -898,11 +898,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
                 </h3>
-                {openSections.topicsKeywords ? (
+                {isEditMode && (openSections.topicsKeywords ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.topicsKeywords && (
@@ -1081,11 +1081,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Calendar className="h-4.5 w-4.5 text-orange-500" /> Citation — Dates
                 </h3>
-                {openSections.citationDates ? (
+                {isEditMode && (openSections.citationDates ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.citationDates && (
@@ -1154,11 +1154,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <User className="h-4.5 w-4.5 text-blue-500" /> Citation Contacts
                 </h3>
-                {openSections.citationContacts ? (
+                {isEditMode && (openSections.citationContacts ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.citationContacts && (
@@ -1304,11 +1304,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-teal-500" /> Locales — Language
                 </h3>
-                {openSections.localesLanguage ? (
+                {isEditMode && (openSections.localesLanguage ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.localesLanguage && (
@@ -1364,11 +1364,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Database className="h-4.5 w-4.5 text-slate-500" /> Resource Details
                 </h3>
-                {openSections.resourceDetails ? (
+                {isEditMode && (openSections.resourceDetails ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.resourceDetails && (
@@ -1439,11 +1439,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-purple-500" /> Extents — Bounding Box
                 </h3>
-                {openSections.extentsBoundingBox ? (
+                {isEditMode && (openSections.extentsBoundingBox ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.extentsBoundingBox && (
@@ -1581,11 +1581,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <RefreshCw className="h-4.5 w-4.5 text-orange-500" /> Maintenance
                 </h3>
-                {openSections.maintenance ? (
+                {isEditMode && (openSections.maintenance ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.maintenance && (
@@ -1689,11 +1689,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Globe className="h-4.5 w-4.5 text-blue-500" /> Spatial Reference — Reference System
                 </h3>
-                {openSections.spatialReference ? (
+                {isEditMode && (openSections.spatialReference ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.spatialReference && (
@@ -1744,11 +1744,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Shield className="h-4.5 w-4.5 text-emerald-500" /> Quality
                 </h3>
-                {openSections.quality ? (
+                {isEditMode && (openSections.quality ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.quality && (
@@ -1808,11 +1808,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <Database className="h-4.5 w-4.5 text-emerald-500" /> Lineage / Data Source
                 </h3>
-                {openSections.lineageDataSource ? (
+                {isEditMode && (openSections.lineageDataSource ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.lineageDataSource && (
@@ -1872,11 +1872,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <List className="h-4.5 w-4.5 text-slate-500" /> Fields — Entity and Attribute Information
                 </h3>
-                {openSections.fieldsInfo ? (
+                {isEditMode && (openSections.fieldsInfo ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.fieldsInfo && (
@@ -1910,11 +1910,11 @@ function MetadataRegistryPage() {
                 <h3 className="text-[14px] font-extrabold text-foreground flex items-center gap-2">
                   <ShieldCheck className="h-4.5 w-4.5 text-blue-500" /> Standards & Compliance
                 </h3>
-                {openSections.standardsCompliance ? (
+                {isEditMode && (openSections.standardsCompliance ? (
                   <ChevronUp className="h-4.5 w-4.5 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4.5 w-4.5 text-muted-foreground" />
-                )}
+                ))}
               </div>
 
               {openSections.standardsCompliance && (

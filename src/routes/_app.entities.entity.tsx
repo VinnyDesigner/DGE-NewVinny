@@ -681,7 +681,7 @@ function EntitiesPage() {
               </div>
 
               {/* Preview Card */}
-              <div className="rounded-xl border border-border bg-linear-to-b from-elevated to-elevated/30 p-4 relative overflow-hidden shadow-soft flex flex-col gap-4">
+              <div className="relative overflow-hidden flex flex-col gap-4 w-full pt-2">
                 <div className="absolute top-2 right-2 rounded-full bg-foreground/[0.04] px-2 py-0.5 text-[9px] font-bold text-muted-foreground/80 border border-border/50 uppercase">
                   Entity
                 </div>

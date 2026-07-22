@@ -696,13 +696,11 @@ function MetadataRegistryPage() {
                   {/* Dropdown Trigger */}
                   <div
                     onClick={(e) => {
-                      if (!isEditingMetadata) return;
                       e.stopPropagation();
                       setIsTopicDropdownOpen(prev => !prev);
                     }}
                     className={cn(
-                      "h-9 w-full rounded-lg border px-3 text-[13px] font-semibold text-foreground flex items-center justify-between transition-all select-none",
-                      !isEditingMetadata ? "bg-card/60 dark:bg-card/20 border-border/70 opacity-85 cursor-not-allowed" : "bg-card/60 dark:bg-card/20 border-border/70 hover:border-primary/50 cursor-pointer",
+                      "h-9 w-full rounded-lg border px-3 text-[13px] font-semibold text-foreground flex items-center justify-between transition-all select-none cursor-pointer bg-card/60 dark:bg-card/20 border-border/70 hover:border-primary/50",
                       isTopicDropdownOpen && "border-primary ring-1 ring-primary/45"
                     )}
                   >
@@ -717,7 +715,7 @@ function MetadataRegistryPage() {
                   </div>
 
                   {/* Dropdown Menu Portal positioned absolute */}
-                  {isTopicDropdownOpen && isEditingMetadata && (
+                  {isTopicDropdownOpen && (
                     <div
                       onClick={(e) => e.stopPropagation()}
                       className="absolute left-0 top-[calc(100%+4px)] w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 z-[60] space-y-0.5"
@@ -733,7 +731,9 @@ function MetadataRegistryPage() {
                             <button
                               key={topic}
                               type="button"
+                              disabled={!isEditingMetadata}
                               onClick={() => {
+                                if (!isEditingMetadata) return;
                                 let updated: string[];
                                 if (isChecked) {
                                   updated = selectedList.filter(t => t !== topic);
@@ -745,13 +745,17 @@ function MetadataRegistryPage() {
                                   topicCategories: updated.join(", ")
                                 }));
                               }}
-                              className="flex w-full items-center gap-3 px-2.5 py-2 hover:bg-foreground/[0.04] rounded-lg transition text-left cursor-pointer text-[13px] font-semibold text-foreground/90"
+                              className={cn(
+                                "flex w-full items-center gap-3 px-2.5 py-2 hover:bg-foreground/[0.04] rounded-lg transition text-left text-[13px] font-semibold text-foreground/90",
+                                !isEditingMetadata ? "cursor-not-allowed opacity-80" : "cursor-pointer"
+                              )}
                             >
                               <input
                                 type="checkbox"
                                 checked={isChecked}
+                                disabled={!isEditingMetadata}
                                 readOnly
-                                className="h-4.5 w-4.5 rounded border border-border/60 text-primary accent-primary cursor-pointer shrink-0"
+                                className="h-4.5 w-4.5 rounded border border-border/60 text-primary accent-primary cursor-pointer disabled:cursor-not-allowed shrink-0"
                               />
                               <span className="truncate">{topic}</span>
                             </button>

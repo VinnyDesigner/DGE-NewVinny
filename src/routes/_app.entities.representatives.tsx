@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
-import { Download, Filter, Plus, Search, SlidersHorizontal, Pencil, Trash2, Eye, User, IdCard, Shield, Key, Building2, Globe, Calendar, ChevronDown, ChevronUp, Sparkles, X, Check, ArrowLeft, KeyRound, EyeOff, LockKeyhole, AlertCircle, Users, CheckCircle2, Briefcase } from "lucide-react";
+import { Download, Filter, Plus, Search, SlidersHorizontal, Pencil, Trash2, Eye, User, IdCard, Shield, Key, Building2, Globe, Calendar, ChevronDown, Sparkles, X, Check, ArrowLeft, KeyRound, EyeOff, LockKeyhole, AlertCircle, Users, CheckCircle2, Briefcase } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
 import { TablePagination } from "@/components/app/TablePagination";
@@ -32,7 +32,7 @@ interface RepresentativeItem {
   email: string;
   phone: string;
   dept: string;
-  status?: string;
+  status: string;
 }
 
 const STORAGE_KEY_REPS = "dge_representatives_data";
@@ -82,6 +82,54 @@ const DIRECTORY_GROUPS = [
   },
 ];
 
+const ENTITY_DEFAULTS = [
+  { code: "ADDA", name: "Abu Dhabi Digital Authority", type: "Semi-Government", color: "bg-blue-600 dark:bg-blue-500" },
+  { code: "EAD", name: "Environment Agency Abu Dhabi", type: "Government", color: "bg-emerald-600 dark:bg-emerald-500" },
+  { code: "DGE", name: "Dept of Government Enablement", type: "Semi-Government", color: "bg-purple-600 dark:bg-purple-500" },
+  { code: "ADDC", name: "Abu Dhabi Distribution Company", type: "State-Owned", color: "bg-amber-600 dark:bg-amber-500" },
+  { code: "ADHA", name: "Abu Dhabi Housing Authority", type: "Government", color: "bg-sky-600 dark:bg-sky-500" },
+];
+
+const DEPARTMENTS = [
+  "Data Management",
+  "Digital Infrastructure",
+  "eGovernment",
+  "Urban Planning",
+  "Transport Planning",
+  "Data & Research",
+  "Data Integration",
+  "IT Operations",
+  "Housing Data",
+  "Urban Development",
+  "Digital Operations",
+  "Network Data",
+  "Data Analytics",
+  "Development",
+  "Real Estate",
+  "Finance",
+  "IT",
+  "Governance",
+  "Digital Enablement",
+  "Policy",
+  "Compliance",
+  "Exploration",
+  "Corporate IT",
+];
+
+const POSITION_TYPES = [
+  "Full time",
+  "Part time",
+  "Consultant",
+  "Contractor",
+  "Secondment",
+  "Intern",
+];
+
+const STATUSES = [
+  "Active",
+  "Disabled",
+];
+
 function RepsPage() {
   // Navigation & Tabs
   const [isAdding, setIsAdding] = useState(false);
@@ -108,24 +156,6 @@ function RepsPage() {
       localStorage.setItem(STORAGE_KEY_REPS, JSON.stringify(newList));
     }
   };
-
-  // Dropdown Entities list
-  const [entities] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("dge_entities_data");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((e: any) => e.code);
-          }
-        } catch (e) {
-          console.error("Failed to parse entities:", e);
-        }
-      }
-    }
-    return ["ADDA", "EAD", "DGE", "ADDC", "ADHA"];
-  });
 
   // Table Filters & Pagination
   const [query, setQuery] = useState("");
@@ -185,6 +215,31 @@ function RepsPage() {
   const [gisAccessEnabled, setGisAccessEnabled] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [groupFilter, setGroupFilter] = useState("");
+
+  // Custom Searchable Entity Dropdown
+  const [isEntityDropdownOpen, setIsEntityDropdownOpen] = useState(false);
+  const [entitySearchQuery, setEntitySearchQuery] = useState("");
+
+  const filteredEntities = useMemo(() => {
+    return ENTITY_DEFAULTS.filter((ent) =>
+      ent.name.toLowerCase().includes(entitySearchQuery.toLowerCase()) ||
+      ent.code.toLowerCase().includes(entitySearchQuery.toLowerCase()) ||
+      ent.type.toLowerCase().includes(entitySearchQuery.toLowerCase())
+    );
+  }, [entitySearchQuery]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!isEntityDropdownOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".custom-entity-select")) {
+        setIsEntityDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [isEntityDropdownOpen]);
 
   // Username auto-generation formula
   const generateUsername = (name: string, entity: string) => {
@@ -356,8 +411,8 @@ function RepsPage() {
           </div>
         </div>
 
-        {/* Tab Selection Row */}
-        <div className="flex flex-wrap gap-2 border-b border-border/60 pb-3">
+        {/* Tab Selection Row (Kept in Container) */}
+        <div className="bg-card/85 dark:bg-card/45 border border-border/60 rounded-xl p-1.5 flex flex-wrap gap-1.5 items-center w-fit shadow-soft">
           {(["profile", "account", "security", "access"] as const).map((tabId) => {
             const active = activeTab === tabId;
             const IconComponent = tabIcons[tabId];
@@ -397,20 +452,71 @@ function RepsPage() {
                     </div>
                   </div>
                   <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 custom-entity-select relative">
                       <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Select Entity *</label>
-                      <Select value={formEntity} onValueChange={setFormEntity}>
-                        <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
-                          <SelectValue placeholder="Select entity..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border-border/60">
-                          {entities.map((code) => (
-                            <SelectItem key={code} value={code} className="cursor-pointer text-[13.5px]">
-                              {code}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <button
+                        type="button"
+                        onClick={() => setIsEntityDropdownOpen(!isEntityDropdownOpen)}
+                        className="h-10 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+                      >
+                        <span className="truncate">
+                          {formEntity ? (
+                            (() => {
+                              const ent = ENTITY_DEFAULTS.find((e) => e.code === formEntity);
+                              return ent ? `${ent.name} (${ent.code})` : formEntity;
+                            })()
+                          ) : (
+                            <span className="text-muted-foreground">Select entity...</span>
+                          )}
+                        </span>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      </button>
+
+                      {isEntityDropdownOpen && (
+                        <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 space-y-2">
+                          <div className="relative flex items-center">
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Search entity..."
+                              value={entitySearchQuery}
+                              onChange={(e) => setEntitySearchQuery(e.target.value)}
+                              className="h-8.5 w-full rounded-lg border border-border/60 bg-card/50 pl-8 pr-3 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          <div className="max-h-[220px] overflow-y-auto scrollbar-thin space-y-1">
+                            {filteredEntities.map((ent) => (
+                              <button
+                                key={ent.code}
+                                type="button"
+                                onClick={() => {
+                                  setFormEntity(ent.code);
+                                  setIsEntityDropdownOpen(false);
+                                  setEntitySearchQuery("");
+                                }}
+                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-foreground/[0.04] transition text-left cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-xs ${ent.color}`}>
+                                    {ent.name.charAt(0)}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="text-[13px] font-semibold text-foreground truncate">{ent.name}</div>
+                                    <div className="text-[10.5px] text-muted-foreground">{ent.type}</div>
+                                  </div>
+                                </div>
+                                <span className="text-[11px] font-bold text-muted-foreground bg-foreground/[0.06] border border-border/40 px-1.5 py-0.5 rounded-md uppercase shrink-0">
+                                  {ent.code}
+                                </span>
+                              </button>
+                            ))}
+                            {filteredEntities.length === 0 && (
+                              <div className="text-center py-4 text-muted-foreground text-[12.5px]">No matching entities found.</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -502,14 +608,13 @@ function RepsPage() {
                           <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
                             <SelectValue placeholder="Select department..." />
                           </SelectTrigger>
-                          <SelectContent className="bg-popover border-border/60">
+                          <SelectContent className="bg-popover border-border/60 max-h-[300px] overflow-y-auto">
                             <SelectItem value="Select department..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select department...</SelectItem>
-                            <SelectItem value="Data Management" className="cursor-pointer text-[13.5px]">Data Management</SelectItem>
-                            <SelectItem value="IT" className="cursor-pointer text-[13.5px]">IT</SelectItem>
-                            <SelectItem value="Policy" className="cursor-pointer text-[13.5px]">Policy</SelectItem>
-                            <SelectItem value="Finance" className="cursor-pointer text-[13.5px]">Finance</SelectItem>
-                            <SelectItem value="Operations" className="cursor-pointer text-[13.5px]">Operations</SelectItem>
-                            <SelectItem value="Legal" className="cursor-pointer text-[13.5px]">Legal</SelectItem>
+                            {DEPARTMENTS.map((dept) => (
+                              <SelectItem key={dept} value={dept} className="cursor-pointer text-[13.5px]">
+                                {dept}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -544,10 +649,11 @@ function RepsPage() {
                           </SelectTrigger>
                           <SelectContent className="bg-popover border-border/60">
                             <SelectItem value="Select type..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select type...</SelectItem>
-                            <SelectItem value="Permanent" className="cursor-pointer text-[13.5px]">Permanent</SelectItem>
-                            <SelectItem value="Contractor" className="cursor-pointer text-[13.5px]">Contractor</SelectItem>
-                            <SelectItem value="Consultant" className="cursor-pointer text-[13.5px]">Consultant</SelectItem>
-                            <SelectItem value="Part-time" className="cursor-pointer text-[13.5px]">Part-time</SelectItem>
+                            {POSITION_TYPES.map((pt) => (
+                              <SelectItem key={pt} value={pt} className="cursor-pointer text-[13.5px]">
+                                {pt}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -560,8 +666,11 @@ function RepsPage() {
                           <SelectValue placeholder="Active" />
                         </SelectTrigger>
                         <SelectContent className="bg-popover border-border/60">
-                          <SelectItem value="Active" className="cursor-pointer text-[13.5px]">Active</SelectItem>
-                          <SelectItem value="Inactive" className="cursor-pointer text-[13.5px]">Inactive</SelectItem>
+                          {STATUSES.map((status) => (
+                            <SelectItem key={status} value={status} className="cursor-pointer text-[13.5px]">
+                              {status}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -780,7 +889,7 @@ function RepsPage() {
 
                 {/* LDAP / Directory Groups */}
                 <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center justify-between border-b border-border/50 bg-elevated/40">
+                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
                     <div className="flex items-center gap-3">
                       <Users className="h-4 w-4 text-accent" />
                       <div>
@@ -986,7 +1095,7 @@ function RepsPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="whitespace-nowrap font-medium text-foreground">{r.name}</div>
-                        <div className="text-[14px] text-success">Active</div>
+                        <div className={`text-[14px] ${r.status === "Active" ? "text-success" : "text-muted-foreground"}`}>{r.status}</div>
                       </div>
                     </div>
                   </td>

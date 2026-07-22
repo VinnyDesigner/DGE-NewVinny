@@ -238,13 +238,13 @@ function CircularHub() {
             stroke="var(--info)"
             strokeOpacity={0.35}
             strokeDasharray="3 5"
-            animate={{ 
-              strokeDashoffset: i % 2 === 0 ? [0, 80] : [0, -80] 
+            animate={{
+              strokeDashoffset: i % 2 === 0 ? [0, 80] : [0, -80]
             }}
-            transition={{ 
-              duration: 6 + i * 2, 
-              repeat: Infinity, 
-              ease: "linear" 
+            transition={{
+              duration: 6 + i * 2,
+              repeat: Infinity,
+              ease: "linear"
             }}
           />
         ))}
@@ -264,10 +264,10 @@ function CircularHub() {
               strokeOpacity={0.38}
               strokeDasharray="4 4"
               animate={{ strokeDashoffset: [0, -32] }}
-              transition={{ 
-                duration: 1.2, 
-                repeat: Infinity, 
-                ease: "linear" 
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "linear"
               }}
             />
           );
@@ -313,11 +313,11 @@ function CircularHub() {
         const x = center + Math.cos(rad) * radius;
         const y = center + Math.sin(rad) * radius;
         return (
-          <motion.div 
-            key={i} 
-            className="absolute -translate-x-1/2 -translate-y-1/2" 
-            style={{ 
-              left: `${(x / size) * 100}%`, 
+          <motion.div
+            key={i}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{
+              left: `${(x / size) * 100}%`,
               top: `${(y / size) * 100}%`,
               width: "12.5%",
               height: "12.5%",
@@ -359,7 +359,7 @@ function CircularHub() {
                 <n.Icon className="h-1/2 w-1/2" />
               </motion.div>
             </motion.div>
-            
+
             {/* The Text Label */}
             <motion.span
               initial={{ opacity: 0, y: 4 }}
@@ -433,7 +433,7 @@ function Login() {
 
           {/* -------------------- HERO SECTION (Hero Copy + Illustrations) -------------------- */}
           <div className="flex flex-col justify-between flex-1 min-h-0 gap-2 sm:gap-3 xl:gap-4 w-full login-hero-section overflow-hidden">
-            
+
             {/* Hero Copy */}
             <div className="relative flex flex-col items-start text-left w-full login-hero-wrapper shrink-0">
               <div className="relative w-full flex items-center gap-3 sm:gap-4 login-logo-title-group">
@@ -443,14 +443,14 @@ function Login() {
                   <motion.div
                     initial={{ opacity: 0, x: -12, filter: "blur(6px)" }}
                     animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                    whileHover={{ 
-                      scale: 1.01, 
-                      x: 3, 
+                    whileHover={{
+                      scale: 1.01,
+                      x: 3,
                       filter: "drop-shadow(0 4px 20px rgba(56,189,248,0.4))"
                     }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 250, 
+                    transition={{
+                      type: "spring",
+                      stiffness: 250,
                       damping: 18,
                       x: { duration: 0.3 }
                     }}
@@ -497,17 +497,17 @@ function Login() {
 
             {/* Illustrations Row */}
             <div className="grid flex-1 min-h-0 grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full items-center justify-items-center sm:justify-items-stretch login-illustrations-row pt-1 sm:pt-2 overflow-hidden">
-              
+
               {/* Blended Image */}
               <div className="flex items-center justify-center lg:justify-start w-full h-full min-h-0">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.8, delay: 0.3 }}
-                  className="relative w-full h-full max-w-[clamp(220px,32vw,800px)] max-h-[40vh] xl:max-h-[44vh] 2xl:max-h-[48vh] aspect-square pointer-events-none select-none overflow-visible login-illustration-left"
+                  className="relative w-full h-full max-w-[clamp(220px,32vw,800px)] max-h-[48vh] aspect-square pointer-events-none select-none overflow-visible"
                 >
                   {/* Radial gradient mask to feather edges into 100% transparency */}
-                  <div 
+                  <div
                     className="relative w-full h-full opacity-85"
                     style={{
                       maskImage: "radial-gradient(circle at 50% 50%, black 0%, black 20%, rgba(0,0,0,0.6) 45%, transparent 65%)",
@@ -519,9 +519,9 @@ function Login() {
                       alt=""
                       className="w-full h-full object-cover mix-blend-lighten"
                     />
-                    
+
                     {/* Radial Gradient overlay matching exact #030611 page background */}
-                    <div 
+                    <div
                       className="absolute inset-0 pointer-events-none"
                       style={{
                         backgroundImage: "radial-gradient(circle at 50% 50%, transparent 15%, #030611 65%)"
@@ -529,7 +529,7 @@ function Login() {
                     />
 
                     {/* Grid overlay specifically on top of the image */}
-                    <div 
+                    <div
                       className="absolute inset-0 opacity-[0.08]"
                       style={{
                         backgroundImage:
@@ -601,18 +601,18 @@ function Login() {
                       opacity="0.6"
                     />
                   </svg>
-                  
+
                   {/* Rotating ambient blue highlight glow behind artwork */}
-                  <motion.div 
-                    animate={{ 
+                  <motion.div
+                    animate={{
                       scale: [1, 1.08, 1],
                       opacity: [0.65, 0.85, 0.65],
                       rotate: [0, 360]
                     }}
-                    transition={{ 
-                      duration: 15, 
-                      repeat: Infinity, 
-                      ease: "linear" 
+                    transition={{
+                      duration: 15,
+                      repeat: Infinity,
+                      ease: "linear"
                     }}
                     className="absolute -inset-14 bg-[radial-gradient(circle,rgba(6,182,212,0.22)_0%,rgba(37,99,235,0.12)_50%,transparent_100%)] blur-3xl rounded-full pointer-events-none z-[-1]"
                   />
@@ -621,7 +621,7 @@ function Login() {
 
               {/* Circular Hub Diagram */}
               <div className="flex items-center justify-center w-full h-full min-h-0">
-                <div className="w-full h-full max-w-[clamp(220px,32vw,800px)] max-h-[40vh] xl:max-h-[44vh] 2xl:max-h-[46vh] aspect-square overflow-visible login-illustration-right">
+                <div className="w-full h-full max-w-[clamp(220px,32vw,800px)] max-h-[46vh] aspect-square overflow-visible">
                   <CircularHub />
                 </div>
               </div>
@@ -641,7 +641,7 @@ function Login() {
               className="relative w-full max-w-[clamp(380px,26vw,880px)] login-card-form"
             >
               {/* Card Container */}
-              <div 
+              <div
                 className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
                 style={{
                   backgroundColor: "rgba(14, 24, 40, 0.55)",
@@ -894,7 +894,7 @@ function AmbientBackdrop() {
       )}
 
       {/* 5. Ambient Vignette Wash */}
-      <div 
+      <div
         className="absolute inset-0 opacity-40 pointer-events-none"
         style={{
           backgroundImage: "radial-gradient(circle at 50% 50%, transparent 40%, #02040a 95%)"
@@ -903,7 +903,7 @@ function AmbientBackdrop() {
 
       {/* 6. Soft Light Spots */}
       <motion.div
-        animate={{ 
+        animate={{
           opacity: [0.18, 0.28, 0.18],
           scale: [1, 1.05, 1],
           x: [0, 15, 0],
@@ -914,7 +914,7 @@ function AmbientBackdrop() {
       />
 
       <motion.div
-        animate={{ 
+        animate={{
           opacity: [0.12, 0.20, 0.12],
           y: [0, 15, 0],
           x: [0, -10, 0]
@@ -924,7 +924,7 @@ function AmbientBackdrop() {
       />
 
       <motion.div
-        animate={{ 
+        animate={{
           opacity: [0.10, 0.18, 0.10],
           scale: [0.95, 1.05, 0.95]
         }}
@@ -1001,11 +1001,10 @@ function FloatingField({
         {label}
       </label>
       <div
-        className={`group relative flex h-[clamp(42px,3.2vw,96px)] items-center gap-2.5 2xl:gap-3.5 overflow-hidden rounded-full border px-[clamp(1rem,1.2vw,2.5rem)] transition-all duration-300 login-input-field ${
-          focused
-            ? "border-primary/60 bg-white/[0.07]"
-            : "border-white/[0.10] bg-white/[0.04] hover:border-white/[0.18]"
-        }`}
+        className={`group relative flex h-[clamp(42px,3.2vw,96px)] items-center gap-2.5 2xl:gap-3.5 overflow-hidden rounded-full border px-[clamp(1rem,1.2vw,2.5rem)] transition-all duration-300 login-input-field ${focused
+          ? "border-primary/60 bg-white/[0.07]"
+          : "border-white/[0.10] bg-white/[0.04] hover:border-white/[0.18]"
+          }`}
         style={{
           boxShadow:
             "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(255,255,255,0.02), 0 8px 24px -12px rgba(0,0,0,0.6)",

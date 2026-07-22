@@ -41,6 +41,30 @@ import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+const ALL_TOPIC_CATEGORIES = [
+  "Farming and Agriculture",
+  "Flora and Fauna",
+  "Administrative and Legal Boundaries",
+  "Climate, Meteorology and Atmosphere",
+  "Economy and Industry",
+  "Elevation and Bathymetry",
+  "Environment",
+  "Geoscientific Information",
+  "Health and Safety",
+  "Imagery, Basemaps and Land Cover",
+  "Intelligence and Military",
+  "Inland Waters",
+  "Location and Positioning",
+  "Oceans and Coastal Waters",
+  "Planning and Cadastre",
+  "Society and Culture",
+  "Buildings and Structures",
+  "Transportation",
+  "Utilities and Communication",
+  "Extra-Terrestrial",
+  "Disaster Information"
+];
+
 export const Route = createFileRoute("/_app/metadata/templates")({
   head: () => ({
     meta: [
@@ -181,6 +205,7 @@ function MetadataRegistryPage() {
   // Detailed View state
   const [viewingRecord, setViewingRecord] = useState<RegistryRecord | null>(null);
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
+  const [isTopicDropdownOpen, setIsTopicDropdownOpen] = useState(false);
   const [selectedStandard, setSelectedStandard] = useState("ISO 19139 Metadata Implementation Specification");
   const [activeViewTab, setActiveViewTab] = useState("overview");
 
@@ -302,6 +327,7 @@ function MetadataRegistryPage() {
     const handleClose = () => {
       setIsColumnsOpen(false);
       setIsExportOpen(false);
+      setIsTopicDropdownOpen(false);
     };
     window.addEventListener("click", handleClose);
     return () => window.removeEventListener("click", handleClose);
@@ -662,15 +688,78 @@ function MetadataRegistryPage() {
                 <Tag className="h-4.5 w-4.5 text-purple-500" /> Topics and Keywords
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Topic Categories</label>
-                  <input
-                    type="text"
-                    disabled={!isEditingMetadata}
-                    value={formData.topicCategories}
-                    onChange={(e) => setFormData(prev => ({ ...prev, topicCategories: e.target.value }))}
-                    className="h-9 w-full rounded-lg border border-border/70 bg-card/60 dark:bg-card/20 px-3 text-[13px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 disabled:opacity-85"
-                  />
+                <div className="space-y-1.5 relative">
+                  <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">
+                    Topic Categories <span className="text-destructive">*</span>
+                  </label>
+                  
+                  {/* Dropdown Trigger */}
+                  <div
+                    onClick={(e) => {
+                      if (!isEditingMetadata) return;
+                      e.stopPropagation();
+                      setIsTopicDropdownOpen(prev => !prev);
+                    }}
+                    className={cn(
+                      "h-9 w-full rounded-lg border px-3 text-[13px] font-semibold text-foreground flex items-center justify-between transition-all select-none",
+                      !isEditingMetadata ? "bg-card/60 dark:bg-card/20 border-border/70 opacity-85 cursor-not-allowed" : "bg-card/60 dark:bg-card/20 border-border/70 hover:border-primary/50 cursor-pointer",
+                      isTopicDropdownOpen && "border-primary ring-1 ring-primary/45"
+                    )}
+                  >
+                    <span className="truncate">
+                      {formData.topicCategories || "Select topic categories..."}
+                    </span>
+                    {isTopicDropdownOpen ? (
+                      <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                  </div>
+
+                  {/* Dropdown Menu Portal positioned absolute */}
+                  {isTopicDropdownOpen && isEditingMetadata && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute left-0 top-[calc(100%+4px)] w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 z-[60] space-y-0.5"
+                    >
+                      <div className="max-h-60 overflow-y-auto pr-1">
+                        {ALL_TOPIC_CATEGORIES.map((topic) => {
+                          const selectedList = formData.topicCategories
+                            ? formData.topicCategories.split(", ").filter(Boolean)
+                            : [];
+                          const isChecked = selectedList.includes(topic);
+                          
+                          return (
+                            <button
+                              key={topic}
+                              type="button"
+                              onClick={() => {
+                                let updated: string[];
+                                if (isChecked) {
+                                  updated = selectedList.filter(t => t !== topic);
+                                } else {
+                                  updated = [...selectedList, topic];
+                                }
+                                setFormData(prev => ({
+                                  ...prev,
+                                  topicCategories: updated.join(", ")
+                                }));
+                              }}
+                              className="flex w-full items-center gap-3 px-2.5 py-2 hover:bg-foreground/[0.04] rounded-lg transition text-left cursor-pointer text-[13px] font-semibold text-foreground/90"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                readOnly
+                                className="h-4.5 w-4.5 rounded border border-border/60 text-primary accent-primary cursor-pointer shrink-0"
+                              />
+                              <span className="truncate">{topic}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11.5px] font-bold text-muted-foreground/90 uppercase tracking-wider block">Theme Keywords</label>

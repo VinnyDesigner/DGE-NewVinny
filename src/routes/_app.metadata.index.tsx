@@ -350,7 +350,7 @@ function MetadataDashboardPage() {
         )} />
 
         {/* Left: Title & metadata */}
-        <div className="relative space-y-1 md:w-[35%] shrink-0">
+        <div className="relative space-y-1 md:w-1/3 shrink-0">
           <div className={cn(
             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider",
             isLight
@@ -370,7 +370,7 @@ function MetadataDashboardPage() {
         </div>
 
         {/* Middle: Centered metrics */}
-        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-center z-20 px-4 flex-1">
+        <div className="flex items-center justify-center gap-6 md:gap-8 text-center z-20 px-4 md:w-1/3 w-full shrink-0 flex-nowrap">
           <div>
             <div className="text-[28px] font-black group-hover/banner:text-accent transition duration-300">{`78%`}</div>
             <div className={cn("text-[11px] font-bold uppercase tracking-wider", isLight ? "text-slate-400" : "text-muted-foreground")}>
@@ -394,7 +394,7 @@ function MetadataDashboardPage() {
         </div>
 
         {/* Right: Action button */}
-        <div className="shrink-0 flex items-center justify-end md:w-[15%] w-full md:w-auto">
+        <div className="shrink-0 flex items-center justify-end md:w-1/3 w-full md:w-auto">
           <Link
             to="/metadata/templates"
             className={cn(

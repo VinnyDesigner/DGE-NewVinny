@@ -370,7 +370,7 @@ function MetadataDashboardPage() {
         </div>
 
         {/* Middle: Centered metrics */}
-        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-center relative md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-20 px-4 w-full md:w-auto">
+        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-center z-20 px-4 flex-1">
           <div>
             <div className="text-[28px] font-black group-hover/banner:text-accent transition duration-300">{`78%`}</div>
             <div className={cn("text-[11px] font-bold uppercase tracking-wider", isLight ? "text-slate-400" : "text-muted-foreground")}>

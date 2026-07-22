@@ -207,6 +207,7 @@ function RepsPage() {
   const [formUsername, setFormUsername] = useState("");
   const [formActiveFrom, setFormActiveFrom] = useState("");
   const [formActiveUntil, setFormActiveUntil] = useState("");
+  const [noDurationSet, setNoDurationSet] = useState(false);
 
   const [formPassword, setFormPassword] = useState("");
   const [formConfirmPassword, setFormConfirmPassword] = useState("");
@@ -290,6 +291,7 @@ function RepsPage() {
     setFormUsername("");
     setFormActiveFrom("");
     setFormActiveUntil("");
+    setNoDurationSet(false);
     setFormPassword("");
     setFormConfirmPassword("");
     setSelectedGroups([]);
@@ -335,6 +337,18 @@ function RepsPage() {
       toast.error("Username is required");
       setActiveTab("account");
       return;
+    }
+    if (!noDurationSet) {
+      if (!formActiveFrom) {
+        toast.error("Active From date is required or check 'No duration set'");
+        setActiveTab("account");
+        return;
+      }
+      if (!formActiveUntil) {
+        toast.error("Active Until date is required or check 'No duration set'");
+        setActiveTab("account");
+        return;
+      }
     }
 
     const newRep: RepresentativeItem = {
@@ -411,548 +425,598 @@ function RepsPage() {
           </div>
         </div>
 
-        {/* Tab Selection Row (Kept in Container) */}
-        <div className="bg-card/85 dark:bg-card/45 border border-border/60 rounded-xl p-1.5 flex flex-wrap gap-1.5 items-center w-fit shadow-soft">
-          {(["profile", "account", "security", "access"] as const).map((tabId) => {
-            const active = activeTab === tabId;
-            const IconComponent = tabIcons[tabId];
-            return (
-              <button
-                key={tabId}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tabId);
-                }}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-semibold transition cursor-pointer ${
-                  active
-                    ? "bg-primary/15 text-accent border border-primary/30"
-                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
-                }`}
-              >
-                <IconComponent className="h-4 w-4" />
-                {tabId.charAt(0).toUpperCase() + tabId.slice(1)}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Main Grid */}
+        {/* Main Grid: Tabs and Content enclosed in a Full Card Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Form Tab Contents */}
-          <div className="lg:col-span-9 space-y-5">
-            {activeTab === "profile" && (
-              <div className="space-y-5">
-                {/* Entity Assignment */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Building2 className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Entity Assignment</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Which entity this representative belongs to</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="space-y-1.5 custom-entity-select relative">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Select Entity *</label>
-                      <button
-                        type="button"
-                        onClick={() => setIsEntityDropdownOpen(!isEntityDropdownOpen)}
-                        className="h-10 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
-                      >
-                        <span className="truncate">
-                          {formEntity ? (
-                            (() => {
-                              const ent = ENTITY_DEFAULTS.find((e) => e.code === formEntity);
-                              return ent ? `${ent.name} (${ent.code})` : formEntity;
-                            })()
-                          ) : (
-                            <span className="text-muted-foreground">Select entity...</span>
-                          )}
-                        </span>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      </button>
-
-                      {isEntityDropdownOpen && (
-                        <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 space-y-2">
-                          <div className="relative flex items-center">
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                            <input
-                              type="text"
-                              placeholder="Search entity..."
-                              value={entitySearchQuery}
-                              onChange={(e) => setEntitySearchQuery(e.target.value)}
-                              className="h-8.5 w-full rounded-lg border border-border/60 bg-card/50 pl-8 pr-3 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          </div>
-                          <div className="max-h-[220px] overflow-y-auto scrollbar-thin space-y-1">
-                            {filteredEntities.map((ent) => (
-                              <button
-                                key={ent.code}
-                                type="button"
-                                onClick={() => {
-                                  setFormEntity(ent.code);
-                                  setIsEntityDropdownOpen(false);
-                                  setEntitySearchQuery("");
-                                }}
-                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-foreground/[0.04] transition text-left cursor-pointer"
-                              >
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-xs ${ent.color}`}>
-                                    {ent.name.charAt(0)}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="text-[13px] font-semibold text-foreground truncate">{ent.name}</div>
-                                    <div className="text-[10.5px] text-muted-foreground">{ent.type}</div>
-                                  </div>
-                                </div>
-                                <span className="text-[11px] font-bold text-muted-foreground bg-foreground/[0.06] border border-border/40 px-1.5 py-0.5 rounded-md uppercase shrink-0">
-                                  {ent.code}
-                                </span>
-                              </button>
-                            ))}
-                            {filteredEntities.length === 0 && (
-                              <div className="text-center py-4 text-muted-foreground text-[12.5px]">No matching entities found.</div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Personal Information */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <User className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Personal Information</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Full name, email and phone details</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Full Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Ahmed Al Mansouri"
-                        value={formName}
-                        onChange={(e) => setFormName(e.target.value)}
-                        className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Email Address *</label>
-                        <div className="relative w-full">
-                          <Globe className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
-                          <input
-                            type="email"
-                            placeholder="user@entity.gov.ae"
-                            value={formEmail}
-                            onChange={(e) => setFormEmail(e.target.value)}
-                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 pl-10 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Phone *</label>
-                        <div className="flex gap-2">
-                          <select
-                            value={formPhoneCode}
-                            onChange={(e) => setFormPhoneCode(e.target.value)}
-                            className="h-9 border border-border/60 bg-card/90 dark:bg-card/50 text-foreground text-[13px] rounded-lg px-2 w-24 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40"
-                          >
-                            <option value="+971">+971</option>
-                            <option value="+966">+966</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                          </select>
-                          <input
-                            type="text"
-                            placeholder="50 123 4567"
-                            value={formPhoneNum}
-                            onChange={(e) => setFormPhoneNum(e.target.value)}
-                            className="h-9 flex-1 rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Job Details */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Briefcase className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Job Details</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Title, department and role configuration</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Job Title / Designation *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Senior Data Engineer"
-                          value={formJobTitle}
-                          onChange={(e) => setFormJobTitle(e.target.value)}
-                          className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Department *</label>
-                        <Select value={formDept} onValueChange={setFormDept}>
-                          <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
-                            <SelectValue placeholder="Select department..." />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border/60 max-h-[300px] overflow-y-auto">
-                            <SelectItem value="Select department..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select department...</SelectItem>
-                            {DEPARTMENTS.map((dept) => (
-                              <SelectItem key={dept} value={dept} className="cursor-pointer text-[13.5px]">
-                                {dept}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Role *</label>
-                        <div className="flex overflow-hidden rounded-lg border border-border/60 bg-card/45 p-1 h-9">
-                          {["Technical", "Business", "Head/Director"].map((role) => {
-                            const sel = formRole === role;
-                            return (
-                              <button
-                                key={role}
-                                type="button"
-                                onClick={() => setFormRole(role)}
-                                className={`flex-1 rounded-md text-[13px] font-medium transition cursor-pointer px-3 ${
-                                  sel ? "bg-primary text-white shadow-soft" : "text-muted-foreground hover:text-foreground"
-                                }`}
-                              >
-                                {role}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Position Type *</label>
-                        <Select value={formPositionType} onValueChange={setFormPositionType}>
-                          <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
-                            <SelectValue placeholder="Select type..." />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border/60">
-                            <SelectItem value="Select type..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select type...</SelectItem>
-                            {POSITION_TYPES.map((pt) => (
-                              <SelectItem key={pt} value={pt} className="cursor-pointer text-[13.5px]">
-                                {pt}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Status *</label>
-                      <Select value={formStatus} onValueChange={setFormStatus}>
-                        <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
-                          <SelectValue placeholder="Active" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border-border/60">
-                          {STATUSES.map((status) => (
-                            <SelectItem key={status} value={status} className="cursor-pointer text-[13.5px]">
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Remarks */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Pencil className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Remarks</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Optional notes about this representative</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <textarea
-                      placeholder="Any additional notes..."
-                      rows={4}
-                      value={formRemarks}
-                      onChange={(e) => setFormRemarks(e.target.value)}
-                      className="w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 p-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Bottom Helper Info */}
-                <div className="flex items-center gap-2 text-muted-foreground text-xs pl-1">
-                  <KeyRound className="h-4 w-4 text-accent" />
-                  <span>User record — access & password can be configured after saving</span>
-                </div>
+          {/* Left Column: Full Card Form Container */}
+          <div className="lg:col-span-9 bg-card/30 border border-border/50 rounded-xl overflow-hidden shadow-soft flex flex-col">
+            {/* Attached Tab Selection Header */}
+            <div className="border-b border-border/50 bg-elevated/40 p-4">
+              <div className="bg-card/85 dark:bg-card/45 border border-border/60 rounded-xl p-1.5 flex flex-wrap gap-1.5 items-center w-fit shadow-soft">
+                {(["profile", "account", "security", "access"] as const).map((tabId) => {
+                  const active = activeTab === tabId;
+                  const IconComponent = tabIcons[tabId];
+                  return (
+                    <button
+                      key={tabId}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(tabId);
+                      }}
+                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-semibold transition cursor-pointer ${
+                        active
+                          ? "bg-primary/15 text-accent border border-primary/30"
+                          : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
+                      }`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {tabId.charAt(0).toUpperCase() + tabId.slice(1)}
+                    </button>
+                  );
+                })}
               </div>
-            )}
+            </div>
 
-            {activeTab === "account" && (
-              <div className="space-y-5">
-                {/* Username & Credentials */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <IdCard className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Username & Credentials</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Platform login identity</p>
+            {/* Padded Content Area */}
+            <div className="p-6 space-y-6">
+              {activeTab === "profile" && (
+                <div className="space-y-5">
+                  {/* Entity Assignment */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Building2 className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Entity Assignment</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Which entity this representative belongs to</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Username *</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="ENTITY-InitialsLastName"
-                          value={formUsername}
-                          onChange={(e) => setFormUsername(e.target.value)}
-                          className="h-9 flex-1 rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                        />
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="space-y-1.5 custom-entity-select relative">
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Select Entity *</label>
                         <button
                           type="button"
-                          onClick={() => setFormUsername(generateUsername(formName, formEntity))}
-                          className="h-9 px-3 rounded-lg border border-border bg-card/65 text-foreground/80 hover:text-foreground flex items-center gap-1.5 text-[13px] font-medium cursor-pointer transition-colors"
+                          onClick={() => setIsEntityDropdownOpen(!isEntityDropdownOpen)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
                         >
-                          <Sparkles className="h-3.5 w-3.5 text-warning" /> Auto-generate
+                          <span className="truncate">
+                            {formEntity ? (
+                              (() => {
+                                const ent = ENTITY_DEFAULTS.find((e) => e.code === formEntity);
+                                return ent ? `${ent.name} (${ent.code})` : formEntity;
+                              })()
+                            ) : (
+                              <span className="text-muted-foreground">Select entity...</span>
+                            )}
+                          </span>
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         </button>
-                      </div>
-                      <p className="text-[11px] text-text-muted">Format: [ENTITY]-[Initials][LastName] (auto-generated)</p>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Active Duration */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Calendar className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Active Duration</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">When this representative is valid</p>
+                        {isEntityDropdownOpen && (
+                          <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-popover text-popover-foreground shadow-glow p-2 space-y-2">
+                            <div className="relative flex items-center">
+                              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                              <input
+                                type="text"
+                                placeholder="Search entity..."
+                                value={entitySearchQuery}
+                                onChange={(e) => setEntitySearchQuery(e.target.value)}
+                                className="h-8.5 w-full rounded-lg border border-border/60 bg-card/50 pl-8 pr-3 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="max-h-[220px] overflow-y-auto scrollbar-thin space-y-1">
+                              {filteredEntities.map((ent) => (
+                                <button
+                                  key={ent.code}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormEntity(ent.code);
+                                    setIsEntityDropdownOpen(false);
+                                    setEntitySearchQuery("");
+                                  }}
+                                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-foreground/[0.04] transition text-left cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-xs ${ent.color}`}>
+                                      {ent.name.charAt(0)}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="text-[13px] font-semibold text-foreground truncate">{ent.name}</div>
+                                      <div className="text-[10.5px] text-muted-foreground">{ent.type}</div>
+                                    </div>
+                                  </div>
+                                  <span className="text-[11px] font-bold text-muted-foreground bg-foreground/[0.06] border border-border/40 px-1.5 py-0.5 rounded-md uppercase shrink-0">
+                                    {ent.code}
+                                  </span>
+                                </button>
+                              ))}
+                              {filteredEntities.length === 0 && (
+                                <div className="text-center py-4 text-muted-foreground text-[12.5px]">No matching entities found.</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Active From *</label>
-                        <div className="relative">
-                          <input
-                            type="date"
-                            value={formActiveFrom}
-                            onChange={(e) => setFormActiveFrom(e.target.value)}
-                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Active Until *</label>
-                        <div className="relative">
-                          <input
-                            type="date"
-                            value={formActiveUntil}
-                            onChange={(e) => setFormActiveUntil(e.target.value)}
-                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {activeTab === "security" && (
-              <div className="space-y-5">
-                {/* Set Password */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <LockKeyhole className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Set Password</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Define the login password for this representative</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">New Password</label>
-                        <div className="relative">
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="At least 8 characters..."
-                            value={formPassword}
-                            onChange={(e) => setFormPassword(e.target.value)}
-                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 pr-10 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                          >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
+                  {/* Personal Information */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <User className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Personal Information</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Full name, email and phone details</p>
                       </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Confirm Password</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Full Name *</label>
                         <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Re-enter password"
-                          value={formConfirmPassword}
-                          onChange={(e) => setFormConfirmPassword(e.target.value)}
+                          type="text"
+                          placeholder="e.g. Ahmed Al Mansouri"
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
                           className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
                         />
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleSetPassword}
-                      className="bg-danger hover:opacity-90 text-white font-medium py-1.5 px-4 rounded-lg text-[13.0px] cursor-pointer shadow-soft transition-all"
-                    >
-                      Set Password
-                    </button>
-                  </div>
-                </div>
-
-                {/* Security Status */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Shield className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">Security Status</h3>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20">
-                    {formPassword ? (
-                      <div className="rounded-lg border border-success/30 bg-success/15 p-3.5 flex items-start gap-2.5 text-success text-[12.5px] leading-relaxed">
-                        <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
-                        <div>Password set — user account is secured.</div>
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-border/50 bg-foreground/[0.03] p-3.5 flex items-start gap-2.5 text-muted-foreground text-[12.5px] leading-relaxed">
-                        <AlertCircle className="h-4 w-4 text-muted-foreground/80 mt-0.5 shrink-0" />
-                        <div>No password set — user cannot log in.</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "access" && (
-              <div className="space-y-5">
-                {/* ArcGIS Portal Access */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <Globe className="h-4 w-4 text-accent" />
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-foreground">ArcGIS Portal Access</h3>
-                      <p className="text-[11.5px] text-muted-foreground mt-0.5">Grant access to an ArcGIS Online or Enterprise portal</p>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[13.5px] font-semibold text-foreground">ArcGIS Portal Access</span>
-                      <button
-                        type="button"
-                        onClick={() => setGisAccessEnabled(!gisAccessEnabled)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gisAccessEnabled ? "bg-success" : "bg-foreground/20"}`}
-                      >
-                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${gisAccessEnabled ? "translate-x-4" : "translate-x-0"}`} />
-                      </button>
-                    </div>
-                    <div className="text-[12px] text-muted-foreground leading-normal">
-                      Toggle the switch to enable access configuration.
-                    </div>
-                  </div>
-                </div>
-
-                {/* LDAP / Directory Groups */}
-                <div className="rounded-xl border border-border/50 overflow-hidden bg-card/30 shadow-soft">
-                  <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/40">
-                    <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-accent" />
-                      <div>
-                        <h3 className="text-[14px] font-semibold text-foreground">LDAP / Directory Groups</h3>
-                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Manage group memberships</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-surface/20 space-y-5">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-3">
-                      <div className="space-y-1">
-                        <div className="text-[13px] font-bold text-foreground">CURRENT MEMBERSHIPS ({selectedGroups.length})</div>
-                        <div className="text-[11.5px] text-muted-foreground">
-                          {selectedGroups.length === 0 ? "No group memberships assigned" : `Selected: ${selectedGroups.join(", ")}`}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Email Address *</label>
+                          <div className="relative w-full">
+                            <Globe className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
+                            <input
+                              type="email"
+                              placeholder="user@entity.gov.ae"
+                              value={formEmail}
+                              onChange={(e) => setFormEmail(e.target.value)}
+                              className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 pl-10 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Phone *</label>
+                          <div className="flex gap-2">
+                            <select
+                              value={formPhoneCode}
+                              onChange={(e) => setFormPhoneCode(e.target.value)}
+                              className="h-9 border border-border/60 bg-card/90 dark:bg-card/50 text-foreground text-[13px] rounded-lg px-2 w-24 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40"
+                            >
+                              <option value="+971">+971</option>
+                              <option value="+966">+966</option>
+                              <option value="+1">+1</option>
+                              <option value="+44">+44</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="50 123 4567"
+                              value={formPhoneNum}
+                              onChange={(e) => setFormPhoneNum(e.target.value)}
+                              className="h-9 flex-1 rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="relative w-full sm:w-[240px]">
-                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                          value={groupFilter}
-                          onChange={(e) => setGroupFilter(e.target.value)}
-                          placeholder="Filter groups..."
-                          className="h-8 w-full rounded-lg border border-border/60 bg-card/50 pl-9 pr-3 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                        />
+                    </div>
+                  </div>
+
+                  {/* Job Details */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Briefcase className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Job Details</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Title, department and role configuration</p>
                       </div>
                     </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Job Title / Designation *</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Senior Data Engineer"
+                            value={formJobTitle}
+                            onChange={(e) => setFormJobTitle(e.target.value)}
+                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Department *</label>
+                          <Select value={formDept} onValueChange={setFormDept}>
+                            <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
+                              <SelectValue placeholder="Select department..." />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border/60 max-h-[300px] overflow-y-auto">
+                              <SelectItem value="Select department..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select department...</SelectItem>
+                              {DEPARTMENTS.map((dept) => (
+                                <SelectItem key={dept} value={dept} className="cursor-pointer text-[13.5px]">
+                                  {dept}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
 
-                    <div className="space-y-4 max-h-[360px] overflow-y-auto scrollbar-thin pr-1">
-                      {filteredDirectoryGroups.map((cat) => (
-                        <div key={cat.category} className="space-y-2">
-                          <span className="text-[11.5px] font-bold text-muted-foreground tracking-wider uppercase block">{cat.category}</span>
-                          <div className="border border-border/50 rounded-xl overflow-hidden bg-card/25 divide-y divide-border/40">
-                            {cat.items.map((item) => {
-                              const checked = selectedGroups.includes(item.id);
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Role *</label>
+                          <div className="flex overflow-hidden rounded-lg border border-border/60 bg-card/45 p-1 h-9">
+                            {["Technical", "Business", "Head/Director"].map((role) => {
+                              const sel = formRole === role;
                               return (
-                                <label
-                                  key={item.id}
-                                  className="flex items-start gap-3 p-3 hover:bg-foreground/[0.02] cursor-pointer transition-colors"
+                                <button
+                                  key={role}
+                                  type="button"
+                                  onClick={() => setFormRole(role)}
+                                  className={`flex-1 rounded-md text-[13px] font-medium transition cursor-pointer px-3 ${
+                                    sel ? "bg-primary text-white shadow-soft" : "text-muted-foreground hover:text-foreground"
+                                  }`}
                                 >
-                                  <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={() => toggleGroupMembership(item.id)}
-                                    className="h-4 w-4 rounded border-border bg-card/85 text-primary mt-0.5 cursor-pointer"
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <div className="text-[13px] font-bold text-foreground">{item.name}</div>
-                                    <div className="text-[11.5px] text-muted-foreground mt-0.5 leading-normal">{item.desc}</div>
-                                  </div>
-                                </label>
+                                  {role}
+                                </button>
                               );
                             })}
                           </div>
                         </div>
-                      ))}
-                      {filteredDirectoryGroups.length === 0 && (
-                        <div className="text-center py-6 text-muted-foreground text-[13px]">No matching directory groups found.</div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Position Type *</label>
+                          <Select value={formPositionType} onValueChange={setFormPositionType}>
+                            <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
+                              <SelectValue placeholder="Select type..." />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border/60">
+                              <SelectItem value="Select type..." disabled className="cursor-pointer text-[13.5px] text-muted-foreground">Select type...</SelectItem>
+                              {POSITION_TYPES.map((pt) => (
+                                <SelectItem key={pt} value={pt} className="cursor-pointer text-[13.5px]">
+                                  {pt}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Status *</label>
+                        <Select value={formStatus} onValueChange={setFormStatus}>
+                          <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer">
+                            <SelectValue placeholder="Active" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border/60">
+                            {STATUSES.map((status) => (
+                              <SelectItem key={status} value={status} className="cursor-pointer text-[13.5px]">
+                                {status}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Remarks */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Pencil className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Remarks</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Optional notes about this representative</p>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <textarea
+                        placeholder="Any additional notes..."
+                        rows={4}
+                        value={formRemarks}
+                        onChange={(e) => setFormRemarks(e.target.value)}
+                        className="w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 p-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "account" && (
+                <div className="space-y-5">
+                  {/* Username & Credentials */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <IdCard className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Username & Credentials</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Platform login identity</p>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Username *</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="ENTITY-InitialsLastName"
+                            value={formUsername}
+                            onChange={(e) => setFormUsername(e.target.value)}
+                            className="h-9 flex-1 rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setFormUsername(generateUsername(formName, formEntity))}
+                            className="h-9 px-3 rounded-lg border border-border bg-card/65 text-foreground/80 hover:text-foreground flex items-center gap-1.5 text-[13px] font-medium cursor-pointer transition-colors"
+                          >
+                            <Sparkles className="h-3.5 w-3.5 text-warning" /> Auto-generate
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-text-muted">Format: [ENTITY]-[Initials][LastName] (auto-generated)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Active Duration */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Calendar className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Active Duration</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">When this representative is valid</p>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Active From *</label>
+                          <div className="relative">
+                            <input
+                              type="date"
+                              value={formActiveFrom}
+                              disabled={noDurationSet}
+                              onChange={(e) => {
+                                setFormActiveFrom(e.target.value);
+                                if (e.target.value) setNoDurationSet(false);
+                              }}
+                              className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer disabled:opacity-50"
+                            />
+                            <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Active Until *</label>
+                          <div className="relative">
+                            <input
+                              type="date"
+                              value={formActiveUntil}
+                              disabled={noDurationSet}
+                              onChange={(e) => {
+                                setFormActiveUntil(e.target.value);
+                                if (e.target.value) setNoDurationSet(false);
+                              }}
+                              className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer disabled:opacity-50"
+                            />
+                            <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* No Duration Set Checkbox Box */}
+                      <div className="space-y-1.5">
+                        <div
+                          onClick={() => {
+                            const val = !noDurationSet;
+                            setNoDurationSet(val);
+                            if (val) {
+                              setFormActiveFrom("");
+                              setFormActiveUntil("");
+                            }
+                          }}
+                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                            noDurationSet
+                              ? "bg-primary/10 border-primary"
+                              : "bg-card/50 border-border/60 hover:bg-card/85 dark:bg-card/35 dark:hover:bg-card/60"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={noDurationSet}
+                            onChange={(e) => {
+                              setNoDurationSet(e.target.checked);
+                              if (e.target.checked) {
+                                setFormActiveFrom("");
+                                setFormActiveUntil("");
+                              }
+                            }}
+                            className="h-4 w-4 rounded border-border bg-card/85 text-primary cursor-pointer mt-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <div className="flex items-center gap-2 text-[13px] text-foreground font-medium">
+                            <Calendar className="h-4 w-4 text-accent" />
+                            <span>No duration set</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "security" && (
+                <div className="space-y-5">
+                  {/* Set Password */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <LockKeyhole className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Set Password</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Define the login password for this representative</p>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">New Password</label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="At least 8 characters..."
+                              value={formPassword}
+                              onChange={(e) => setFormPassword(e.target.value)}
+                              className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 pr-10 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                            >
+                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">Confirm Password</label>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Re-enter password"
+                            value={formConfirmPassword}
+                            onChange={(e) => setFormConfirmPassword(e.target.value)}
+                            className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSetPassword}
+                        className="bg-danger hover:opacity-90 text-white font-medium py-1.5 px-4 rounded-lg text-[13.0px] cursor-pointer shadow-soft transition-all"
+                      >
+                        Set Password
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Security Status */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Shield className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">Security Status</h3>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10">
+                      {formPassword ? (
+                        <div className="rounded-lg border border-success/30 bg-success/15 p-3.5 flex items-start gap-2.5 text-success text-[12.5px] leading-relaxed">
+                          <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                          <div>Password set — user account is secured.</div>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-border/50 bg-foreground/[0.03] p-3.5 flex items-start gap-2.5 text-muted-foreground text-[12.5px] leading-relaxed">
+                          <AlertCircle className="h-4 w-4 text-muted-foreground/80 mt-0.5 shrink-0" />
+                          <div>No password set — user cannot log in.</div>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {activeTab === "access" && (
+                <div className="space-y-5">
+                  {/* ArcGIS Portal Access */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center gap-3 border-b border-border/50 bg-elevated/30">
+                      <Globe className="h-4 w-4 text-accent" />
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-foreground">ArcGIS Portal Access</h3>
+                        <p className="text-[11.5px] text-muted-foreground mt-0.5">Grant access to an ArcGIS Online or Enterprise portal</p>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[13.5px] font-semibold text-foreground">ArcGIS Portal Access</span>
+                        <button
+                          type="button"
+                          onClick={() => setGisAccessEnabled(!gisAccessEnabled)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gisAccessEnabled ? "bg-success" : "bg-foreground/20"}`}
+                        >
+                          <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${gisAccessEnabled ? "translate-x-4" : "translate-x-0"}`} />
+                        </button>
+                      </div>
+                      <div className="text-[12px] text-muted-foreground leading-normal">
+                        Toggle the switch to enable access configuration.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LDAP / Directory Groups */}
+                  <div className="rounded-xl border border-border/50 overflow-hidden bg-card/25 dark:bg-card/15 shadow-soft">
+                    <div className="px-5 py-4 flex items-center justify-between border-b border-border/50 bg-elevated/30">
+                      <div className="flex items-center gap-3">
+                        <Users className="h-4 w-4 text-accent" />
+                        <div>
+                          <h3 className="text-[14px] font-semibold text-foreground">LDAP / Directory Groups</h3>
+                          <p className="text-[11.5px] text-muted-foreground mt-0.5">Manage group memberships</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-surface/10 space-y-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-3">
+                        <div className="space-y-1">
+                          <div className="text-[13px] font-bold text-foreground">CURRENT MEMBERSHIPS ({selectedGroups.length})</div>
+                          <div className="text-[11.5px] text-muted-foreground">
+                            {selectedGroups.length === 0 ? "No group memberships assigned" : `Selected: ${selectedGroups.join(", ")}`}
+                          </div>
+                        </div>
+                        <div className="relative w-full sm:w-[240px]">
+                          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            value={groupFilter}
+                            onChange={(e) => setGroupFilter(e.target.value)}
+                            placeholder="Filter groups..."
+                            className="h-8 w-full rounded-lg border border-border/60 bg-card/50 pl-9 pr-3 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 max-h-[360px] overflow-y-auto scrollbar-thin pr-1">
+                        {filteredDirectoryGroups.map((cat) => (
+                          <div key={cat.category} className="space-y-2">
+                            <span className="text-[11.5px] font-bold text-muted-foreground tracking-wider uppercase block">{cat.category}</span>
+                            <div className="border border-border/50 rounded-xl overflow-hidden bg-card/25 divide-y divide-border/40">
+                              {cat.items.map((item) => {
+                                const checked = selectedGroups.includes(item.id);
+                                return (
+                                  <label
+                                    key={item.id}
+                                    className="flex items-start gap-3 p-3 hover:bg-foreground/[0.02] cursor-pointer transition-colors"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => toggleGroupMembership(item.id)}
+                                      className="h-4 w-4 rounded border-border bg-card/85 text-primary mt-0.5 cursor-pointer"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-[13px] font-bold text-foreground">{item.name}</div>
+                                      <div className="text-[11.5px] text-muted-foreground mt-0.5 leading-normal">{item.desc}</div>
+                                    </div>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                        {filteredDirectoryGroups.length === 0 && (
+                          <div className="text-center py-6 text-muted-foreground text-[13px]">No matching directory groups found.</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Attached Bottom Helper Footer inside container */}
+            <div className="border-t border-border/50 bg-elevated/20 px-6 py-4 flex items-center gap-2 text-muted-foreground text-xs rounded-b-xl">
+              <KeyRound className="h-4 w-4 text-accent shrink-0" />
+              <span>New record — access & password can be configured after saving</span>
+            </div>
           </div>
 
           {/* Right Column: Live Preview Panel */}

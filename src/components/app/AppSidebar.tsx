@@ -52,7 +52,7 @@ export function AppSidebar() {
         style={{
           background: isLight
             ? "linear-gradient(to top, rgba(37, 99, 235, 0.18) 0%, rgba(37, 99, 235, 0.06) 50%, transparent 100%)"
-            : "linear-gradient(to top, rgba(91, 140, 255, 0.55) 0%, rgba(37, 99, 235, 0.22) 50%, transparent 100%)",
+            : "linear-gradient(to top, rgba(91, 140, 255, 0.15) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 100%)",
         }}
         aria-hidden="true"
       />

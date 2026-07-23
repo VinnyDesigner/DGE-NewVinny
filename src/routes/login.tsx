@@ -178,22 +178,26 @@ function AnimatedLogo() {
 
 function FloatingKeywords() {
   return (
-    <div className="my-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 select-none login-hero-subheading leading-snug tracking-[-0.01em] font-bold text-[28px]">
-      <span className="text-primary inline-block animate-smooth-float-1">
-        Automate,
-      </span>
+    <div className="my-1.5 select-none login-hero-subheading leading-snug tracking-[-0.01em] font-bold text-[28px] space-y-1">
+      {/* 1st Line */}
+      <div className="flex flex-wrap items-center gap-x-2.5">
+        <span className="text-primary inline-block animate-smooth-float-1">
+          Automate,
+        </span>
+        <span className="text-success inline-block animate-smooth-float-2">
+          Monitor,
+        </span>
+        <span className="text-info inline-block animate-smooth-float-3">
+          and Governance
+        </span>
+      </div>
 
-      <span className="text-success inline-block animate-smooth-float-2">
-        Monitor,
-      </span>
-
-      <span className="text-info inline-block animate-smooth-float-3">
-        and Governance
-      </span>
-
-      <span className="bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent inline-block drop-shadow-[0_2px_10px_rgba(56,189,248,0.15)] pl-0.5 animate-smooth-float-4">
-        Enterprise Data Workflows
-      </span>
+      {/* 2nd Line */}
+      <div>
+        <span className="bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent inline-block drop-shadow-[0_2px_10px_rgba(56,189,248,0.15)] animate-smooth-float-4">
+          Enterprise Data Workflows
+        </span>
+      </div>
     </div>
   );
 }

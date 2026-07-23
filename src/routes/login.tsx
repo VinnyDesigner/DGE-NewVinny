@@ -491,10 +491,12 @@ function Login() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.25 }}
-                className="mt-2 max-w-[550px] text-[15px] leading-relaxed text-muted-foreground/85 login-hero-paragraph"
+                className="mt-2 max-w-[560px] text-[15px] leading-relaxed text-muted-foreground/85 login-hero-paragraph"
               >
                 A secure command center for government-grade data workflows —
+                <br className="hidden sm:inline" />
                 orchestrating validation, transformation, metadata and quality
+                <br className="hidden sm:inline" />
                 across every layer of the pipeline.
               </motion.p>
             </div>

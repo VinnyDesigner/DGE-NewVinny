@@ -17,6 +17,7 @@ import {
   FolderOpen,
   Eye as ViewIcon,
   Edit3,
+  Save,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -24,6 +25,23 @@ import { Switch } from "@/components/ui/switch";
 import { TablePagination } from "@/components/app/TablePagination";
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/tools/automation")({
   head: () => ({
@@ -40,6 +58,8 @@ const initialTools = [
   {
     id: "data-collection",
     name: "Data Collection Engine",
+    key: "DataCollectionEngine",
+    executions: 0,
     description: "Collects and ingests data from registered sources.",
     category: "Collection",
     tier: "Primary Engine",
@@ -50,6 +70,8 @@ const initialTools = [
   {
     id: "data-discovery",
     name: "Data Discovery Engine",
+    key: "DataDiscoveryEngine",
+    executions: 4,
     description: "Validates sources, discovers layers and fields, and orchestrates workspace setup and standardization.",
     category: "Discovery",
     tier: "Primary Engine",
@@ -60,6 +82,8 @@ const initialTools = [
   {
     id: "data-quality",
     name: "Data Quality Engine",
+    key: "DataQualityEngine",
+    executions: 28,
     description: "Executes comprehensive quality rule checks.",
     category: "Quality",
     tier: "Primary Engine",
@@ -70,6 +94,8 @@ const initialTools = [
   {
     id: "data-loading",
     name: "Data Loading",
+    key: "DataLoading",
+    executions: 15,
     description: "Loads QA-qualified data into the target enterprise geodatabase (full or delta) with backup + count-guard.",
     category: "Sync",
     tier: "Primary Engine",
@@ -80,6 +106,8 @@ const initialTools = [
   {
     id: "delta-sync",
     name: "Delta Sync Engine",
+    key: "DeltaSyncEngine",
+    executions: 82,
     description: "Detects and loads only changed records.",
     category: "Sync",
     tier: "Primary Engine",
@@ -90,6 +118,8 @@ const initialTools = [
   {
     id: "external-sync",
     name: "External Data Sync Engine",
+    key: "ExternalDataSyncEngine",
+    executions: 9,
     description: "Publishes and synchronises processed data externally.",
     category: "Sync",
     tier: "Primary Engine",
@@ -100,6 +130,8 @@ const initialTools = [
   {
     id: "internal-sync",
     name: "Internal Data Sync Engine",
+    key: "InternalDataSyncEngine",
+    executions: 41,
     description: "Synchronises data internally between systems.",
     category: "Sync",
     tier: "Primary Engine",
@@ -110,6 +142,8 @@ const initialTools = [
   {
     id: "metadata-val",
     name: "Metadata Validation Engine",
+    key: "MetadataValidationEngine",
+    executions: 7,
     description: "Validates metadata completeness and standards.",
     category: "Validation",
     tier: "Primary Engine",
@@ -120,6 +154,8 @@ const initialTools = [
   {
     id: "scheduling-service",
     name: "Scheduling Service",
+    key: "SchedulingService",
+    executions: 105,
     description: "Configurator for the orchestration worker services (Scheduler, Dispatcher, Execution) and the data-collection.",
     category: "Orchestration",
     tier: "Primary Engine",
@@ -130,6 +166,8 @@ const initialTools = [
   {
     id: "data-analyzer",
     name: "Data Analyzer",
+    key: "DataAnalyzer",
+    executions: 3,
     description: "Performs statistical analysis and profiling.",
     category: "Analytics",
     tier: "Utility",
@@ -140,6 +178,8 @@ const initialTools = [
   {
     id: "database-compress",
     name: "Database Compress",
+    key: "DatabaseCompress",
+    executions: 1,
     description: "Compresses and optimises database storage.",
     category: "Utility",
     tier: "Utility",
@@ -150,6 +190,8 @@ const initialTools = [
   {
     id: "workspace-setup",
     name: "Workspace Setup Engine",
+    key: "WorkspaceSetupEngine",
+    executions: 0,
     description: "Creates and manages standard workspace folder structures.",
     category: "Utility",
     tier: "Utility",
@@ -170,11 +212,51 @@ function AutomationToolsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Modal State
+  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | null>(null);
+
+  // Edit fields State
+  const [editName, setEditName] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editActive, setEditActive] = useState(false);
+
   // Toggle Schedule
   const toggleSchedule = (id: string) => {
     setTools((prev) =>
       prev.map((t) => (t.id === id ? { ...t, schedule: !t.schedule } : t))
     );
+  };
+
+  const handleSaveChanges = () => {
+    if (!selectedTool) return;
+    if (!editName.trim()) {
+      toast.error("Tool name is required");
+      return;
+    }
+    if (!editCategory.trim()) {
+      toast.error("Category is required");
+      return;
+    }
+
+    setTools((prev) =>
+      prev.map((t) =>
+        t.id === selectedTool.id
+          ? {
+              ...t,
+              name: editName,
+              category: editCategory,
+              description: editDescription,
+              schedule: editActive,
+            }
+          : t
+      )
+    );
+
+    toast.success("Automation tool updated successfully");
+    setSelectedTool(null);
+    setModalMode(null);
   };
 
   const filteredTools = useMemo(() => {
@@ -454,6 +536,10 @@ function AutomationToolsPage() {
                       <td className="px-5 py-4 align-middle text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1.5 justify-end">
                           <button
+                            onClick={() => {
+                              setSelectedTool(t);
+                              setModalMode("view");
+                            }}
                             title="View details"
                             className={cn(
                               "flex h-8 w-8 items-center justify-center rounded-md border border-border/60 transition cursor-pointer",
@@ -463,6 +549,14 @@ function AutomationToolsPage() {
                             <ViewIcon className="h-4 w-4" />
                           </button>
                           <button
+                            onClick={() => {
+                              setSelectedTool(t);
+                              setEditName(t.name);
+                              setEditCategory(t.category);
+                              setEditDescription(t.description);
+                              setEditActive(t.schedule);
+                              setModalMode("edit");
+                            }}
                             title="Edit parameter"
                             className={cn(
                               "flex h-8 w-8 items-center justify-center rounded-md border border-border/60 transition cursor-pointer",
@@ -492,6 +586,258 @@ function AutomationToolsPage() {
           itemNamePlural="tools"
         />
       </Surface>
+
+      {/* View & Edit Modals */}
+      <Dialog
+        open={modalMode !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedTool(null);
+            setModalMode(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-xl p-0 overflow-hidden bg-[#111c2e] border-border/80 text-foreground rounded-2xl">
+          {selectedTool && (
+            <>
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border/60">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-blue-600 ring-1 ring-slate-200">
+                    <Wrench className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-bold text-foreground">
+                    {modalMode === "view" ? selectedTool.name : "Edit Automation Tool"}
+                  </DialogTitle>
+                </div>
+              </div>
+
+              {modalMode === "view" ? (
+                <>
+                  {/* View Mode Body */}
+                  <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-2 gap-y-6 gap-x-8">
+                      {/* Tool Key */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Tool Key</div>
+                        <div className="mt-1 font-mono text-[14px] text-foreground font-semibold">
+                          {selectedTool.key || selectedTool.name.replace(/\s+/g, "")}
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Status</div>
+                        <div className="mt-1">
+                          <span className="inline-flex items-center rounded-full bg-[#10b981]/15 text-[#10b981] px-3 py-0.5 text-xs font-semibold border border-[#10b981]/25">
+                            {selectedTool.schedule ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Category */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Category</div>
+                        <div className="mt-1 text-[15px] font-medium text-foreground">{selectedTool.category}</div>
+                      </div>
+
+                      {/* Tier */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Tier</div>
+                        <div className="mt-1 text-[15px] font-medium text-foreground">{selectedTool.tier}</div>
+                      </div>
+
+                      {/* Pipeline Group */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Pipeline Group</div>
+                        <div className="mt-1">
+                          <span className="inline-flex items-center rounded-full bg-[#10b981]/15 text-[#10b981] px-3 py-0.5 text-xs font-semibold border border-[#10b981]/25">
+                            {selectedTool.group}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Executions */}
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Executions</div>
+                        <div className="mt-1 text-[15px] font-medium text-foreground">
+                          {selectedTool.executions ?? 0}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <div className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Description</div>
+                      <div className="mt-1 text-[15px] text-foreground leading-relaxed">
+                        {selectedTool.description}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* View Mode Footer */}
+                  <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#0a111a]/40 border-t border-border/60">
+                    <button
+                      onClick={() => {
+                        setSelectedTool(null);
+                        setModalMode(null);
+                      }}
+                      className="px-5 py-2.5 text-[14px] font-medium text-slate-300 bg-transparent hover:bg-white/5 border border-border/80 rounded-lg transition cursor-pointer"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditName(selectedTool.name);
+                        setEditCategory(selectedTool.category);
+                        setEditDescription(selectedTool.description);
+                        setEditActive(selectedTool.schedule);
+                        setModalMode("edit");
+                      }}
+                      className="px-5 py-2.5 text-[14px] font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition cursor-pointer flex items-center gap-2"
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      Edit
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Edit Mode Body */}
+                  <div className="p-6 space-y-5">
+                    {/* Row 1: Tool Key & Tier */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[13px] font-medium text-slate-300">
+                          Tool Key <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          disabled
+                          value={selectedTool.key || selectedTool.name.replace(/\s+/g, "")}
+                          className="bg-[#0b121f] border-border/60 text-slate-500 font-mono mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80"
+                        />
+                        <p className="mt-1 text-[11px] text-muted-foreground/80">Tool key cannot be changed.</p>
+                      </div>
+                      <div>
+                        <label className="text-[13px] font-medium text-slate-300">Tier</label>
+                        <Select disabled defaultValue={selectedTool.tier}>
+                          <SelectTrigger className="bg-[#0b121f] border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={selectedTool.tier}>{selectedTool.tier}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="mt-1 text-[11px] text-muted-foreground/80">Tier cannot be changed.</p>
+                      </div>
+                    </div>
+
+                    {/* Row 2: Tool Name */}
+                    <div>
+                      <label className="text-[13px] font-medium text-slate-300">
+                        Tool Name <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 h-9.5 text-[13px]"
+                      />
+                    </div>
+
+                    {/* Row 3: Pipeline Group */}
+                    <div>
+                      <label className="text-[13px] font-medium text-slate-300">Pipeline Group</label>
+                      <Select disabled defaultValue={selectedTool.group}>
+                        <SelectTrigger className="bg-[#0b121f] border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={selectedTool.group}>{selectedTool.group}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="mt-1.5 text-[11px] text-muted-foreground/80 leading-normal">
+                        Full Pipeline = engines that run end-to-end (Data Collection, Data Quality & Internal Data Sync). All other tools are Standalone. Cannot be changed.
+                      </p>
+                    </div>
+
+                    {/* Row 4: Category */}
+                    <div>
+                      <label className="text-[13px] font-medium text-slate-300">
+                        Category <span className="text-red-500">*</span>
+                      </label>
+                      <Select value={editCategory} onValueChange={setEditCategory}>
+                        <SelectTrigger className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 h-9.5 text-[13px]">
+                          <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#111c2e] border-border/80 text-foreground">
+                          <SelectItem value="Collection">Collection</SelectItem>
+                          <SelectItem value="Discovery">Discovery</SelectItem>
+                          <SelectItem value="Quality">Quality</SelectItem>
+                          <SelectItem value="Sync">Sync</SelectItem>
+                          <SelectItem value="Validation">Validation</SelectItem>
+                          <SelectItem value="Orchestration">Orchestration</SelectItem>
+                          <SelectItem value="Analytics">Analytics</SelectItem>
+                          <SelectItem value="Utility">Utility</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Row 5: Description */}
+                    <div>
+                      <label className="text-[13px] font-medium text-slate-300">Description</label>
+                      <Textarea
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 min-h-[80px] resize-none text-[13px]"
+                      />
+                    </div>
+
+                    {/* Row 6: Active */}
+                    <div className="space-y-1">
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          id="tool-active"
+                          checked={editActive}
+                          onCheckedChange={(checked) => setEditActive(!!checked)}
+                          className="mt-0.5 border-border bg-transparent data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded cursor-pointer"
+                        />
+                        <label
+                          htmlFor="tool-active"
+                          className="text-[14px] font-medium text-foreground cursor-pointer select-none"
+                        >
+                          Active
+                        </label>
+                      </div>
+                      <p className="pl-6 text-[12px] text-muted-foreground/80 leading-normal">
+                        Inactive tools are hidden from new schedule selection. Existing schedules remain valid.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Edit Mode Footer */}
+                  <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#0a111a]/40 border-t border-border/60">
+                    <button
+                      onClick={() => {
+                        setModalMode("view");
+                      }}
+                      className="px-5 py-2.5 text-[14px] font-medium text-slate-300 bg-transparent hover:bg-white/5 border border-border/80 rounded-lg transition cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveChanges}
+                      className="px-5 py-2.5 text-[14px] font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition cursor-pointer flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save changes
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

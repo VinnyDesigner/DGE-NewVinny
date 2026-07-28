@@ -186,7 +186,7 @@ function NodeOrchestrationComponent() {
                 <div
                   onClick={() => setDeploymentType("single")}
                   className={cn(
-                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-[#070b13]/60 hover:bg-[#070b13]/90",
+                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-card hover:bg-card/90",
                     deploymentType === "single"
                       ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
                       : "border-border/60"
@@ -238,7 +238,7 @@ function NodeOrchestrationComponent() {
                 <div
                   onClick={() => setDeploymentType("standard")}
                   className={cn(
-                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-[#070b13]/60 hover:bg-[#070b13]/90",
+                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-card hover:bg-card/90",
                     deploymentType === "standard"
                       ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
                       : "border-border/60"
@@ -290,7 +290,7 @@ function NodeOrchestrationComponent() {
                 <div
                   onClick={() => setDeploymentType("ha")}
                   className={cn(
-                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-[#070b13]/60 hover:bg-[#070b13]/90",
+                    "border rounded-xl p-4.5 cursor-pointer transition-all flex items-start justify-between select-none bg-card hover:bg-card/90",
                     deploymentType === "ha"
                       ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
                       : "border-border/60"

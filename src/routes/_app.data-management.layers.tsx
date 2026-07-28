@@ -79,7 +79,7 @@ const initialLayers: DataLayerItem[] = [
     dbName: "adda_fiber_net_as",
     entity: "ADDA",
     geometry: "Line",
-    sensitivity: "Confidential",
+    sensitivity: "Sensitive",
     status: "Active",
     layerType: "Vector",
     schema: "ADDA_NETWORK_SCHEMA",
@@ -100,15 +100,15 @@ const columns = [
 
 const ENTITIES = [
   { code: "ADDA", name: "Abu Dhabi Digital Authority" },
-  { code: "EAD", name: "Environment Agency Abu Dhabi" },
-  { code: "DGE", name: "Dept of Government Enablement" },
   { code: "ADDC", name: "Abu Dhabi Distribution Company" },
   { code: "ADHA", name: "Abu Dhabi Housing Authority" },
+  { code: "DGE", name: "Dept of Government Enablement" },
+  { code: "EAD", name: "Environment Agency Abu Dhabi" },
 ];
 
 const GEOMETRIES = ["Point", "Line", "Polygon", "Multipoint", "Raster"];
 const LAYER_TYPES = ["Vector", "Raster", "Point Cloud", "Table (Non-Spatial)"];
-const SENSITIVITIES = ["Public", "Restricted", "Confidential"];
+const SENSITIVITIES = ["Open Data", "Restricted", "Sensitive", "Secured", "Secret"];
 const STATUSES = ["Active", "Inactive"];
 
 function LayersPage() {
@@ -230,14 +230,14 @@ function LayersPage() {
   const metrics = useMemo(() => {
     const total = layersList.length;
     const activeCount = layersList.filter((l) => l.status === "Active").length;
-    const publishedCount = layersList.filter((l) => l.sensitivity === "Public").length;
-    const confidentialCount = layersList.filter((l) => l.sensitivity === "Confidential" || l.sensitivity === "Restricted").length;
+    const publishedCount = layersList.filter((l) => l.sensitivity === "Open Data").length;
+    const confidentialCount = layersList.filter((l) => l.sensitivity === "Sensitive" || l.sensitivity === "Restricted" || l.sensitivity === "Secured" || l.sensitivity === "Secret").length;
 
     return [
       { label: "Total Layers", value: String(total), hint: "All registered", icon: Layers, tone: "primary" },
       { label: "Active", value: String(activeCount), hint: "Accepting deliveries", icon: CheckCircle2, tone: "success" },
       { label: "Published", value: String(publishedCount), hint: "Publicly accessible", icon: Globe2, tone: "info" },
-      { label: "By Classification", value: String(confidentialCount), hint: "Confidential or Restricted", icon: ShieldCheck, tone: "secondary" },
+      { label: "By Classification", value: String(confidentialCount), hint: "Restricted or higher", icon: ShieldCheck, tone: "secondary" },
     ] as const;
   }, [layersList]);
 
@@ -675,11 +675,11 @@ function LayersPage() {
             </SelectTrigger>
             <SelectContent className="bg-popover border-border/60">
               <SelectItem value="all-entities" className="cursor-pointer text-[13px]">All Entities</SelectItem>
-              <SelectItem value="adda" className="cursor-pointer text-[13px]">ADDA</SelectItem>
-              <SelectItem value="ead" className="cursor-pointer text-[13px]">EAD</SelectItem>
-              <SelectItem value="dge" className="cursor-pointer text-[13px]">DGE</SelectItem>
-              <SelectItem value="addc" className="cursor-pointer text-[13px]">ADDC</SelectItem>
-              <SelectItem value="adha" className="cursor-pointer text-[13px]">ADHA</SelectItem>
+              <SelectItem value="adda" className="cursor-pointer text-[13px]">ADDA — Abu Dhabi Digital Authority</SelectItem>
+              <SelectItem value="addc" className="cursor-pointer text-[13px]">ADDC — Abu Dhabi Distribution Company</SelectItem>
+              <SelectItem value="adha" className="cursor-pointer text-[13px]">ADHA — Abu Dhabi Housing Authority</SelectItem>
+              <SelectItem value="dge" className="cursor-pointer text-[13px]">DGE — Dept of Government Enablement</SelectItem>
+              <SelectItem value="ead" className="cursor-pointer text-[13px]">EAD — Environment Agency Abu Dhabi</SelectItem>
             </SelectContent>
           </Select>
 
@@ -690,9 +690,11 @@ function LayersPage() {
             </SelectTrigger>
             <SelectContent className="bg-popover border-border/60">
               <SelectItem value="all-sensitivity" className="cursor-pointer text-[13px]">All Sensitivity</SelectItem>
-              <SelectItem value="public" className="cursor-pointer text-[13px]">Public</SelectItem>
+              <SelectItem value="open data" className="cursor-pointer text-[13px]">Open Data</SelectItem>
               <SelectItem value="restricted" className="cursor-pointer text-[13px]">Restricted</SelectItem>
-              <SelectItem value="confidential" className="cursor-pointer text-[13px]">Confidential</SelectItem>
+              <SelectItem value="sensitive" className="cursor-pointer text-[13px]">Sensitive</SelectItem>
+              <SelectItem value="secured" className="cursor-pointer text-[13px]">Secured</SelectItem>
+              <SelectItem value="secret" className="cursor-pointer text-[13px]">Secret</SelectItem>
             </SelectContent>
           </Select>
 

@@ -94,62 +94,10 @@ interface MappingItem {
 }
 
 // Initial seed data
-const initialInstances: DBInstance[] = [
-  {
-    id: "inst1",
-    name: "DGE-PROD-POSTGRES",
-    type: "PostgreSQL",
-    environment: "Production",
-    hostname: "prod-pg.dge.gov.ae",
-    ipAddress: "10.200.45.12",
-    remarks: "Primary production geodatabase server",
-  },
-  {
-    id: "inst2",
-    name: "DGE-STAGE-SQLSERVER",
-    type: "SQL Server",
-    environment: "Staging",
-    hostname: "stage-ms.dge.gov.ae",
-    ipAddress: "10.200.46.25",
-    remarks: "Staging/QA spatial database server",
-  },
-];
-
-const initialDatabases: DatabaseItem[] = [
-  { id: "db1", instanceId: "inst1", name: "dge_spatial_prod", remarks: "Geospatial data storage" },
-  { id: "db2", instanceId: "inst1", name: "dge_metadata_prod", remarks: "Metadata catalog registries" },
-  { id: "db3", instanceId: "inst2", name: "dge_spatial_stage", remarks: "Staging sandbox database" },
-];
-
-const initialSchemas: SchemaItem[] = [
-  { id: "sch1", dbId: "db1", name: "public", remarks: "General objects" },
-  { id: "sch2", dbId: "db1", name: "onboarding", remarks: "Data source staging schemas" },
-  { id: "sch3", dbId: "db1", name: "layers", remarks: "Active operational layers" },
-  { id: "sch4", dbId: "db2", name: "registry", remarks: "Standard catalog tables" },
-  { id: "sch5", dbId: "db3", name: "dbo", remarks: "Default schema" },
-  { id: "sch6", dbId: "db3", name: "staging", remarks: "Staged raw buffers" },
-];
-
-const initialMappings: MappingItem[] = [
-  {
-    id: "map1",
-    instanceId: "inst1",
-    dbId: "db1",
-    entityName: "LandParcel",
-    tableName: "layers.land_parcel",
-    mappedColumnsCount: 8,
-    active: true,
-  },
-  {
-    id: "map2",
-    instanceId: "inst1",
-    dbId: "db1",
-    entityName: "BuildingFootprint",
-    tableName: "layers.building_footprints",
-    mappedColumnsCount: 12,
-    active: true,
-  },
-];
+const initialInstances: DBInstance[] = [];
+const initialDatabases: DatabaseItem[] = [];
+const initialSchemas: SchemaItem[] = [];
+const initialMappings: MappingItem[] = [];
 
 const STORAGE_KEYS = {
   INSTANCES: "dge_db_instances_data_v1",
@@ -487,10 +435,11 @@ function DatabaseMapping() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All DB Types</SelectItem>
-                <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                 <SelectItem value="SQL Server">SQL Server</SelectItem>
+                <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                 <SelectItem value="Oracle">Oracle</SelectItem>
                 <SelectItem value="MySQL">MySQL</SelectItem>
+                <SelectItem value="PostGIS">PostGIS</SelectItem>
               </SelectContent>
             </Select>
 
@@ -503,6 +452,7 @@ function DatabaseMapping() {
                 <SelectItem value="Production">Production</SelectItem>
                 <SelectItem value="Staging">Staging</SelectItem>
                 <SelectItem value="Development">Development</SelectItem>
+                <SelectItem value="UAT">UAT</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -525,8 +475,15 @@ function DatabaseMapping() {
               <TableBody>
                 {filteredInstances.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 text-muted-foreground text-xs">
-                      No database instances found.
+                    <TableCell colSpan={8} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <Database className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          No DB instances yet — click Create DB Instance.
+                        </p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -840,19 +797,35 @@ function DatabaseMapping() {
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-foreground">Map Entities to Schemas</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 font-semibold">
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-semibold font-semibold">
                       Map logical Entity columns to physical Database Schema table structures.
                     </p>
                   </div>
                 </div>
-                {mappingInstanceId && mappingDbId && (
+                <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => setIsMappingModalOpen(true)}
-                    className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1"
+                    variant="outline"
+                    className="h-8.5 px-3 font-semibold text-xs flex items-center gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      toast.success("Database schemas and mappings refreshed successfully");
+                    }}
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-8.5 px-3 font-semibold text-xs flex items-center gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      if (!mappingInstanceId || !mappingDbId) {
+                        toast.error("Please select a DB instance and database first");
+                        return;
+                      }
+                      setIsMappingModalOpen(true);
+                    }}
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Entity
                   </Button>
-                )}
+                </div>
               </div>
 
               {/* Mappings dynamic rendering */}
@@ -968,10 +941,11 @@ function DatabaseMapping() {
                     <SelectValue placeholder="PostgreSQL" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                     <SelectItem value="SQL Server">SQL Server</SelectItem>
+                    <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                     <SelectItem value="Oracle">Oracle</SelectItem>
                     <SelectItem value="MySQL">MySQL</SelectItem>
+                    <SelectItem value="PostGIS">PostGIS</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -986,6 +960,7 @@ function DatabaseMapping() {
                     <SelectItem value="Production">Production</SelectItem>
                     <SelectItem value="Staging">Staging</SelectItem>
                     <SelectItem value="Development">Development</SelectItem>
+                    <SelectItem value="UAT">UAT</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

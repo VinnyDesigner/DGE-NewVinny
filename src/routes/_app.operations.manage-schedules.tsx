@@ -748,3 +748,11 @@ function ArrowLeftIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+function SortTh({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <th className={cn("px-5 py-3 whitespace-nowrap", className)}>
+      <span className="inline-flex items-center gap-1">{children}<ChevronDown className="h-3 w-3 opacity-60" /></span>
+    </th>
+  );
+}

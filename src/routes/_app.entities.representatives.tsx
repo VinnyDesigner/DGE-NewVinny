@@ -150,7 +150,7 @@ const DIRECTORY_GROUPS = [
 
 const ENTITY_DEFAULTS = [
   { code: "ADDA", name: "Abu Dhabi Digital Authority", type: "Semi-Government", color: "bg-blue-600 dark:bg-blue-500" },
-  { code: "EAD", name: "Environment Agency Abu Dhabi", type: "Government", color: "bg-emerald-600 dark:bg-emerald-500" },
+  { code: "EAD", name: "Environment Agency Abu Dhabi", type: "Government", color: "bg-sky-600 dark:bg-sky-500" },
   { code: "DGE", name: "Dept of Government Enablement", type: "Semi-Government", color: "bg-purple-600 dark:bg-purple-500" },
   { code: "ADDC", name: "Abu Dhabi Distribution Company", type: "State-Owned", color: "bg-amber-600 dark:bg-amber-500" },
   { code: "ADHA", name: "Abu Dhabi Housing Authority", type: "Government", color: "bg-sky-600 dark:bg-sky-500" },
@@ -520,13 +520,13 @@ function RepsPage() {
         <div className="bg-card dark:bg-surface border border-border p-6 rounded-2xl shadow-soft">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-lg shadow-inner ring-4 ring-emerald-500/10">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-lg shadow-inner ring-4 ring-blue-500/10">
                 {initials}
               </div>
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl font-bold text-foreground leading-none">{rep.name}</h1>
-                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase">
+                  <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase">
                     {rep.status}
                   </span>
                 </div>
@@ -585,7 +585,7 @@ function RepsPage() {
                 </Button>
                 <Button
                   onClick={() => handleOpenEdit(rep)}
-                  className="h-9 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors flex items-center gap-1.5"
+                  className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors flex items-center gap-1.5"
                 >
                   <Pencil className="h-3.5 w-3.5" /> Edit
                 </Button>
@@ -628,12 +628,12 @@ function RepsPage() {
                   {/* Entity Assignment */}
                   <Surface className="flex flex-col border border-border p-6 shadow-soft" padded={false}>
                     <div className="flex items-center gap-2.5 pb-3 border-b border-border/20 mb-4">
-                      <Building2 className="h-4 w-4 text-emerald-400" />
+                      <Building2 className="h-4 w-4 text-blue-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Entity Assignment</h3>
                     </div>
                     <div className="flex items-center justify-between bg-muted/10 p-3.5 border border-border rounded-xl text-xs">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold">
                           E
                         </span>
                         <div>
@@ -648,7 +648,7 @@ function RepsPage() {
                   {/* Job Details */}
                   <Surface className="flex flex-col border border-border p-6 shadow-soft" padded={false}>
                     <div className="flex items-center gap-2.5 pb-3 border-b border-border/20 mb-4">
-                      <Briefcase className="h-4 w-4 text-emerald-400" />
+                      <Briefcase className="h-4 w-4 text-blue-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Job Details</h3>
                     </div>
                     <div className="space-y-3.5 text-xs">
@@ -685,7 +685,7 @@ function RepsPage() {
                   {/* Personal Information */}
                   <Surface className="flex flex-col border border-border p-6 shadow-soft" padded={false}>
                     <div className="flex items-center gap-2.5 pb-3 border-b border-border/20 mb-4">
-                      <User className="h-4 w-4 text-emerald-400" />
+                      <User className="h-4 w-4 text-blue-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Personal Information</h3>
                     </div>
                     <div className="space-y-3.5 text-xs">
@@ -711,7 +711,7 @@ function RepsPage() {
                   {/* Remarks */}
                   <Surface className="flex flex-col border border-border p-6 shadow-soft" padded={false}>
                     <div className="flex items-center gap-2.5 pb-3 border-b border-border/20 mb-4">
-                      <Pencil className="h-4 w-4 text-emerald-400" />
+                      <Pencil className="h-4 w-4 text-blue-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Remarks</h3>
                     </div>
                     <p className="text-xs text-muted-foreground/80 leading-relaxed font-semibold italic">
@@ -751,7 +751,7 @@ function RepsPage() {
         {/* Header banner */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-md">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-md">
               {initials}
             </div>
             <div>
@@ -812,7 +812,7 @@ function RepsPage() {
                   {/* Entity Assignment dropdown select */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-emerald-400" />
+                      <Building2 className="h-4 w-4 text-blue-400" />
                       <span className="text-xs font-bold uppercase tracking-wider text-foreground">Entity Assignment</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground font-semibold">Which entity this representative belongs to</p>
@@ -884,7 +884,7 @@ function RepsPage() {
                   {/* Personal Information details */}
                   <div className="space-y-4 pt-4 border-t border-border/20">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-emerald-400" />
+                      <User className="h-4 w-4 text-blue-400" />
                       <span className="text-xs font-bold uppercase tracking-wider text-foreground">Personal Information</span>
                     </div>
                     
@@ -937,7 +937,7 @@ function RepsPage() {
                   {/* Job Details settings inputs */}
                   <div className="space-y-4 pt-4 border-t border-border/20">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-emerald-400" />
+                      <Briefcase className="h-4 w-4 text-blue-400" />
                       <span className="text-xs font-bold uppercase tracking-wider text-foreground">Job Details</span>
                     </div>
 
@@ -980,7 +980,7 @@ function RepsPage() {
                                 type="button"
                                 onClick={() => setFormRole(role)}
                                 className={`flex-1 rounded-md text-xs font-bold transition cursor-pointer px-3 ${
-                                  sel ? "bg-emerald-600 text-white shadow-soft" : "text-muted-foreground hover:text-foreground"
+                                  sel ? "bg-blue-600 text-white shadow-soft" : "text-muted-foreground hover:text-foreground"
                                 }`}
                               >
                                 {role}
@@ -1023,7 +1023,7 @@ function RepsPage() {
                   {/* Remarks area */}
                   <div className="space-y-1.5 pt-4 border-t border-border/20">
                     <div className="flex items-center gap-2">
-                      <Pencil className="h-4 w-4 text-emerald-400" />
+                      <Pencil className="h-4 w-4 text-blue-400" />
                       <span className="text-xs font-bold uppercase tracking-wider text-foreground">Remarks</span>
                     </div>
                     <textarea
@@ -1045,7 +1045,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <IdCard className="h-4 w-4 text-emerald-400" />
+                          <IdCard className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Username & Credentials</h3>
@@ -1085,7 +1085,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <Calendar className="h-4 w-4 text-emerald-400" />
+                          <Calendar className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Active Duration</h3>
@@ -1144,7 +1144,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <LockKeyhole className="h-4 w-4 text-emerald-400" />
+                          <LockKeyhole className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Set Password</h3>
@@ -1202,7 +1202,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <Shield className="h-4 w-4 text-emerald-400" />
+                          <Shield className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Security Status</h3>
@@ -1232,7 +1232,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <Globe className="h-4 w-4 text-emerald-400" />
+                          <Globe className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">ArcGIS Portal Access</h3>
@@ -1263,7 +1263,7 @@ function RepsPage() {
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <div className="flex items-center gap-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
-                          <Users className="h-4 w-4 text-emerald-400" />
+                          <Users className="h-4 w-4 text-blue-400" />
                         </span>
                         <div>
                           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">LDAP / Directory Groups</h3>
@@ -1341,7 +1341,7 @@ function RepsPage() {
             <div className="rounded-xl border border-border bg-card p-4 shadow-glow flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-border/50 pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live Preview</span>
-                <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-400 tracking-wider">PREVIEW</span>
+                <span className="rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-400 tracking-wider">PREVIEW</span>
               </div>
 
               {/* Preview Card */}
@@ -1350,7 +1350,7 @@ function RepsPage() {
                   Member
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-inner">
+                  <div className="h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-inner">
                     {initials}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1377,7 +1377,7 @@ function RepsPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground font-bold text-[9px] tracking-wide uppercase">Status</span>
                     <div className="flex items-center gap-1.5">
-                      <span className={`h-1.5 w-1.5 rounded-full ${formStatus === "Active" ? "bg-success" : "bg-muted-foreground/60"}`} />
+                      <span className={`h-1.5 w-1.5 rounded-full ${formStatus === "Active" ? "bg-blue-500" : "bg-muted-foreground/60"}`} />
                       <span className="text-foreground/90 font-bold uppercase text-[10px]">{formStatus}</span>
                     </div>
                   </div>
@@ -1389,7 +1389,7 @@ function RepsPage() {
                 <Button
                   type="button"
                   onClick={handleRepresentativeSubmit}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-9.5 text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-9.5 text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                 >
                   <Check className="h-4 w-4" /> Save Changes
                 </Button>
@@ -1446,7 +1446,7 @@ function RepsPage() {
             <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-foreground/80 hover:bg-muted cursor-pointer"><Filter className="h-3.5 w-3.5" /> All Entities</button>
             <div className="flex overflow-hidden rounded-lg border border-border bg-card">
               <button className="bg-primary/20 px-2.5 py-2 text-accent">All</button>
-              <button className="border-l border-border px-2.5 py-2 text-foreground/80 hover:bg-muted"><span className="inline-block h-1.5 w-1.5 rounded-full bg-success mr-1" /> Active</button>
+              <button className="border-l border-border px-2.5 py-2 text-foreground/80 hover:bg-muted"><span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 mr-1" /> Active</button>
               <button className="border-l border-border px-2.5 py-2 text-foreground/80 hover:bg-muted"><span className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/60 mr-1" /> Disabled</button>
             </div>
             <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-foreground/80 hover:bg-muted cursor-pointer"><SlidersHorizontal className="h-3.5 w-3.5" /> Columns</button>
@@ -1477,12 +1477,12 @@ function RepsPage() {
                     <td className="py-3.5 pl-4 table-sticky-col-1"><input type="checkbox" className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer" /></td>
                     <td className="py-3.5 pr-4 table-sticky-col-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-soft">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-soft">
                           {initials}
                         </div>
                         <div className="min-w-0">
                           <div className="whitespace-nowrap font-bold text-foreground hover:text-primary transition-colors cursor-pointer" onClick={() => { setSelectedRep(r); setViewMode("view"); }}>{r.name}</div>
-                          <div className={`text-[10px] font-extrabold ${r.status === "Active" ? "text-emerald-400" : "text-muted-foreground/60"}`}>{r.status}</div>
+                          <div className={`text-[10px] font-extrabold ${r.status === "Active" ? "text-blue-400" : "text-muted-foreground/60"}`}>{r.status}</div>
                         </div>
                       </div>
                     </td>

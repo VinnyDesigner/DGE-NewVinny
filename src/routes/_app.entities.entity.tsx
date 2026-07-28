@@ -535,7 +535,7 @@ function EntitiesPage() {
                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-extrabold border ${
                     ent.status === "Inactive"
                       ? "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20"
-                      : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                   }`}>
                     {ent.status || "Active"}
                   </span>
@@ -698,8 +698,8 @@ function EntitiesPage() {
               <h3 className="text-[13px] font-bold uppercase tracking-wider text-foreground">Status & Remarks</h3>
             </div>
             <div className="space-y-4 text-xs">
-              <div className="w-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 rounded-xl flex items-center gap-2 text-emerald-400 font-bold text-xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+              <div className="w-full bg-blue-500/10 border border-blue-500/20 px-4 py-2.5 rounded-xl flex items-center gap-2 text-blue-400 font-bold text-xs">
+                <span className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
                 Active
               </div>
               
@@ -1176,7 +1176,7 @@ function EntitiesPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground font-bold text-[9px] tracking-wide uppercase">Status</span>
                     <div className="flex items-center gap-1.5">
-                      <span className={`h-1.5 w-1.5 rounded-full ${formStatus === "Active" ? "bg-success" : "bg-muted-foreground/60"}`} />
+                      <span className={`h-1.5 w-1.5 rounded-full ${formStatus === "Active" ? "bg-blue-500" : "bg-muted-foreground/60"}`} />
                       <span className="text-foreground/90 font-bold text-[11px]">{formStatus}</span>
                     </div>
                   </div>
@@ -1323,7 +1323,7 @@ function EntitiesPage() {
                       <span className="whitespace-nowrap font-bold text-foreground cursor-pointer hover:text-primary transition-colors" onClick={() => { setSelectedEntity(r); setViewMode("view"); }}>
                         {r.name}
                       </span>
-                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${r.status === "Inactive" ? "bg-muted-foreground/60" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"}`} />
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${r.status === "Inactive" ? "bg-muted-foreground/60" : "bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.6)]"}`} />
                     </div>
                   </td>
 

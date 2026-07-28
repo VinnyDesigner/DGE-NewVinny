@@ -100,42 +100,11 @@ interface DataTheme {
 }
 
 // Initial seed data lists
-const seedCoverage: CoverageArea[] = [
-  { id: "cov1", name: "Abu Dhabi Emirate", level: "Emirate", layerCount: 14, active: true },
-  { id: "cov2", name: "Al Ain Region", level: "Region", layerCount: 8, active: true },
-  { id: "cov3", name: "Al Dhafra Region", level: "Region", layerCount: 5, active: true },
-  { id: "cov4", name: "United Arab Emirates", level: "Country", layerCount: 22, active: true },
-];
-
-const seedGeometry: GeometryType[] = [
-  { id: "geom1", name: "Point", code: "PT", category: "Vector", layerCount: 12, active: true },
-  { id: "geom2", name: "LineString", code: "LN", category: "Vector", layerCount: 6, active: true },
-  { id: "geom3", name: "Polygon", code: "PL", category: "Vector", layerCount: 24, active: true },
-  { id: "geom4", name: "Raster Grid", code: "RS", category: "Raster", layerCount: 4, active: true },
-  { id: "geom5", name: "Non-Spatial", code: "NS", category: "Tabular", layerCount: 15, active: true },
-];
-
-const seedDataTypes: DataType[] = [
-  { id: "dt1", name: "Shapefile", code: "SHP", layerCount: 18, active: true },
-  { id: "dt2", name: "GeoJSON", code: "JSON", layerCount: 9, active: true },
-  { id: "dt3", name: "File Geodatabase", code: "GDB", layerCount: 32, active: true },
-  { id: "dt4", name: "GeoTIFF", code: "TIFF", layerCount: 4, active: true },
-  { id: "dt5", name: "CSV/XLSX", code: "TBL", layerCount: 15, active: true },
-];
-
-const seedSensitivity: SensitivityLevel[] = [
-  { id: "sens1", name: "Public", description: "Fully open data, visible to all external portals.", level: "Low", layerCount: 14, active: true },
-  { id: "sens2", name: "Restricted", description: "Internal government access only, requires basic roles.", level: "Medium", layerCount: 18, active: true },
-  { id: "sens3", name: "Confidential", description: "Highly sensitive spatial data, requires manager sign-off.", level: "High", layerCount: 22, active: true },
-  { id: "sens4", name: "Secret", description: "State-level protected records, critical security clearance.", level: "Critical", layerCount: 5, active: true },
-];
-
-const seedThemes: DataTheme[] = [
-  { id: "thm1", name: "Base Map & Imagery", description: "Reference grid maps, high-res ortho-imagery, and elevation models.", layerCount: 12, active: true },
-  { id: "thm2", name: "Transportation", description: "Road networks, public transit routes, railways, and nodes.", layerCount: 18, active: true },
-  { id: "thm3", name: "Utilities", description: "Water lines, electricity grids, telecommunications, and gas lines.", layerCount: 22, active: true },
-  { id: "thm4", name: "Environment", description: "Protected reserves, soil type boundaries, and forest cover.", layerCount: 8, active: true },
-];
+const seedCoverage: CoverageArea[] = [];
+const seedGeometry: GeometryType[] = [];
+const seedDataTypes: DataType[] = [];
+const seedSensitivity: SensitivityLevel[] = [];
+const seedThemes: DataTheme[] = [];
 
 const STORAGE_KEYS = {
   COVERAGE: "dge_lc_coverage_v1",
@@ -631,10 +600,14 @@ function LayerConfiguration() {
               {activeTab === "coverage" && (
                 filteredCoverage.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground text-xs">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <MapPin className="h-6 w-6 text-muted-foreground/60" />
-                        <p>No coverage areas found</p>
+                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <MapPin className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          Loading coverage areas...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -676,10 +649,17 @@ function LayerConfiguration() {
               {activeTab === "geometry" && (
                 filteredGeometry.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground text-xs">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <Shapes className="h-6 w-6 text-muted-foreground/60" />
-                        <p>No geometry types found</p>
+                    <TableCell colSpan={7} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <Shapes className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          No geometry types found
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 font-mono mt-1 flex items-center gap-1.5 justify-center">
+                          <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground/80" /> Loading geometry types...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -722,10 +702,17 @@ function LayerConfiguration() {
               {activeTab === "datatypes" && (
                 filteredDataTypes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground text-xs">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <FileCog className="h-6 w-6 text-muted-foreground/60" />
-                        <p>No data types found</p>
+                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <FileCog className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          No data types found
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 font-mono mt-1 flex items-center gap-1.5 justify-center">
+                          <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground/80" /> Loading data types...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -767,10 +754,17 @@ function LayerConfiguration() {
               {activeTab === "sensitivity" && (
                 filteredSensitivity.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground text-xs">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <Shield className="h-6 w-6 text-muted-foreground/60" />
-                        <p>No sensitivity levels found</p>
+                    <TableCell colSpan={7} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <Shield className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          No sensitivity levels found
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 font-mono mt-1 flex items-center gap-1.5 justify-center">
+                          <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground/80" /> Loading sensitivity levels...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -827,10 +821,17 @@ function LayerConfiguration() {
               {activeTab === "themes" && (
                 filteredThemes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground text-xs">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <Tags className="h-6 w-6 text-muted-foreground/60" />
-                        <p>No data themes found</p>
+                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                          <Tags className="h-5 w-5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          No data themes found
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 font-mono mt-1 flex items-center gap-1.5 justify-center">
+                          <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground/80" /> Loading data themes...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>

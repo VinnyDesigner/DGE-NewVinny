@@ -20,7 +20,8 @@ import {
   Eye,
   Globe,
   Compass,
-  FileSpreadsheet,
+  AlertTriangle,
+  FolderOpen,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -60,13 +61,18 @@ export const Route = createFileRoute("/_app/data-management/layer-config")({
   component: LayerConfiguration,
 });
 
-// Interfaces
+// Interfaces with detailed fields matching screenshot history & metadata
 interface CoverageArea {
   id: string;
   name: string;
   level: string;
-  layerCount: number;
+  displayOrder: number;
   active: boolean;
+  layerCount: number;
+  created: string;
+  createdBy: string;
+  updated: string;
+  updatedBy: string;
 }
 
 interface GeometryType {
@@ -75,8 +81,13 @@ interface GeometryType {
   description: string;
   code: string;
   category: string;
-  layerCount: number;
+  displayOrder: number;
   active: boolean;
+  layerCount: number;
+  created: string;
+  createdBy: string;
+  updated: string;
+  updatedBy: string;
 }
 
 interface DataType {
@@ -84,8 +95,13 @@ interface DataType {
   name: string;
   description: string;
   code: string;
-  layerCount: number;
+  displayOrder: number;
   active: boolean;
+  layerCount: number;
+  created: string;
+  createdBy: string;
+  updated: string;
+  updatedBy: string;
 }
 
 interface SensitivityLevel {
@@ -93,71 +109,81 @@ interface SensitivityLevel {
   name: string;
   description: string;
   level: string;
-  layerCount: number;
+  displayOrder: number;
   active: boolean;
+  layerCount: number;
+  created: string;
+  createdBy: string;
+  updated: string;
+  updatedBy: string;
 }
 
 interface DataTheme {
   id: string;
   name: string;
   description: string;
-  layerCount: number;
+  displayOrder: number;
   active: boolean;
+  layerCount: number;
+  created: string;
+  createdBy: string;
+  updated: string;
+  updatedBy: string;
 }
 
 // Initial seed data lists matching screenshots exactly
 const seedCoverage: CoverageArea[] = [
-  { id: "cov_1", name: "Abu Dhabi Island", level: "Region", layerCount: 0, active: true },
-  { id: "cov_2", name: "United Arab Emirates", level: "Country", layerCount: 0, active: true },
-  { id: "cov_3", name: "Abu Dhabi Municipality", level: "Emirate", layerCount: 0, active: true },
-  { id: "cov_4", name: "Al Ain Municipality", level: "Region", layerCount: 0, active: true },
-  { id: "cov_5", name: "Al Dhafra Municipality", level: "Region", layerCount: 0, active: true },
+  { id: "cov_1", name: "Abu Dhabi Island", level: "Region", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "cov_2", name: "United Arab Emirates", level: "Country", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "cov_3", name: "Abu Dhabi Municipality", level: "Emirate", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "cov_4", name: "Al Ain Municipality", level: "Region", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "cov_5", name: "Al Dhafra Municipality", level: "Region", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedGeometry: GeometryType[] = [
-  { id: "geom_1", name: "Point", description: "Point geometry", code: "POINT", category: "Vector", layerCount: 0, active: true },
-  { id: "geom_2", name: "Polyline", description: "Line / polyline geometry", code: "POLYLINE", category: "Vector", layerCount: 0, active: true },
-  { id: "geom_3", name: "Polygon", description: "Polygon geometry", code: "POLYGON", category: "Vector", layerCount: 0, active: true },
-  { id: "geom_4", name: "Multipatch", description: "Multipatch / 3D geometry", code: "MULTIPATCH", category: "Vector", layerCount: 0, active: true },
-  { id: "geom_5", name: "Tabular", description: "Tabular / non-spatial data", code: "TABULAR", category: "- None", layerCount: 0, active: true },
-  { id: "geom_6", name: "Raster", description: "Raster / image dataset", code: "RASTER", category: "Raster", layerCount: 0, active: true },
-  { id: "geom_7", name: "None", description: "No geometry / unknown", code: "NONE", category: "- None", layerCount: 0, active: true },
+  { id: "geom_1", name: "Point", description: "Point geometry", code: "POINT", category: "Vector", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_2", name: "Polyline", description: "Line / polyline geometry", code: "POLYLINE", category: "Vector", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_3", name: "Polygon", description: "Polygon geometry", code: "POLYGON", category: "Vector", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_4", name: "Multipatch", description: "Multipatch / 3D geometry", code: "MULTIPATCH", category: "Vector", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_5", name: "Tabular", description: "Tabular / non-spatial data", code: "TABULAR", category: "- None", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_6", name: "Raster", description: "Raster / image dataset", code: "RASTER", category: "Raster", displayOrder: 6, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "geom_7", name: "None", description: "No geometry / unknown", code: "NONE", category: "- None", displayOrder: 7, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedDataTypes: DataType[] = [
-  { id: "dt_1", name: "Vector", description: "Vector / spatial layer (points, lines, polygons...)", code: "VECTOR", layerCount: 0, active: true },
-  { id: "dt_2", name: "Table", description: "Tabular / non-spatial dataset (no geometry)...", code: "TABLE", layerCount: 0, active: true },
-  { id: "dt_3", name: "Raster", description: "Raster / image dataset", code: "RASTER", layerCount: 0, active: true },
+  { id: "dt_1", name: "Vector", description: "Vector / spatial layer (points, lines, polygons...)", code: "VECTOR", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "dt_2", name: "Table", description: "Tabular / non-spatial dataset (no geometry)...", code: "TABLE", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "dt_3", name: "Raster", description: "Raster / image dataset", code: "RASTER", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedSensitivity: SensitivityLevel[] = [
-  { id: "sens_1", name: "Open Data", description: "Publishable to the public", level: "L1", layerCount: 0, active: true },
-  { id: "sens_2", name: "Restricted", description: "Internal use only", level: "L2", layerCount: 0, active: true },
-  { id: "sens_3", name: "Sensitive", description: "Limited internal distribution", level: "L3", layerCount: 0, active: true },
-  { id: "sens_4", name: "Secured", description: "Controlled / NDA required", level: "L4", layerCount: 0, active: true },
-  { id: "sens_5", name: "Secret", description: "Classified, Restricted Distribution", level: "L5", layerCount: 0, active: true },
+  { id: "sens_1", name: "Open Data", description: "Publishable to the public", level: "L1", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_2", name: "Restricted", description: "Internal use only", level: "L2", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_3", name: "Sensitive", description: "Limited internal distribution", level: "L3", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_4", name: "Secured", description: "Controlled / NDA required", level: "L4", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_5", name: "Secret", description: "Classified, Restricted Distribution", level: "L5", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedThemes: DataTheme[] = [
-  { id: "thm_1", name: "Dark Gray Canvas", description: "Dark gray canvas basemap", layerCount: 0, active: true },
-  { id: "thm_2", name: "Environmental", description: "Environmental thematic", layerCount: 0, active: true },
-  { id: "thm_3", name: "Government Standard", description: "Government standard thematic", layerCount: 0, active: true },
-  { id: "thm_4", name: "Human Geography", description: "Human geography thematic", layerCount: 0, active: true },
-  { id: "thm_5", name: "Imagery", description: "Aerial / satellite imagery", layerCount: 0, active: true },
-  { id: "thm_6", name: "Infrastructure", description: "Infrastructure analytical", layerCount: 0, active: true },
-  { id: "thm_7", name: "Light Gray Canvas", description: "Light gray canvas basemap", layerCount: 0, active: true },
-  { id: "thm_8", name: "National Geographic", description: "National Geographic cartographic", layerCount: 0, active: true },
-  { id: "thm_9", name: "Navigation", description: "Navigation basemap", layerCount: 0, active: true },
-  { id: "thm_10", name: "Nova", description: "Nova dark canvas", layerCount: 0, active: true },
-  { id: "thm_11", name: "Utility Networks", description: "Utility Networks basemap", layerCount: 0, active: true },
+  { id: "thm_1", name: "Dark Gray Canvas", description: "Dark gray canvas basemap", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_2", name: "Environmental", description: "Environmental thematic", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_3", name: "Government Standard", description: "Government standard thematic", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_4", name: "Human Geography", description: "Human geography thematic", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_5", name: "Imagery", description: "Aerial / satellite imagery", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_6", name: "Infrastructure", description: "Infrastructure analytical", displayOrder: 6, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_7", name: "Light Gray Canvas", description: "Light gray canvas basemap", displayOrder: 7, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_8", name: "National Geographic", description: "National Geographic cartographic", displayOrder: 8, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_9", name: "Navigation", description: "Navigation basemap", displayOrder: 9, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_10", name: "Nova", description: "Nova dark canvas", displayOrder: 10, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_11", name: "Utility Networks", description: "Utility Networks basemap", displayOrder: 11, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const STORAGE_KEYS = {
-  COVERAGE: "dge_lc_coverage_v2",
-  GEOMETRY: "dge_lc_geometry_v2",
-  DATATYPES: "dge_lc_datatypes_v2",
-  SENSITIVITY: "dge_lc_sensitivity_v2",
-  THEMES: "dge_lc_themes_v2",
+  COVERAGE: "dge_lc_coverage_v3",
+  GEOMETRY: "dge_lc_geometry_v3",
+  DATATYPES: "dge_lc_datatypes_v3",
+  SENSITIVITY: "dge_lc_sensitivity_v3",
+  THEMES: "dge_lc_themes_v3",
 };
 
 function LayerConfiguration() {
@@ -165,7 +191,7 @@ function LayerConfiguration() {
     "coverage"
   );
 
-  // State managed collections (Initialize populated lists on first load)
+  // State managed collections
   const [coverages, setCoverages] = useState<CoverageArea[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(STORAGE_KEYS.COVERAGE);
@@ -259,13 +285,14 @@ function LayerConfiguration() {
   // Selected item reference for view / edit / delete
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Form Fields
+  // Form Fields matching screenshot inputs exactly
   const [nameField, setNameField] = useState("");
-  const [levelField, setLevelField] = useState("");
+  const [levelField, setLevelField] = useState("Region");
   const [codeField, setCodeField] = useState("");
   const [categoryField, setCategoryField] = useState("");
   const [descriptionField, setDescriptionField] = useState("");
   const [activeField, setActiveField] = useState(true);
+  const [displayOrderField, setDisplayOrderField] = useState(1);
 
   // Helpers for badge mappings
   const getLevelBadge = (level: string) => {
@@ -348,17 +375,12 @@ function LayerConfiguration() {
   // Open modals & populate details
   const handleOpenAddModal = () => {
     setNameField("");
-    setLevelField("");
+    setLevelField("Emirate"); // Default level selected in dropdown
     setCodeField("");
-    setCategoryField("");
+    setCategoryField("Vector");
     setDescriptionField("");
     setActiveField(true);
-
-    if (activeTab === "geometry") {
-      setCategoryField("Vector");
-    } else if (activeTab === "sensitivity") {
-      setLevelField("L1");
-    }
+    setDisplayOrderField(1);
     setIsAddModalOpen(true);
   };
 
@@ -370,11 +392,12 @@ function LayerConfiguration() {
   const handleOpenEditModal = (item: any) => {
     setSelectedItem(item);
     setNameField(item.name || "");
-    setLevelField(item.level || "");
+    setLevelField(item.level || "Region");
     setCodeField(item.code || "");
-    setCategoryField(item.category || "");
+    setCategoryField(item.category || "Vector");
     setDescriptionField(item.description || "");
     setActiveField(item.active);
+    setDisplayOrderField(item.displayOrder || 1);
     setIsEditModalOpen(true);
   };
 
@@ -391,13 +414,20 @@ function LayerConfiguration() {
       return;
     }
 
+    const createdTime = new Date().toLocaleString();
+
     if (activeTab === "coverage") {
       const newCov: CoverageArea = {
         id: "cov_" + Math.random().toString(),
         name: nameField.trim(),
-        level: levelField.trim() || "Region",
-        layerCount: 0,
+        level: levelField,
+        displayOrder: displayOrderField,
         active: activeField,
+        layerCount: 0,
+        created: createdTime,
+        createdBy: "system",
+        updated: createdTime,
+        updatedBy: "api",
       };
       saveCoverages([...coverages, newCov]);
       toast.success(`Coverage Area "${newCov.name}" added successfully`);
@@ -408,8 +438,13 @@ function LayerConfiguration() {
         description: descriptionField.trim() || "Geometry layer shape description",
         code: codeField.trim().toUpperCase() || "GEOM",
         category: categoryField,
+        displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        created: createdTime,
+        createdBy: "system",
+        updated: createdTime,
+        updatedBy: "api",
       };
       saveGeometries([...geometries, newGeom]);
       toast.success(`Geometry Type "${newGeom.name}" added successfully`);
@@ -419,8 +454,13 @@ function LayerConfiguration() {
         name: nameField.trim(),
         description: descriptionField.trim() || "File format type classification",
         code: codeField.trim().toUpperCase() || "CODE",
+        displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        created: createdTime,
+        createdBy: "system",
+        updated: createdTime,
+        updatedBy: "api",
       };
       saveDataTypes([...dataTypes, newDt]);
       toast.success(`Data Type "${newDt.name}" added successfully`);
@@ -430,8 +470,13 @@ function LayerConfiguration() {
         name: nameField.trim(),
         description: descriptionField.trim() || "Sensitivity classification rule",
         level: levelField || "L1",
+        displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        created: createdTime,
+        createdBy: "system",
+        updated: createdTime,
+        updatedBy: "api",
       };
       saveSensitivities([...sensitivities, newSens]);
       toast.success(`Sensitivity Level "${newSens.name}" added successfully`);
@@ -440,8 +485,13 @@ function LayerConfiguration() {
         id: "thm_" + Math.random().toString(),
         name: nameField.trim(),
         description: descriptionField.trim() || "Visual mapping basemap grouping theme",
+        displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        created: createdTime,
+        createdBy: "system",
+        updated: createdTime,
+        updatedBy: "api",
       };
       saveThemes([...themes, newThm]);
       toast.success(`Data Theme "${newThm.name}" added successfully`);
@@ -454,14 +504,19 @@ function LayerConfiguration() {
     e.preventDefault();
     if (!selectedItem) return;
 
+    const updatedTime = new Date().toLocaleString();
+
     if (activeTab === "coverage") {
       const updated = coverages.map((item) =>
         item.id === selectedItem.id
           ? {
               ...item,
               name: nameField.trim(),
-              level: levelField.trim() || "Region",
+              level: levelField,
+              displayOrder: displayOrderField,
               active: activeField,
+              updated: updatedTime,
+              updatedBy: "api",
             }
           : item
       );
@@ -476,7 +531,10 @@ function LayerConfiguration() {
               description: descriptionField.trim(),
               code: codeField.trim().toUpperCase(),
               category: categoryField,
+              displayOrder: displayOrderField,
               active: activeField,
+              updated: updatedTime,
+              updatedBy: "api",
             }
           : item
       );
@@ -490,7 +548,10 @@ function LayerConfiguration() {
               name: nameField.trim(),
               description: descriptionField.trim(),
               code: codeField.trim().toUpperCase(),
+              displayOrder: displayOrderField,
               active: activeField,
+              updated: updatedTime,
+              updatedBy: "api",
             }
           : item
       );
@@ -504,7 +565,10 @@ function LayerConfiguration() {
               name: nameField.trim(),
               description: descriptionField.trim(),
               level: levelField,
+              displayOrder: displayOrderField,
               active: activeField,
+              updated: updatedTime,
+              updatedBy: "api",
             }
           : item
       );
@@ -517,7 +581,10 @@ function LayerConfiguration() {
               ...item,
               name: nameField.trim(),
               description: descriptionField.trim(),
+              displayOrder: displayOrderField,
               active: activeField,
+              updated: updatedTime,
+              updatedBy: "api",
             }
           : item
       );
@@ -644,742 +711,693 @@ function LayerConfiguration() {
   return (
     <div className="space-y-6 p-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 pb-1">
         <PageHeader
           title="Layer Configuration"
           description="Manage configurable reference data for Data Layers — Coverage Areas, Geometry Types, Data Types, and Sensitivity Levels"
           className="mb-0!"
         />
-        <Button
-          onClick={handleOpenAddModal}
-          className="h-9.5 bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-1.5 font-semibold text-xs shrink-0 self-start sm:self-center cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          {activeTab === "coverage" && "Add Coverage Area"}
-          {activeTab === "geometry" && "Add Geometry Type"}
-          {activeTab === "datatypes" && "Add Data Type"}
-          {activeTab === "sensitivity" && "Add Sensitivity Level"}
-          {activeTab === "themes" && "New Theme"}
-        </Button>
       </div>
 
-      {/* Tabs list (Coverage Areas, Geometry Types, Data Types, Layer Sensitivity, Data Themes) */}
-      <div className="flex flex-wrap gap-6 border-b border-border/30 pb-0 mb-4">
-        <button
-          onClick={() => setActiveTab("coverage")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "coverage"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4" /> Coverage Areas
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("geometry")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "geometry"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <Shapes className="h-4 w-4" /> Geometry Types
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("datatypes")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "datatypes"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <FileCog className="h-4 w-4" /> Data Types
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("sensitivity")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "sensitivity"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <Shield className="h-4 w-4" /> Layer Sensitivity
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("themes")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "themes"
-              ? "border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <Tags className="h-4 w-4" /> Data Themes
-          </span>
-        </button>
-      </div>
-
-      {/* Tabs instruction cards */}
-      <div className="mb-4">
-        {activeTab === "coverage" && (
-          <div className="flex items-start gap-3 p-4 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs font-semibold leading-relaxed">
-            <Info className="h-4 w-4 shrink-0 mt-0.5 animate-pulse text-blue-400" />
-            <div>
-              <span className="font-bold text-foreground">Coverage Areas</span> define the geographic scope of data layers — from country level down to individual zones and districts. These become selectable options when configuring data layers, deliveries, and workflows.
-            </div>
-          </div>
-        )}
-        {activeTab === "geometry" && (
-          <div className="flex items-start gap-3 p-4 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-400 text-xs font-semibold leading-relaxed">
-            <Info className="h-4 w-4 shrink-0 mt-0.5 animate-pulse text-purple-400" />
-            <div>
-              <span className="font-bold text-foreground">Geometry Types</span> define the spatial shape/structure of data layers — Vector (Points, Lines, Polygons), Raster grids, or Non-spatial. These populate the Geometry Type selector in Data Layers.
-            </div>
-          </div>
-        )}
-        {activeTab === "datatypes" && (
-          <div className="flex items-start gap-3 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs font-semibold leading-relaxed">
-            <Info className="h-4 w-4 shrink-0 mt-0.5 animate-pulse text-emerald-400" />
-            <div>
-              <span className="font-bold text-foreground">Data Types</span> categorise data layers by their file format and spatial nature — Vector, Raster, Ortho, LiDAR, DEM, DSM, Tabular, and more. These populate the Data Type selector in Data Layers.
-            </div>
-          </div>
-        )}
-        {activeTab === "sensitivity" && (
-          <div className="flex items-start gap-3 p-4 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs font-semibold leading-relaxed">
-            <Info className="h-4 w-4 shrink-0 mt-0.5 animate-pulse text-blue-400" />
-            <div>
-              <span className="font-bold text-foreground">Layer Sensitivity</span> defines who can access data layers — from fully public Open Data through to Secret classified layers. These populate the Sensitivity selector in the Data Layer form and control access policies.
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Main Table Surface */}
-      <Surface className="p-4 flex flex-col justify-start">
-        {/* Table Filter Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full max-w-xs sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={
-                  activeTab === "coverage"
-                    ? "Search coverage areas..."
-                    : activeTab === "geometry"
-                      ? "Search geometry types..."
-                      : activeTab === "datatypes"
-                        ? "Search data types..."
-                        : activeTab === "sensitivity"
-                          ? "Search sensitivity levels..."
-                          : "Search themes..."
-                }
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9.5 pl-9 text-xs"
-              />
-            </div>
-
-            {/* Geometry tab specific category filter */}
-            {activeTab === "geometry" && (
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[140px] h-9.5">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Vector">Vector</SelectItem>
-                  <SelectItem value="Raster">Raster</SelectItem>
-                  <SelectItem value="- None">- None</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-
-            {/* Sensitivity levels filter */}
-            {activeTab === "sensitivity" && (
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[140px] h-9.5">
-                  <SelectValue placeholder="All Levels" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="L1">L1</SelectItem>
-                  <SelectItem value="L2">L2</SelectItem>
-                  <SelectItem value="L3">L3</SelectItem>
-                  <SelectItem value="L4">L4</SelectItem>
-                  <SelectItem value="L5">L5</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[130px] h-9.5">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <span className="text-[11px] bg-foreground/[0.04] border border-border px-2 py-0.5 rounded-full text-muted-foreground font-semibold">
-            {activeTab === "coverage" && `${filteredCoverage.length} of ${coverages.length}`}
-            {activeTab === "geometry" && `${filteredGeometry.length} of ${geometries.length}`}
-            {activeTab === "datatypes" && `${filteredDataTypes.length} of ${dataTypes.length}`}
-            {activeTab === "sensitivity" && `${filteredSensitivity.length} of ${sensitivities.length}`}
-            {activeTab === "themes" && `${filteredThemes.length} of ${themes.length}`}
-          </span>
+      {/* Main Container Surface wrapping Tabs, Instruction & Table */}
+      <Surface className="p-0 border border-border/40 bg-card overflow-hidden rounded-2xl shadow-glow">
+        
+        {/* Tabs navigation at the top inside the container card */}
+        <div className="flex flex-wrap gap-1 bg-foreground/[0.02] border-b border-border/30 px-4 pt-3.5">
+          <button
+            onClick={() => setActiveTab("coverage")}
+            className={`px-4 pb-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "coverage"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MapPin className="h-3.5 w-3.5" /> Coverage Areas
+          </button>
+          <button
+            onClick={() => setActiveTab("geometry")}
+            className={`px-4 pb-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "geometry"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Shapes className="h-3.5 w-3.5" /> Geometry Types
+          </button>
+          <button
+            onClick={() => setActiveTab("datatypes")}
+            className={`px-4 pb-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "datatypes"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <FileCog className="h-3.5 w-3.5" /> Data Types
+          </button>
+          <button
+            onClick={() => setActiveTab("sensitivity")}
+            className={`px-4 pb-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "sensitivity"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Shield className="h-3.5 w-3.5" /> Layer Sensitivity
+          </button>
+          <button
+            onClick={() => setActiveTab("themes")}
+            className={`px-4 pb-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "themes"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Tags className="h-3.5 w-3.5" /> Data Themes
+          </button>
         </div>
 
-        {/* Dynamic tables */}
-        <div className="w-full overflow-x-auto rounded-xl border border-border/40">
-          <Table>
-            {/* Header Rendering */}
-            <TableHeader>
-              <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
-                <TableHead className="w-12 text-center">
-                  <input
-                    type="checkbox"
-                    className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                  />
-                </TableHead>
-                {activeTab === "coverage" && (
-                  <>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      COVERAGE AREA
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">LEVEL</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                      LAYER COUNT
-                    </TableHead>
-                  </>
-                )}
-                {activeTab === "geometry" && (
-                  <>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      GEOMETRY TYPE
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">CODE</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      CATEGORY
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                      LAYER COUNT
-                    </TableHead>
-                  </>
-                )}
-                {activeTab === "datatypes" && (
-                  <>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      DATA TYPE
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">CODE</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                      LAYER COUNT
-                    </TableHead>
-                  </>
-                )}
-                {activeTab === "sensitivity" && (
-                  <>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">NAME</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      DESCRIPTION
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">LEVEL</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                      LAYER COUNT
-                    </TableHead>
-                  </>
-                )}
-                {activeTab === "themes" && (
-                  <>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">THEME</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs">
-                      DESCRIPTION
-                    </TableHead>
-                    <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                      LAYERS
-                    </TableHead>
-                  </>
-                )}
-                <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                  STATUS
-                </TableHead>
-                <TableHead className="font-semibold text-muted-foreground text-xs text-center">
-                  ACTIONS
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+        <div className="p-4 space-y-4">
+          {/* Tabs instruction cards inside the container */}
+          {activeTab === "coverage" && (
+            <div className="flex items-start gap-3 p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs font-semibold leading-relaxed">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-400" />
+              <div>
+                <span className="font-bold text-foreground">Coverage Areas</span> define the geographic scope of data layers — from country level down to individual zones and districts. These become selectable options when configuring data layers, deliveries, and workflows.
+              </div>
+            </div>
+          )}
+          {activeTab === "geometry" && (
+            <div className="flex items-start gap-3 p-3.5 rounded-xl border border-purple-500/20 bg-purple-500/10 text-purple-400 text-xs font-semibold leading-relaxed">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-purple-400" />
+              <div>
+                <span className="font-bold text-foreground">Geometry Types</span> define the spatial shape/structure of data layers — Vector (Points, Lines, Polygons), Raster grids, or Non-spatial. These populate the Geometry Type selector in Data Layers.
+              </div>
+            </div>
+          )}
+          {activeTab === "datatypes" && (
+            <div className="flex items-start gap-3 p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs font-semibold leading-relaxed">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-emerald-400" />
+              <div>
+                <span className="font-bold text-foreground">Data Types</span> categorise data layers by their file format and spatial nature — Vector, Raster, Ortho, LiDAR, DEM, DSM, Tabular, and more. These populate the Data Type selector in Data Layers.
+              </div>
+            </div>
+          )}
+          {activeTab === "sensitivity" && (
+            <div className="flex items-start gap-3 p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs font-semibold leading-relaxed">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-400" />
+              <div>
+                <span className="font-bold text-foreground">Layer Sensitivity</span> defines who can access data layers — from fully public Open Data through to Secret classified layers. These populate the Sensitivity selector in the Data Layer form and control access policies.
+              </div>
+            </div>
+          )}
 
-            {/* Body Rendering */}
-            <TableBody>
-              {/* COVERAGE TABLE */}
-              {activeTab === "coverage" &&
-                (paginatedCoverage.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
-                    >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <MapPin className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No coverage areas found
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedCoverage.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">{item.name}</TableCell>
-                      <TableCell className="text-xs">{getLevelBadge(item.level)}</TableCell>
-                      <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
-                        {item.layerCount}
-                      </TableCell>
-                      <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-1.5 justify-center">
-                          <button
-                            onClick={() => handleOpenViewModal(item)}
-                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
-                            title="View"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(item)}
-                            className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDeleteModal(item)}
-                            className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ))}
+          {/* Table Filter Bar & Add button on right side */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative w-full max-w-xs sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={
+                    activeTab === "coverage"
+                      ? "Search coverage areas..."
+                      : activeTab === "geometry"
+                        ? "Search geometry types..."
+                        : activeTab === "datatypes"
+                          ? "Search data types..."
+                          : activeTab === "sensitivity"
+                            ? "Search sensitivity levels..."
+                            : "Search themes..."
+                  }
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9.5 pl-9 text-xs"
+                />
+              </div>
 
-              {/* GEOMETRY TABLE */}
-              {activeTab === "geometry" &&
-                (paginatedGeometry.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
-                    >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <Shapes className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No geometry types found
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedGeometry.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">
-                        <div>{item.name}</div>
-                        <div className="text-[10px] text-muted-foreground font-normal">
-                          {item.description}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        <span className="px-1.5 py-0.5 rounded bg-muted font-bold border text-[10px]">
-                          {item.code}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {getGeometryCategoryBadge(item.category)}
-                      </TableCell>
-                      <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
-                        {item.layerCount}
-                      </TableCell>
-                      <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-1.5 justify-center">
-                          <button
-                            onClick={() => handleOpenViewModal(item)}
-                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
-                            title="View"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(item)}
-                            className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDeleteModal(item)}
-                            className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ))}
-
-              {/* DATA TYPES TABLE */}
-              {activeTab === "datatypes" &&
-                (paginatedDataTypes.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
-                    >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <FileCog className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No data types found
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedDataTypes.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">
-                        <div>{item.name}</div>
-                        <div className="text-[10px] text-muted-foreground font-normal">
-                          {item.description}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        {getDataTypeCodeBadge(item.code)}
-                      </TableCell>
-                      <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
-                        {item.layerCount}
-                      </TableCell>
-                      <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-1.5 justify-center">
-                          <button
-                            onClick={() => handleOpenViewModal(item)}
-                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
-                            title="View"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(item)}
-                            className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDeleteModal(item)}
-                            className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ))}
-
-              {/* LAYER SENSITIVITY TABLE */}
-              {activeTab === "sensitivity" &&
-                (paginatedSensitivity.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
-                    >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <Shield className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No sensitivity levels found
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedSensitivity.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${
-                            item.name === "Open Data"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              : item.name === "Restricted"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : item.name === "Sensitive"
-                                  ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                                  : item.name === "Secured"
-                                    ? "bg-pink-500/10 text-pink-400 border border-pink-500/20"
-                                    : "bg-red-500/10 text-red-400 border border-red-500/20"
-                          }`}
-                        >
-                          {item.name}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground font-semibold">
-                        {item.description || "—"}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-muted-foreground/80">
-                        {item.level}
-                      </TableCell>
-                      <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
-                        {item.layerCount}
-                      </TableCell>
-                      <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-1.5 justify-center">
-                          <button
-                            onClick={() => handleOpenViewModal(item)}
-                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
-                            title="View"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(item)}
-                            className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDeleteModal(item)}
-                            className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ))}
-
-              {/* DATA THEMES TABLE */}
-              {activeTab === "themes" &&
-                (paginatedThemes.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
-                    >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <Tags className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No data themes found
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedThemes.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="font-bold text-xs text-foreground">{item.name}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground font-semibold">
-                        {item.description || "—"}
-                      </TableCell>
-                      <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
-                        {item.layerCount}
-                      </TableCell>
-                      <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center gap-1.5 justify-center">
-                          <button
-                            onClick={() => handleOpenViewModal(item)}
-                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
-                            title="View"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(item)}
-                            className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDeleteModal(item)}
-                            className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Custom Pagination Footer matching Screenshots */}
-        <div className="flex items-center justify-between border-t border-border/30 pt-4 mt-4 text-xs font-semibold">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-[11px]">Rows per page</span>
-            <Select
-              value={rowsPerPage.toString()}
-              onValueChange={(val) => {
-                setRowsPerPage(Number(val));
-                setCurrentPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[70px] h-8 text-[11px] font-bold">
-                <SelectValue placeholder="10" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-foreground/[0.02] text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-all cursor-pointer"
-            >
-              Previous
-            </button>
-
-            {/* Current Page Number Buttons */}
-            {Array.from(
-              {
-                length: getPageCount(
-                  activeTab === "coverage"
-                    ? filteredCoverage.length
-                    : activeTab === "geometry"
-                      ? filteredGeometry.length
-                      : activeTab === "datatypes"
-                        ? filteredDataTypes.length
-                        : activeTab === "sensitivity"
-                          ? filteredSensitivity.length
-                          : filteredThemes.length
-                ),
-              },
-              (_, idx) => {
-                const pageNum = idx + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold transition-all border cursor-pointer ${
-                      currentPage === pageNum
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-transparent text-muted-foreground border-border/40 hover:bg-foreground/[0.02] hover:text-foreground"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              }
-            )}
-
-            <span className="text-muted-foreground px-1">
-              of{" "}
-              {getPageCount(
-                activeTab === "coverage"
-                  ? filteredCoverage.length
-                  : activeTab === "geometry"
-                    ? filteredGeometry.length
-                    : activeTab === "datatypes"
-                      ? filteredDataTypes.length
-                      : activeTab === "sensitivity"
-                        ? filteredSensitivity.length
-                        : filteredThemes.length
+              {/* Geometry tab specific category filter */}
+              {activeTab === "geometry" && (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[140px] h-9.5 text-xs font-semibold">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Vector">Vector</SelectItem>
+                    <SelectItem value="Raster">Raster</SelectItem>
+                    <SelectItem value="- None">- None</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
-            </span>
 
-            <button
-              onClick={() =>
-                setCurrentPage((p) =>
-                  Math.min(
-                    getPageCount(
-                      activeTab === "coverage"
-                        ? filteredCoverage.length
-                        : activeTab === "geometry"
-                          ? filteredGeometry.length
-                          : activeTab === "datatypes"
-                            ? filteredDataTypes.length
-                            : activeTab === "sensitivity"
-                              ? filteredSensitivity.length
-                              : filteredThemes.length
-                    ),
-                    p + 1
-                  )
-                )
-              }
-              disabled={
-                currentPage ===
-                getPageCount(
+              {/* Sensitivity levels filter */}
+              {activeTab === "sensitivity" && (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[140px] h-9.5 text-xs font-semibold">
+                    <SelectValue placeholder="All Levels" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Levels</SelectItem>
+                    <SelectItem value="L1">L1</SelectItem>
+                    <SelectItem value="L2">L2</SelectItem>
+                    <SelectItem value="L3">L3</SelectItem>
+                    <SelectItem value="L4">L4</SelectItem>
+                    <SelectItem value="L5">L5</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[130px] h-9.5 text-xs font-semibold">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleOpenAddModal}
+                className="h-9.5 bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-1.5 font-semibold text-xs shrink-0 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                {activeTab === "coverage" && "Add Coverage Area"}
+                {activeTab === "geometry" && "Add Geometry Type"}
+                {activeTab === "datatypes" && "Add Data Type"}
+                {activeTab === "sensitivity" && "Add Sensitivity Level"}
+                {activeTab === "themes" && "New Theme"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Dynamic tables */}
+          <div className="w-full overflow-x-auto rounded-xl border border-border/30 bg-background/50">
+            <Table>
+              {/* Header Rendering */}
+              <TableHeader>
+                <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
+                  <TableHead className="w-12 text-center">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                    />
+                  </TableHead>
+                  {activeTab === "coverage" && (
+                    <>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        COVERAGE AREA
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">LEVEL</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                        LAYER COUNT
+                      </TableHead>
+                    </>
+                  )}
+                  {activeTab === "geometry" && (
+                    <>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        GEOMETRY TYPE
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">CODE</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        CATEGORY
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                        LAYER COUNT
+                      </TableHead>
+                    </>
+                  )}
+                  {activeTab === "datatypes" && (
+                    <>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        DATA TYPE
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">CODE</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                        LAYER COUNT
+                      </TableHead>
+                    </>
+                  )}
+                  {activeTab === "sensitivity" && (
+                    <>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">NAME</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        DESCRIPTION
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">LEVEL</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                        LAYER COUNT
+                      </TableHead>
+                    </>
+                  )}
+                  {activeTab === "themes" && (
+                    <>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">THEME</TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs">
+                        DESCRIPTION
+                      </TableHead>
+                      <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                        LAYERS
+                      </TableHead>
+                    </>
+                  )}
+                  <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                    STATUS
+                  </TableHead>
+                  <TableHead className="font-bold text-muted-foreground/90 text-xs text-center">
+                    ACTIONS
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+
+              {/* Body Rendering */}
+              <TableBody>
+                {/* COVERAGE TABLE */}
+                {activeTab === "coverage" &&
+                  (paginatedCoverage.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                            <MapPin className="h-5 w-5" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                            No coverage areas found
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedCoverage.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
+                        <TableCell className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                        </TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">{item.name}</TableCell>
+                        <TableCell className="text-xs">{getLevelBadge(item.level)}</TableCell>
+                        <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
+                          {item.layerCount}
+                        </TableCell>
+                        <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <button
+                              onClick={() => handleOpenViewModal(item)}
+                              className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
+                              title="View"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(item)}
+                              className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDeleteModal(item)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Delete"
+                            >
+                              <Trash className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ))}
+
+                {/* GEOMETRY TABLE */}
+                {activeTab === "geometry" &&
+                  (paginatedGeometry.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                            <Shapes className="h-5 w-5" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                            No geometry types found
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedGeometry.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
+                        <TableCell className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                        </TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">
+                          <div>{item.name}</div>
+                          <div className="text-[10px] text-muted-foreground font-normal">
+                            {item.description}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          <span className="px-1.5 py-0.5 rounded bg-muted font-bold border text-[10px]">
+                            {item.code}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {getGeometryCategoryBadge(item.category)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
+                          {item.layerCount}
+                        </TableCell>
+                        <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <button
+                              onClick={() => handleOpenViewModal(item)}
+                              className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
+                              title="View"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(item)}
+                              className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDeleteModal(item)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Delete"
+                            >
+                              <Trash className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ))}
+
+                {/* DATA TYPES TABLE */}
+                {activeTab === "datatypes" &&
+                  (paginatedDataTypes.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                            <FileCog className="h-5 w-5" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                            No data types found
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedDataTypes.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
+                        <TableCell className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                        </TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">
+                          <div>{item.name}</div>
+                          <div className="text-[10px] text-muted-foreground font-normal">
+                            {item.description}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {getDataTypeCodeBadge(item.code)}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
+                          {item.layerCount}
+                        </TableCell>
+                        <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <button
+                              onClick={() => handleOpenViewModal(item)}
+                              className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
+                              title="View"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(item)}
+                              className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDeleteModal(item)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Delete"
+                            >
+                              <Trash className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ))}
+
+                {/* LAYER SENSITIVITY TABLE */}
+                {activeTab === "sensitivity" &&
+                  (paginatedSensitivity.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                            <Shield className="h-5 w-5" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                            No sensitivity levels found
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedSensitivity.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
+                        <TableCell className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                        </TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                              item.name === "Open Data"
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : item.name === "Restricted"
+                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                  : item.name === "Sensitive"
+                                    ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                                    : item.name === "Secured"
+                                      ? "bg-pink-500/10 text-pink-400 border border-pink-500/20"
+                                      : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            }`}
+                          >
+                            {item.name}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground font-semibold">
+                          {item.description || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs font-mono font-bold text-muted-foreground/80">
+                          {item.level}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
+                          {item.layerCount}
+                        </TableCell>
+                        <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <button
+                              onClick={() => handleOpenViewModal(item)}
+                              className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
+                              title="View"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(item)}
+                              className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDeleteModal(item)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Delete"
+                            >
+                              <Trash className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ))}
+
+                {/* DATA THEMES TABLE */}
+                {activeTab === "themes" &&
+                  (paginatedThemes.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent"
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                            <Tags className="h-5 w-5" />
+                          </div>
+                          <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                            No data themes found
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedThemes.map((item) => (
+                      <TableRow key={item.id} className="hover:bg-foreground/[0.01]">
+                        <TableCell className="text-center">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                        </TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">{item.name}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground font-semibold">
+                          {item.description || "—"}
+                        </TableCell>
+                        <TableCell className="text-center font-mono font-bold text-xs text-muted-foreground">
+                          {item.layerCount}
+                        </TableCell>
+                        <TableCell className="text-center">{getStatusBadge(item.active)}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <button
+                              onClick={() => handleOpenViewModal(item)}
+                              className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer transition-colors"
+                              title="View"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(item)}
+                              className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDeleteModal(item)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 rounded-md cursor-pointer transition-colors"
+                              title="Delete"
+                            >
+                              <Trash className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Custom Pagination Footer matching Screenshots */}
+          <div className="flex items-center justify-between border-t border-border/30 pt-4 mt-2 text-xs font-semibold">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground text-[11px]">Rows per page</span>
+              <Select
+                value={rowsPerPage.toString()}
+                onValueChange={(val) => {
+                  setRowsPerPage(Number(val));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[70px] h-8 text-[11px] font-bold">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-foreground/[0.02] text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-all cursor-pointer text-xs"
+              >
+                Previous
+              </button>
+
+              {/* Current Page Number Buttons */}
+              {Array.from(
+                {
+                  length: getPageCount(
+                    activeTab === "coverage"
+                      ? filteredCoverage.length
+                      : activeTab === "geometry"
+                        ? filteredGeometry.length
+                        : activeTab === "datatypes"
+                          ? filteredDataTypes.length
+                          : activeTab === "sensitivity"
+                            ? filteredSensitivity.length
+                            : filteredThemes.length
+                  ),
+                },
+                (_, idx) => {
+                  const pageNum = idx + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold transition-all border cursor-pointer text-xs ${
+                        currentPage === pageNum
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-transparent text-muted-foreground border-border/40 hover:bg-foreground/[0.02] hover:text-foreground"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                }
+              )}
+
+              <span className="text-muted-foreground px-1">
+                of{" "}
+                {getPageCount(
                   activeTab === "coverage"
                     ? filteredCoverage.length
                     : activeTab === "geometry"
@@ -1389,403 +1407,541 @@ function LayerConfiguration() {
                         : activeTab === "sensitivity"
                           ? filteredSensitivity.length
                           : filteredThemes.length
-                )
-              }
-              className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-foreground/[0.02] text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-all cursor-pointer"
-            >
-              Next
-            </button>
+                )}
+              </span>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(
+                      getPageCount(
+                        activeTab === "coverage"
+                          ? filteredCoverage.length
+                          : activeTab === "geometry"
+                            ? filteredGeometry.length
+                            : activeTab === "datatypes"
+                              ? filteredDataTypes.length
+                              : activeTab === "sensitivity"
+                                ? filteredSensitivity.length
+                                : filteredThemes.length
+                      ),
+                      p + 1
+                    )
+                  )
+                }
+                disabled={
+                  currentPage ===
+                  getPageCount(
+                    activeTab === "coverage"
+                      ? filteredCoverage.length
+                      : activeTab === "geometry"
+                        ? filteredGeometry.length
+                        : activeTab === "datatypes"
+                          ? filteredDataTypes.length
+                          : activeTab === "sensitivity"
+                            ? filteredSensitivity.length
+                            : filteredThemes.length
+                  )
+                }
+                className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-foreground/[0.02] text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-all cursor-pointer text-xs"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </Surface>
 
-      {/* ========================================== */}
-      {/* MODAL: ADD / CREATE REFERENCE FIELD        */}
-      {/* ========================================== */}
+      {/* ============================================== */}
+      {/* 1st & 2nd IMAGE: ADD/CREATE COVERAGE AREA MODAL */}
+      {/* ============================================== */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="max-w-[460px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <SlidersHorizontal className="h-4.5 w-4.5 text-blue-400" />
-              {activeTab === "coverage" && "Add Coverage Area"}
-              {activeTab === "geometry" && "Add Geometry Type"}
-              {activeTab === "datatypes" && "Add Data Type"}
-              {activeTab === "sensitivity" && "Add Sensitivity Level"}
-              {activeTab === "themes" && "Add Data Theme"}
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <Compass className="h-5 w-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
+                  Add Coverage Area
+                </DialogTitle>
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
+                  {levelField || "EMIRATE"}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsAddModalOpen(false)}
+              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleAddConfiguration} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">
-                {activeTab === "coverage" && "Coverage Area Name"}
-                {activeTab === "geometry" && "Geometry Type Name"}
-                {activeTab === "datatypes" && "Data Type Name"}
-                {activeTab === "sensitivity" && "Sensitivity Level Name"}
-                {activeTab === "themes" && "Theme Title"}
-                <span className="text-red-400"> *</span>
-              </label>
-              <Input
-                placeholder={
-                  activeTab === "coverage"
-                    ? "e.g. Al Dhafra Municipality"
-                    : activeTab === "geometry"
-                      ? "e.g. Polygon"
-                      : activeTab === "datatypes"
-                        ? "e.g. GeoJSON"
-                        : activeTab === "sensitivity"
-                          ? "e.g. Confidential"
-                          : "e.g. Navigation"
-                }
-                value={nameField}
-                onChange={(e) => setNameField(e.target.value)}
-                required
-                className="h-9.5"
-              />
+          <form onSubmit={handleAddConfiguration} className="p-6 space-y-5">
+            {/* Identity section */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Identity
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Name <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+                </div>
+                <Input
+                  placeholder="e.g. Abu Dhabi Island"
+                  value={nameField}
+                  onChange={(e) => setNameField(e.target.value.slice(0, 200))}
+                  required
+                  className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                />
+              </div>
             </div>
 
-            {activeTab === "coverage" && (
+            {/* Classification Section (2nd image drop-down content) */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Classification
+              </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Level</label>
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Coverage Level <span className="text-red-400">*</span>
+                </label>
                 <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="Region" />
+                  <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                    <SelectValue placeholder="Emirate" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Region">Region</SelectItem>
+                  <SelectContent className="bg-[#111A2C] border-border text-xs">
                     <SelectItem value="Country">Country</SelectItem>
                     <SelectItem value="Emirate">Emirate</SelectItem>
+                    <SelectItem value="City">City</SelectItem>
+                    <SelectItem value="Region">Region</SelectItem>
+                    <SelectItem value="District">District</SelectItem>
+                    <SelectItem value="Zone">Zone</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            )}
+            </div>
 
-            {(activeTab === "geometry" || activeTab === "datatypes") && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Short Code <span className="text-red-400">*</span>
-                </label>
-                <Input
-                  placeholder={activeTab === "geometry" ? "e.g. PL" : "e.g. VECTOR"}
-                  value={codeField}
-                  onChange={(e) => setCodeField(e.target.value)}
-                  required
-                  maxLength={12}
-                  className="h-9.5 uppercase font-mono"
-                />
+            {/* Visibility Section */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Visibility
               </div>
-            )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                  <Select
+                    value={activeField ? "active" : "inactive"}
+                    onValueChange={(val) => setActiveField(val === "active")}
+                  >
+                    <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                      <SelectValue placeholder="Active" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#111A2C] border-border text-xs">
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                    Inactive areas are hidden from operational dropdowns.
+                  </p>
+                </div>
 
-            {activeTab === "geometry" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Category</label>
-                <Select value={categoryField} onValueChange={setCategoryField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="Vector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Vector">Vector</SelectItem>
-                    <SelectItem value="Raster">Raster</SelectItem>
-                    <SelectItem value="- None">- None</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
+                  <Input
+                    type="number"
+                    value={displayOrderField}
+                    onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                  />
+                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                    Lower numbers appear first in dropdowns.
+                  </p>
+                </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === "sensitivity" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Classification Rank
-                </label>
-                <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="L1" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="L1">L1</SelectItem>
-                    <SelectItem value="L2">L2</SelectItem>
-                    <SelectItem value="L3">L3</SelectItem>
-                    <SelectItem value="L4">L4</SelectItem>
-                    <SelectItem value="L5">L5</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {activeTab !== "coverage" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Description</label>
-                <textarea
-                  placeholder="Detail explanation..."
-                  value={descriptionField}
-                  onChange={(e) => setDescriptionField(e.target.value)}
-                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none"
-                />
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-3 border-t border-border/40">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-muted-foreground">Active Status</label>
-                <Switch checked={activeField} onCheckedChange={setActiveField} />
-              </div>
-              <div className="flex gap-2.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 px-4 font-semibold text-xs cursor-pointer"
-                  onClick={() => setIsAddModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add
-                </Button>
-              </div>
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                onClick={() => setIsAddModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs rounded-lg cursor-pointer transition-colors"
+              >
+                Add Coverage Area
+              </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
       {/* ========================================== */}
-      {/* MODAL: VIEW ITEM DETAILS                   */}
+      {/* 3rd IMAGE: VIEW COVERAGE AREA DETAILS     */}
       {/* ========================================== */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-[440px] border border-border/85 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
-              <Eye className="h-4.5 w-4.5 text-blue-400" />
-              Reference Details
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                <Compass className="h-5 w-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
+                  View Coverage Area
+                </DialogTitle>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wider">
+                  <span>{selectedItem?.level || "REGION"}</span>
+                  <span className="text-muted-foreground/45">•</span>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded">
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsViewModalOpen(false)}
+              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
           {selectedItem && (
-            <div className="space-y-4 py-2">
-              <div className="grid grid-cols-3 gap-1.5 text-xs">
-                <div className="text-muted-foreground font-semibold">Name:</div>
-                <div className="col-span-2 text-foreground font-bold">{selectedItem.name}</div>
-              </div>
-
-              {selectedItem.description && (
-                <div className="grid grid-cols-3 gap-1.5 text-xs">
-                  <div className="text-muted-foreground font-semibold">Description:</div>
-                  <div className="col-span-2 text-muted-foreground font-medium whitespace-pre-wrap leading-relaxed">
-                    {selectedItem.description}
+            <div className="p-6 space-y-5">
+              {/* Identity view */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                  Identity
+                </div>
+                <div className="text-[15px] font-bold text-foreground">{selectedItem.name}</div>
+                
+                {/* Linked Layers container */}
+                <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-[#121A2A] text-xs">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                    <FolderOpen className="h-4 w-4" />
                   </div>
-                </div>
-              )}
-
-              {selectedItem.level && (
-                <div className="grid grid-cols-3 gap-1.5 text-xs">
-                  <div className="text-muted-foreground font-semibold">Level / Rank:</div>
-                  <div className="col-span-2">{getLevelBadge(selectedItem.level)}</div>
-                </div>
-              )}
-
-              {selectedItem.code && (
-                <div className="grid grid-cols-3 gap-1.5 text-xs">
-                  <div className="text-muted-foreground font-semibold">Code:</div>
-                  <div className="col-span-2 font-mono font-bold text-foreground bg-foreground/[0.04] border border-border/40 px-2 py-0.5 rounded w-max">
-                    {selectedItem.code}
+                  <div>
+                    <div className="text-[10px] font-extrabold text-indigo-400 tracking-wider uppercase leading-none">
+                      Linked Layers
+                    </div>
+                    <div className="text-xs text-muted-foreground/90 font-bold mt-1.5 leading-none">
+                      {selectedItem.layerCount} linked layers
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {selectedItem.category && (
-                <div className="grid grid-cols-3 gap-1.5 text-xs">
-                  <div className="text-muted-foreground font-semibold">Category:</div>
-                  <div className="col-span-2">{getGeometryCategoryBadge(selectedItem.category)}</div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-3 gap-1.5 text-xs">
-                <div className="text-muted-foreground font-semibold">Layer Count:</div>
-                <div className="col-span-2 font-mono font-bold text-foreground">
-                  {selectedItem.layerCount}
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-1.5 text-xs border-t border-border/30 pt-3">
-                <div className="text-muted-foreground font-semibold">Status:</div>
-                <div className="col-span-2">{getStatusBadge(selectedItem.active)}</div>
+              {/* Classification view */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                  Classification
+                </div>
+                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                  <span className="text-muted-foreground font-semibold">Coverage Level</span>
+                  <span>{getLevelBadge(selectedItem.level)}</span>
+                </div>
+              </div>
+
+              {/* Visibility view */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                  Visibility
+                </div>
+                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                  <span className="text-muted-foreground font-semibold">Status</span>
+                  <span>{getStatusBadge(selectedItem.active)}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                  <span className="text-muted-foreground font-semibold">Display Order</span>
+                  <span className="font-bold text-foreground font-mono">{selectedItem.displayOrder}</span>
+                </div>
+              </div>
+
+              {/* History view */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                  History
+                </div>
+                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-foreground/[0.01]">
+                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Created</span>
+                    <span className="text-foreground font-medium font-mono">{selectedItem.created}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Created By</span>
+                    <span className="text-foreground font-bold">{selectedItem.createdBy}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Updated</span>
+                    <span className="text-foreground font-medium font-mono">{selectedItem.updated}</span>
+                  </div>
+                  <div className="flex justify-between px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Updated By</span>
+                    <span className="text-foreground font-bold">{selectedItem.updatedBy}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer buttons with Edit & Delete on left and Close on right */}
+              <div className="flex items-center justify-between pt-4 border-t border-border/30">
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => {
+                      setIsViewModalOpen(false);
+                      handleOpenEditModal(selectedItem);
+                    }}
+                    className="h-8.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 hover:text-amber-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Edit
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsViewModalOpen(false);
+                      handleOpenDeleteModal(selectedItem);
+                    }}
+                    className="h-8.5 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:text-red-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
+                  >
+                    <Trash className="h-3.5 w-3.5" /> Delete
+                  </Button>
+                </div>
+                <Button
+                  onClick={() => setIsViewModalOpen(false)}
+                  variant="outline"
+                  className="h-8.5 px-4 font-bold text-xs border-border/80 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg transition-colors"
+                >
+                  Close
+                </Button>
               </div>
             </div>
           )}
-
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={() => setIsViewModalOpen(false)}
-              className="h-8.5 px-4 font-semibold text-xs cursor-pointer"
-            >
-              Close
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
 
       {/* ========================================== */}
-      {/* MODAL: EDIT ITEM DETAILS                   */}
+      {/* 4th IMAGE: EDIT COVERAGE AREA DETAILS     */}
       {/* ========================================== */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-[460px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
-              <Pencil className="h-4.5 w-4.5 text-amber-400" />
-              Edit Reference Item
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                <Compass className="h-5 w-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
+                  Edit Coverage Area
+                </DialogTitle>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wider">
+                  <span>{selectedItem?.level || "REGION"}</span>
+                  <span className="text-muted-foreground/45">•</span>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded">
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleEditConfiguration} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Name</label>
-              <Input
-                value={nameField}
-                onChange={(e) => setNameField(e.target.value)}
-                required
-                className="h-9.5 font-bold"
-              />
+          <form onSubmit={handleEditConfiguration} className="p-6 space-y-5">
+            {/* Identity section */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Identity
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Name <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+                </div>
+                <Input
+                  value={nameField}
+                  onChange={(e) => setNameField(e.target.value.slice(0, 200))}
+                  required
+                  className="h-10 bg-[#0E1726]/75 border-border/60 text-xs font-bold focus:ring-primary"
+                />
+              </div>
             </div>
 
-            {activeTab === "coverage" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Level</label>
-                <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Region">Region</SelectItem>
-                    <SelectItem value="Country">Country</SelectItem>
-                    <SelectItem value="Emirate">Emirate</SelectItem>
-                  </SelectContent>
-                </Select>
+            {/* Classification Section */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Classification
               </div>
-            )}
-
-            {(activeTab === "geometry" || activeTab === "datatypes") && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Short Code</label>
-                <Input
-                  value={codeField}
-                  onChange={(e) => setCodeField(e.target.value)}
-                  required
-                  maxLength={12}
-                  className="h-9.5 uppercase font-mono font-bold"
-                />
-              </div>
-            )}
-
-            {activeTab === "geometry" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Category</label>
-                <Select value={categoryField} onValueChange={setCategoryField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="Vector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Vector">Vector</SelectItem>
-                    <SelectItem value="Raster">Raster</SelectItem>
-                    <SelectItem value="- None">- None</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {activeTab === "sensitivity" && (
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">
-                  Classification Rank
+                  Coverage Level <span className="text-red-400">*</span>
                 </label>
                 <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-9.5">
-                    <SelectValue placeholder="L1" />
+                  <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                    <SelectValue placeholder="Region" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="L1">L1</SelectItem>
-                    <SelectItem value="L2">L2</SelectItem>
-                    <SelectItem value="L3">L3</SelectItem>
-                    <SelectItem value="L4">L4</SelectItem>
-                    <SelectItem value="L5">L5</SelectItem>
+                  <SelectContent className="bg-[#111A2C] border-border text-xs">
+                    <SelectItem value="Country">Country</SelectItem>
+                    <SelectItem value="Emirate">Emirate</SelectItem>
+                    <SelectItem value="City">City</SelectItem>
+                    <SelectItem value="Region">Region</SelectItem>
+                    <SelectItem value="District">District</SelectItem>
+                    <SelectItem value="Zone">Zone</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Visibility Section */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                Visibility
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                  <Select
+                    value={activeField ? "active" : "inactive"}
+                    onValueChange={(val) => setActiveField(val === "active")}
+                  >
+                    <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                      <SelectValue placeholder="Active" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#111A2C] border-border text-xs">
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                    Inactive areas are hidden from operational dropdowns.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
+                  <Input
+                    type="number"
+                    value={displayOrderField}
+                    onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                  />
+                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                    Lower numbers appear first in dropdowns.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* History grid Section */}
+            {selectedItem && (
+              <div className="space-y-2">
+                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                  History
+                </div>
+                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-foreground/[0.01]">
+                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Created</span>
+                    <span className="text-foreground font-medium font-mono">
+                      {selectedItem.created} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
+                      <span className="font-bold text-foreground/90">{selectedItem.createdBy}</span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between px-3.5 py-2">
+                    <span className="text-muted-foreground font-semibold">Updated</span>
+                    <span className="text-foreground font-medium font-mono">
+                      {selectedItem.updated} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
+                      <span className="font-bold text-foreground/90">{selectedItem.updatedBy}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {activeTab !== "coverage" && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Description</label>
-                <textarea
-                  value={descriptionField}
-                  onChange={(e) => setDescriptionField(e.target.value)}
-                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none"
-                />
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-3 border-t border-border/40">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-muted-foreground">Active Status</label>
-                <Switch checked={activeField} onCheckedChange={setActiveField} />
-              </div>
-              <div className="flex gap-2.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 px-4 font-semibold text-xs cursor-pointer"
-                  onClick={() => setIsEditModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs cursor-pointer"
-                >
-                  Save Changes
-                </Button>
-              </div>
+            {/* Footer Cancel & Save Changes */}
+            <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs rounded-lg cursor-pointer transition-colors"
+              >
+                Save Changes
+              </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* ========================================== */}
-      {/* MODAL: DELETE CONFIRMATION                 */}
-      {/* ========================================== */}
+      {/* ============================================== */}
+      {/* 5th IMAGE: DELETE CONFIRMATION MODAL           */}
+      {/* ============================================== */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="max-w-[400px] border border-red-500/30 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-red-400 flex items-center gap-2">
-              <Trash className="h-4.5 w-4.5" />
-              Confirm Delete
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[440px] border border-red-500/30 bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+          {/* Subtle top red alert border line */}
+          <div className="h-1 bg-red-500 w-full" />
+          
+          <div className="p-6 flex gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
+            </div>
 
-          {selectedItem && (
-            <div className="space-y-3 py-2">
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Are you sure you want to delete the reference item{" "}
-                <span className="font-bold text-foreground">"{selectedItem.name}"</span>? This
-                action cannot be undone and may affect configurations linked to this record.
+            <div className="space-y-2 flex-1">
+              <DialogTitle className="text-[15px] font-bold text-foreground">
+                Delete this record?
+              </DialogTitle>
+              <p className="text-[12px] text-muted-foreground/80 leading-relaxed font-semibold">
+                This record will be permanently deleted.
+                <br />
+                This action cannot be undone.
               </p>
             </div>
-          )}
 
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors p-1 self-start"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="flex justify-end gap-2.5 p-4 bg-[#0E1624] border-t border-border/20">
             <Button
               variant="outline"
               onClick={() => setIsDeleteModalOpen(false)}
-              className="h-8.5 px-4 font-semibold text-xs cursor-pointer"
+              className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
             >
               Cancel
             </Button>
             <Button
               onClick={handleDeleteConfirm}
-              className="h-8.5 px-4 bg-red-600 hover:bg-red-500 text-white font-semibold text-xs cursor-pointer"
+              className="h-9 px-4 bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
             >
-              Yes, Delete
+              <Trash className="h-3.5 w-3.5 text-white" /> Delete Record
             </Button>
           </div>
         </DialogContent>

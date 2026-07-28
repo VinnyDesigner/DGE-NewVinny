@@ -34,6 +34,7 @@ import {
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/operations/jobs")({
   head: () => ({
@@ -347,53 +348,83 @@ function JobsPage() {
 
                     {/* Actions formatted perfectly to match Image 2 colors */}
                     <td className="px-5 py-4 table-sticky-actions text-right !overflow-visible">
-                      <div className="flex items-center justify-end gap-1.5">
-                        
-                        {/* View details */}
-                        <button className="relative group h-7 w-7 flex items-center justify-center rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/15 cursor-pointer">
-                          <Eye className="h-3.5 w-3.5" />
-                          <span className="pointer-events-none absolute top-full mt-2.5 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-lg shadow-lg border border-slate-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                            View details
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-white" />
-                          </span>
-                        </button>
+                      <TooltipProvider delayDuration={50}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          
+                          {/* View details */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="h-7 w-7 flex items-center justify-center rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/15 cursor-pointer">
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              sideOffset={5}
+                              className="bg-white text-slate-800 font-bold border border-slate-200 shadow-md text-xs py-1.5 px-3 rounded-lg select-none pointer-events-none"
+                            >
+                              View details
+                            </TooltipContent>
+                          </Tooltip>
 
-                        {/* Edit details */}
-                        <button
-                          onClick={() => handleOpenEdit(j)}
-                          className="relative group h-7 w-7 flex items-center justify-center rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/15 cursor-pointer"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                          <span className="pointer-events-none absolute top-full mt-2.5 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-lg shadow-lg border border-slate-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                            Edit details
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-white" />
-                          </span>
-                        </button>
-                        
-                        {/* Monitor Link with tooltip */}
-                        <Link
-                          to="/operations/workflow"
-                          className="relative group h-7 w-7 flex items-center justify-center rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/15 cursor-pointer"
-                        >
-                          <GitBranch className="h-3.5 w-3.5" />
-                          <span className="pointer-events-none absolute top-full mt-2.5 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-lg shadow-lg border border-slate-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                            View Monitor
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-white" />
-                          </span>
-                        </Link>
+                          {/* Edit details */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => handleOpenEdit(j)}
+                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/15 cursor-pointer"
+                              >
+                                <Edit3 className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              sideOffset={5}
+                              className="bg-white text-slate-800 font-bold border border-slate-200 shadow-md text-xs py-1.5 px-3 rounded-lg select-none pointer-events-none"
+                            >
+                              Edit details
+                            </TooltipContent>
+                          </Tooltip>
+                          
+                          {/* Monitor Link */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Link
+                                to="/operations/workflow"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/15 cursor-pointer"
+                              >
+                                <GitBranch className="h-3.5 w-3.5" />
+                              </Link>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              sideOffset={5}
+                              className="bg-white text-slate-800 font-bold border border-slate-200 shadow-md text-xs py-1.5 px-3 rounded-lg select-none pointer-events-none"
+                            >
+                              View Monitor
+                            </TooltipContent>
+                          </Tooltip>
 
-                        {/* Delete */}
-                        <button
-                          onClick={() => handleOpenDelete(j)}
-                          className="relative group h-7 w-7 flex items-center justify-center rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/15 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span className="pointer-events-none absolute top-full mt-2.5 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[11px] font-bold py-1.5 px-3 rounded-lg shadow-lg border border-slate-200/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                            Delete
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-white" />
-                          </span>
-                        </button>
-                      </div>
+                          {/* Delete */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => handleOpenDelete(j)}
+                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/15 cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              sideOffset={5}
+                              className="bg-white text-slate-800 font-bold border border-slate-200 shadow-md text-xs py-1.5 px-3 rounded-lg select-none pointer-events-none"
+                            >
+                              Delete
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
                     </td>
                   </tr>
                 ))

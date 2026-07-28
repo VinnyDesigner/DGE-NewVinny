@@ -140,7 +140,6 @@ export const navGroups: NavGroup[] = [
       { title: "Admin", url: "/admin/settings", icon: Shield },
       { title: "Access Control", url: "/admin/users", icon: UserCog },
       { title: "Security & Authentication", url: "/admin/permissions", icon: Lock },
-      { title: "System Services", url: "/admin/health", icon: Server },
       { title: "Data Source Connectors", url: "/tools/connectors", icon: Wifi },
       { title: "Database Mapping", url: "/data-management/db-mapping", icon: DatabaseZap },
       { title: "Layer Configuration", url: "/data-management/layer-config", icon: SlidersHorizontal },

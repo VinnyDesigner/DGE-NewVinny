@@ -188,7 +188,7 @@ function FloatingKeywords() {
           Monitor,
         </span>
         <span className="text-info inline-block animate-smooth-float-3">
-          and Governance
+          and Govern
         </span>
       </div>
 
@@ -467,11 +467,11 @@ function Login() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className="inline-flex w-fit items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-[12px] font-semibold tracking-wide text-success shrink-0"
+                    className="inline-flex w-fit items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[12px] font-semibold tracking-wide text-amber-400 shrink-0"
                   >
                     <span className="relative flex h-[clamp(6px,0.4vw,12px)] w-[clamp(6px,0.4vw,12px)]">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70" />
-                      <span className="relative inline-flex h-full w-full rounded-full bg-success" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400/70" />
+                      <span className="relative inline-flex h-full w-full rounded-full bg-amber-400" />
                     </span>
                     Live Enterprise Data Platform
                   </motion.div>

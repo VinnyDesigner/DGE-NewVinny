@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   Lock,
@@ -18,10 +18,13 @@ import {
   EyeOff,
   Check,
   RefreshCw,
+  Edit3,
+  Pencil,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -132,13 +135,18 @@ function SecurityAuthentication() {
     "builtin" | "ldap" | "oauth" | "saml"
   >("builtin");
 
-  // LDAP sub-form
-  const [ldapHost, setLdapHost] = useState("ldap://directory.dge.gov.ae");
-  const [ldapBaseDn, setLdapBaseDn] = useState("OU=Users,DC=dge,DC=gov,DC=ae");
-  const [ldapBindDn, setLdapBindDn] = useState("CN=BindUser,OU=ServiceAccounts,DC=dge,DC=gov,DC=ae");
-  const [ldapPassword, setLdapPassword] = useState("••••••••••••••••");
-  const [ldapSyncInterval, setLdapSyncInterval] = useState("360");
-  const [ldapActive, setLdapActive] = useState(true);
+  // Built-in authentication setting
+  const [builtinActive, setBuiltinActive] = useState(true);
+
+  // LDAP Connection Settings
+  const [ldapHost, setLdapHost] = useState("");
+  const [ldapPort, setLdapPort] = useState("389");
+  const [ldapBindDn, setLdapBindDn] = useState("");
+  const [ldapBindPass, setLdapBindPass] = useState("");
+  const [ldapBaseDn, setLdapBaseDn] = useState("");
+  const [ldapEncryption, setLdapEncryption] = useState("STARTTLS");
+  const [ldapUserSearchBase, setLdapUserSearchBase] = useState("");
+  const [ldapActive, setLdapActive] = useState(false);
 
   // OAuth sub-form
   const [oauthClientId, setOauthClientId] = useState("dge-studio-enterprise-client-id");
@@ -158,8 +166,33 @@ function SecurityAuthentication() {
   // ==========================================
   // TAB 4: SMTP Configuration State
   // ==========================================
-  const [smtpConfigs, setSmtpConfigs] = useState<SMTPConfigItem[]>([]);
+  const [smtpConfigs, setSmtpConfigs] = useState<SMTPConfigItem[]>([
+    {
+      id: "1",
+      name: "Master SMTP Configuration",
+      host: "smtp.office365.com:587/",
+      port: "587",
+      user: "info.ecubeapps@ispatialtec.com",
+      sender: "info.ecubeapps@ispatialtec.com",
+      secure: false, // represents STARTTLS
+      active: true,
+    },
+    {
+      id: "2",
+      name: "Test3 SMTP Configuration",
+      host: "smtp.gmail.com:465",
+      port: "465",
+      user: "galabamaheshispatial@gmail.com",
+      sender: "galabamaheshispatial@gmail.com",
+      secure: true, // SSL/TLS
+      active: false,
+    }
+  ]);
+
   const [isAddingSmtp, setIsAddingSmtp] = useState(false);
+  const [viewingConfigId, setViewingConfigId] = useState<string | null>(null);
+  const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
+
   const [smtpName, setSmtpName] = useState("");
   const [smtpHost, setSmtpHost] = useState("");
   const [smtpPort, setSmtpPort] = useState("465");
@@ -171,6 +204,7 @@ function SecurityAuthentication() {
   const [smtpPass, setSmtpPass] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showLdapPassword, setShowLdapPassword] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [testEmail, setTestEmail] = useState("");
@@ -222,10 +256,12 @@ function SecurityAuthentication() {
   };
 
   const deleteSmtp = (id: string) => {
-    const updated = smtpConfigs.filter((cfg) => cfg.id !== id);
-    if (updated.length > 0 && !updated.some((cfg) => cfg.active)) {
-      updated[0].active = true;
+    const cfg = smtpConfigs.find((c) => c.id === id);
+    if (cfg?.active) {
+      toast.error("Cannot delete an active SMTP configuration.");
+      return;
     }
+    const updated = smtpConfigs.filter((c) => c.id !== id);
     setSmtpConfigs(updated);
     toast.success("SMTP configuration deleted");
   };
@@ -686,7 +722,6 @@ function SecurityAuthentication() {
         </div>
       )}
 
-      {/* TAB CONTENT: IDENTITY STORE */}
       {activeTab === "identity" && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
           {/* Left Panel: Providers selector list */}
@@ -698,36 +733,42 @@ function SecurityAuthentication() {
             <div className="space-y-2">
               <button
                 onClick={() => setSelectedProvider("builtin")}
-                className={`w-full flex items-center justify-between p-3 border rounded-xl text-left transition-all cursor-pointer ${
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 border rounded-xl text-left transition-all cursor-pointer",
                   selectedProvider === "builtin"
-                    ? "border-accent/40 bg-accent/5"
-                    : "border-border/45 bg-foreground/[0.01] hover:bg-foreground/[0.02]"
-                }`}
+                    ? "border-primary/40 bg-primary/5"
+                    : "border-border/50 bg-card/65 hover:bg-muted/10"
+                )}
               >
-                <div>
-                  <div className="text-xs font-bold text-foreground">Built-in Database</div>
-                  <div className="text-[10px] text-muted-foreground/80 mt-0.5 leading-normal">
-                    Local accounts & credentials
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.04] border border-border/50 text-muted-foreground">
+                  <Database className="h-4.5 w-4.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-foreground truncate">Built-in Identity Store</div>
+                  <div className="inline-flex items-center gap-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 text-[9px] font-extrabold mt-1">
+                    <span className="h-1 w-1 rounded-full bg-emerald-400" /> Active
                   </div>
                 </div>
-                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </button>
 
               <button
                 onClick={() => setSelectedProvider("ldap")}
-                className={`w-full flex items-center justify-between p-3 border rounded-xl text-left transition-all cursor-pointer ${
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 border rounded-xl text-left transition-all cursor-pointer",
                   selectedProvider === "ldap"
-                    ? "border-accent/40 bg-accent/5"
-                    : "border-border/45 bg-foreground/[0.01] hover:bg-foreground/[0.02]"
-                }`}
+                    ? "border-primary/40 bg-primary/5"
+                    : "border-border/50 bg-card/65 hover:bg-muted/10"
+                )}
               >
-                <div>
-                  <div className="text-xs font-bold text-foreground">AD / LDAP Server</div>
-                  <div className="text-[10px] text-muted-foreground/80 mt-0.5 leading-normal">
-                    Directory synchronization
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.04] border border-border/50 text-muted-foreground">
+                  <Database className="h-4.5 w-4.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-foreground truncate font-semibold">LDAP</div>
+                  <div className="inline-flex items-center gap-1 rounded bg-slate-500/15 text-slate-400 border border-slate-500/25 px-1.5 py-0.2 text-[9px] font-extrabold mt-1">
+                    <span className="h-1 w-1 rounded-full bg-slate-400" /> Inactive
                   </div>
                 </div>
-                <span className={`inline-flex h-1.5 w-1.5 rounded-full ${ldapActive ? "bg-emerald-500" : "bg-slate-500"}`} />
               </button>
             </div>
           </Surface>
@@ -735,259 +776,105 @@ function SecurityAuthentication() {
           {/* Right Panel: Selected configuration sub-form */}
           <Surface className="p-5 flex flex-col justify-start">
             {selectedProvider === "builtin" && (
-              <div className="space-y-4">
-                <div className="border-b border-border/40 pb-3 flex items-center justify-between">
+              <div className="space-y-5">
+                <div className="flex items-center gap-3 border-b border-border/40 pb-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-primary">
+                    <Database className="h-4.5 w-4.5" />
+                  </div>
                   <div>
-                    <h3 className="text-sm font-bold text-foreground font-semibold">—</h3>
+                    <h3 className="text-sm font-bold text-foreground">Built-in Identity Store</h3>
+                    <p className="text-[10px] text-muted-foreground font-semibold">Local user database managed within Data Automation Studio</p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-foreground/[0.01] border border-border/30 rounded-xl flex items-start gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-muted-foreground leading-relaxed">
-                      Select an identity provider from the left pane to manage its synchronization properties, domain endpoints, and security configuration parameters.
-                    </div>
-                  </div>
+                {/* Active alert box */}
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400 font-semibold flex items-center gap-2">
+                  <Check className="h-4 w-4 shrink-0" />
+                  <span>
+                    Built-in identity store is active. Local users are managed under{" "}
+                    <span className="underline hover:text-emerald-300 cursor-pointer">User Management</span>.
+                  </span>
+                </div>
+
+                {/* Enable auth Switch */}
+                <div className="flex items-center justify-between p-3 border border-border/50 rounded-xl bg-card">
+                  <span className="text-xs font-bold text-foreground select-none">Enable built-in authentication</span>
+                  <Switch
+                    checked={builtinActive}
+                    onCheckedChange={setBuiltinActive}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                {/* Centered policy link */}
+                <p className="text-[11px] text-muted-foreground/80 leading-normal font-semibold">
+                  Password rules and session policy are managed centrally under{" "}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("auth")}
+                    className="text-primary hover:underline font-bold"
+                  >
+                    Security &amp; Authentication &rarr; Authentication &rarr; Login Policy
+                  </button>
+                  .
+                </p>
+
+                {/* Save button */}
+                <div className="pt-3 border-t border-border/20">
+                  <Button
+                    onClick={() => {
+                      toast.success("Built-in Identity Store configuration saved");
+                    }}
+                    className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs"
+                  >
+                    Save Configuration
+                  </Button>
                 </div>
               </div>
             )}
 
             {selectedProvider === "ldap" && (
               <div className="space-y-5">
-                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/40 pb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">AD / LDAP Configuration</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Configure server hostname and credentials to synchronize directory attributes with local users database.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Status:</span>
-                    <Switch
-                      checked={ldapActive}
-                      onCheckedChange={setLdapActive}
-                      className="cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">LDAP Server URL</label>
-                    <Input
-                      value={ldapHost}
-                      onChange={(e) => setLdapHost(e.target.value)}
-                      className="h-9.5"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Sync Interval (minutes)</label>
-                    <Input
-                      type="number"
-                      value={ldapSyncInterval}
-                      onChange={(e) => setLdapSyncInterval(e.target.value)}
-                      className="h-9.5"
-                    />
-                  </div>
-                  <div className="space-y-1.5 lg:col-span-2">
-                    <label className="text-xs font-semibold text-muted-foreground">User Search Base (Base DN)</label>
-                    <Input
-                      value={ldapBaseDn}
-                      onChange={(e) => setLdapBaseDn(e.target.value)}
-                      className="h-9.5"
-                    />
-                  </div>
-                  <div className="space-y-1.5 lg:col-span-2">
-                    <label className="text-xs font-semibold text-muted-foreground">Bind User (Bind DN)</label>
-                    <Input
-                      value={ldapBindDn}
-                      onChange={(e) => setLdapBindDn(e.target.value)}
-                      className="h-9.5"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Bind Password</label>
-                    <Input
-                      type="password"
-                      value={ldapPassword}
-                      onChange={(e) => setLdapPassword(e.target.value)}
-                      className="h-9.5"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-3 border-t border-border/40">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8.5 font-semibold text-xs"
-                    onClick={() => toast.info("Directory connection test initiated...")}
-                  >
-                    Test Connection
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleSaveIdentityProvider("ldap")}
-                    className="h-8.5 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1"
-                  >
-                    <Save className="h-3.5 w-3.5" /> Save Provider
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Surface>
-        </div>
-      )}
-
-      {/* TAB CONTENT: SMTP CONFIGURATION */}
-      {activeTab === "smtp" && (
-        <div className="space-y-4">
-          {!isAddingSmtp ? (
-            /* LIST VIEW */
-            <div className="space-y-4">
-              <p className="text-xs text-muted-foreground leading-normal">
-                Configure one or more outbound mail servers; the <span className="font-semibold text-foreground">Active</span> one is used to send notifications. Recipients are set under <span className="text-primary hover:underline cursor-pointer">Job notifications</span>.
-              </p>
-
-              {/* Warning Banner */}
-              <div className="bg-red-500/10 border border-red-500/25 rounded-xl p-3.5 text-xs text-red-400 font-semibold flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <span>Unexpected token 'B', "Bad Request" is not valid JSON</span>
-              </div>
-
-              <div className="flex justify-end">
-                <Button
-                  onClick={() => setIsAddingSmtp(true)}
-                  className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" /> Add new SMTP Configuration
-                </Button>
-              </div>
-
-              {smtpConfigs.length === 0 ? (
-                <Surface className="p-12 text-center text-xs text-muted-foreground border border-dashed border-border/60">
-                  <div className="max-w-md mx-auto space-y-2">
-                    <Mail className="h-10 w-10 text-muted-foreground/50 mx-auto" />
-                    <p className="leading-relaxed">
-                      No SMTP configurations yet. Click "Add new SMTP Configuration" to create the first one (it becomes active automatically).
-                    </p>
-                  </div>
-                </Surface>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {smtpConfigs.map((cfg) => (
-                    <Surface key={cfg.id} className="p-4 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-0.5">
-                          <h4 className="text-xs font-bold text-foreground">{cfg.name}</h4>
-                          <p className="text-[10px] text-muted-foreground font-mono">{cfg.host}:{cfg.port}</p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => toggleSmtpActive(cfg.id)}
-                            className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border cursor-pointer select-none transition-colors ${
-                              cfg.active
-                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/35"
-                                : "bg-slate-500/10 text-muted-foreground border-slate-500/25 hover:bg-slate-500/20"
-                            }`}
-                          >
-                            {cfg.active ? "Active" : "Set Active"}
-                          </button>
-
-                          <button
-                            onClick={() => deleteSmtp(cfg.id)}
-                            className="text-muted-foreground hover:text-red-400 transition-colors p-1 cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 text-[10px] text-muted-foreground border-t border-border/30 pt-3">
-                        <div>
-                          <span className="font-semibold text-muted-foreground/60 block">Sender Address</span>
-                          {cfg.sender}
-                        </div>
-                        <div>
-                          <span className="font-semibold text-muted-foreground/60 block">Username</span>
-                          {cfg.user || "Anonymous"}
-                        </div>
-                        <div>
-                          <span className="font-semibold text-muted-foreground/60 block">Outbound Security</span>
-                          {cfg.secure ? "SSL/TLS (Enforced)" : "Plain Text (None)"}
-                        </div>
-                      </div>
-                    </Surface>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* FORM VIEW - Wrapped in a Surface container matching Image 1, 2, 3 exactly */
-            <Surface className="p-6 space-y-6">
-              <form onSubmit={handleAddSmtp} className="space-y-5">
-                {/* Form Header with back arrow */}
                 <div className="flex items-center gap-3 border-b border-border/40 pb-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingSmtp(false)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/50 hover:bg-foreground/[0.02] cursor-pointer"
-                  >
-                    <ArrowLeft className="h-4 w-4 text-foreground" />
-                  </button>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400">
-                    <Mail className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-primary">
+                    <Database className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-foreground">New SMTP Configuration</h3>
-                    <p className="text-[10px] text-muted-foreground/80 leading-normal">Configuration - validation - test</p>
+                    <h3 className="text-sm font-bold text-foreground">LDAP</h3>
+                    <p className="text-[10px] text-muted-foreground font-semibold">Connect to an LDAP directory server</p>
                   </div>
                 </div>
 
-                {/* Field 1: SMTP Configuration Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                    SMTP Configuration Name <span className="text-red-400">*</span>
-                  </label>
-                  <Input
-                    placeholder="e.g. Production Mail"
-                    value={smtpName}
-                    onChange={(e) => setSmtpName(e.target.value)}
-                    required
-                    className="h-9.5"
+                {/* Enable LDAP Switch */}
+                <div className="flex items-center justify-between p-3 border border-border/50 rounded-xl bg-card">
+                  <span className="text-xs font-bold text-foreground select-none">Enable LDAP / Active Directory</span>
+                  <Switch
+                    checked={ldapActive}
+                    onCheckedChange={setLdapActive}
+                    className="cursor-pointer"
                   />
-                  <p className="text-[10px] text-muted-foreground/70 leading-normal">Must be unique.</p>
                 </div>
 
-                {/* Section 1: Server Settings */}
-                <div className="space-y-3.5 pt-1">
-                  <div className="text-xs font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide">
-                    Server Settings
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                        SMTP Host <span className="text-red-400">*</span>
-                      </label>
+                {/* Connection Settings */}
+                <div className="space-y-4 text-xs font-semibold">
+                  <div className="text-xs font-bold text-foreground uppercase tracking-wider select-none">Connection Settings</div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_180px]">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">LDAP Host</label>
                       <Input
-                        placeholder="smtp.example.com"
-                        value={smtpHost}
-                        onChange={(e) => setSmtpHost(e.target.value)}
-                        required
+                        value={ldapHost}
+                        onChange={(e) => setLdapHost(e.target.value)}
+                        placeholder="ldap.example.com"
                         className="h-9.5"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                        Port <span className="text-red-400">*</span>
-                      </label>
+                      <label className="text-muted-foreground block font-bold">Port</label>
                       <Input
-                        placeholder="465"
-                        value={smtpPort}
-                        onChange={(e) => setSmtpPort(e.target.value)}
-                        required
+                        value={ldapPort}
+                        onChange={(e) => setLdapPort(e.target.value)}
+                        placeholder="389"
                         className="h-9.5"
                       />
                     </div>
@@ -995,10 +882,51 @@ function SecurityAuthentication() {
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Encryption</label>
-                      <Select value={smtpEncryption} onValueChange={setSmtpEncryption}>
+                      <label className="text-muted-foreground block font-bold">Bind DN</label>
+                      <Input
+                        value={ldapBindDn}
+                        onChange={(e) => setLdapBindDn(e.target.value)}
+                        placeholder="cn=admin,dc=example,dc=com"
+                        className="h-9.5"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">Bind Password</label>
+                      <div className="relative">
+                        <Input
+                          type={showLdapPassword ? "text" : "password"}
+                          value={ldapBindPass}
+                          onChange={(e) => setLdapBindPass(e.target.value)}
+                          placeholder="Enter bind password"
+                          className="h-9.5 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowLdapPassword(!showLdapPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          {showLdapPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground block font-bold">Base DN</label>
+                    <Input
+                      value={ldapBaseDn}
+                      onChange={(e) => setLdapBaseDn(e.target.value)}
+                      placeholder="dc=example,dc=com"
+                      className="h-9.5"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">Encryption</label>
+                      <Select value={ldapEncryption} onValueChange={setLdapEncryption}>
                         <SelectTrigger className="h-9.5">
-                          <SelectValue placeholder="SSL/TLS" />
+                          <SelectValue placeholder="STARTTLS" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="None">None</SelectItem>
@@ -1008,140 +936,527 @@ function SecurityAuthentication() {
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Auth Method</label>
+                      <label className="text-muted-foreground block font-bold">User Search Base</label>
+                      <Input
+                        value={ldapUserSearchBase}
+                        onChange={(e) => setLdapUserSearchBase(e.target.value)}
+                        placeholder="ou=users,dc=example,dc=com"
+                        className="h-9.5"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Test connection row */}
+                  <div className="space-y-2 pt-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        toast.success("TCP reachability of LDAP server validated successfully");
+                      }}
+                      className="h-8.5 px-4 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" /> Test Connection
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground leading-normal font-semibold">
+                      Test Connection checks TCP reachability of the LDAP host/port. Directory login is not yet enabled.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Save button */}
+                <div className="pt-3 border-t border-border/20">
+                  <Button
+                    onClick={() => {
+                      toast.success("LDAP configuration saved");
+                    }}
+                    className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs"
+                  >
+                    Save Configuration
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Surface>
+        </div>
+      )}      {activeTab === "smtp" && (
+        <div className="space-y-4">
+          {/* LIST VIEW */}
+          {!isAddingSmtp && !viewingConfigId && !editingConfigId && (
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground leading-normal select-none">
+                Configure one or more outbound mail servers; the <span className="font-semibold text-foreground">Active</span> one is used to send notifications. Recipients are set under{" "}
+                <Link to="/admin/notifications" className="text-primary hover:underline font-bold">
+                  Job notifications
+                </Link>
+                .
+              </p>
+
+              <div className="flex justify-end select-none">
+                <Button
+                  onClick={() => {
+                    // Reset fields for new config
+                    setSmtpName("");
+                    setSmtpHost("");
+                    setSmtpPort("465");
+                    setSmtpEncryption("SSL/TLS");
+                    setSmtpAuthMethod("LOGIN");
+                    setSmtpSenderName("Data Automation Studio");
+                    setSmtpSenderEmail("");
+                    setSmtpUser("DAPortalAdmin");
+                    setSmtpPass("");
+                    setIsValidated(false);
+                    setTestEmail("");
+                    setIsAddingSmtp(true);
+                  }}
+                  className="h-9.5 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-soft"
+                >
+                  <Plus className="h-4 w-4" /> Add new SMTP Configuration
+                </Button>
+              </div>
+
+              {/* Configurations Table matching 1st screenshot */}
+              <Surface className="overflow-x-auto !p-0 border border-border">
+                <table className="w-full text-left border-collapse text-xs font-semibold">
+                  <thead>
+                    <tr className="border-b border-border/40 bg-foreground/[0.02] text-muted-foreground font-bold select-none h-11">
+                      <th className="px-4 py-2">NAME</th>
+                      <th className="px-4 py-2">HOST</th>
+                      <th className="px-4 py-2">SENDER</th>
+                      <th className="px-4 py-2">ACTIVE</th>
+                      <th className="px-4 py-2 text-right">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {smtpConfigs.map((cfg) => (
+                      <tr key={cfg.id} className="border-b border-border/40 hover:bg-muted/10 h-12">
+                        <td className="px-4 py-2 font-extrabold text-foreground">{cfg.name}</td>
+                        <td className="px-4 py-2 font-mono text-muted-foreground">{cfg.host}</td>
+                        <td className="px-4 py-2 text-muted-foreground">{cfg.sender}</td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={cfg.active}
+                              onCheckedChange={() => toggleSmtpActive(cfg.id)}
+                              className="scale-90 cursor-pointer data-[state=checked]:bg-emerald-500"
+                            />
+                            <span className={cn(
+                              "text-[10px] font-extrabold select-none",
+                              cfg.active ? "text-emerald-400" : "text-muted-foreground"
+                            )}>
+                              {cfg.active ? "Active" : "Inactive"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-right select-none">
+                          <button
+                            onClick={() => setViewingConfigId(cfg.id)}
+                            className="p-1 hover:text-primary transition-colors cursor-pointer mr-1.5"
+                            title="View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              // Populate form fields for edit
+                              setSmtpName(cfg.name);
+                              setSmtpHost(cfg.host.split(":")[0]);
+                              setSmtpPort(cfg.port);
+                              setSmtpEncryption(cfg.secure ? "SSL/TLS" : "STARTTLS");
+                              setSmtpSenderName("Data Automation Studio");
+                              setSmtpSenderEmail(cfg.sender);
+                              setSmtpUser(cfg.user);
+                              setSmtpPass("••••••••");
+                              setIsValidated(true); // pre-validated for editing mock
+                              setTestEmail("");
+                              setEditingConfigId(cfg.id);
+                            }}
+                            className="p-1 hover:text-primary transition-colors cursor-pointer mr-1.5"
+                            title="Edit"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => !cfg.active && deleteSmtp(cfg.id)}
+                            disabled={cfg.active}
+                            className={cn(
+                              "p-1 transition-colors",
+                              cfg.active
+                                ? "text-muted-foreground/30 cursor-not-allowed"
+                                : "text-muted-foreground hover:text-rose-500 cursor-pointer"
+                            )}
+                            title={cfg.active ? "Cannot delete active configuration" : "Delete"}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Surface>
+            </div>
+          )}
+
+          {/* VIEW MODE - Matches 2nd screenshot */}
+          {viewingConfigId !== null && (
+            (() => {
+              const cfg = smtpConfigs.find(item => item.id === viewingConfigId);
+              if (!cfg) return null;
+              return (
+                <Surface className="border border-border !p-5 space-y-6">
+                  {/* View Header */}
+                  <div className="flex items-center justify-between border-b border-border/40 pb-3 select-none">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setViewingConfigId(null)}
+                        className="h-8 w-8 flex items-center justify-center rounded-lg border border-border hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </button>
+                      
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-primary">
+                        <Mail className="h-4.5 w-4.5" />
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-sm font-bold text-foreground">{cfg.name}</h3>
+                        <p className="text-[10px] text-muted-foreground font-semibold">Read only view</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        // Populate and edit
+                        setSmtpName(cfg.name);
+                        setSmtpHost(cfg.host.split(":")[0]);
+                        setSmtpPort(cfg.port);
+                        setSmtpEncryption(cfg.secure ? "SSL/TLS" : "STARTTLS");
+                        setSmtpSenderName("Data Automation Studio");
+                        setSmtpSenderEmail(cfg.sender);
+                        setSmtpUser(cfg.user);
+                        setSmtpPass("••••••••");
+                        setIsValidated(true);
+                        setTestEmail("");
+                        setEditingConfigId(cfg.id);
+                        setViewingConfigId(null);
+                      }}
+                      className="h-8.5 px-3.5 border border-border hover:bg-muted text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer select-none transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </button>
+                  </div>
+
+                  {/* Read-Only Details Grid */}
+                  <div className="grid gap-x-6 gap-y-4 grid-cols-1 sm:grid-cols-2 text-xs font-semibold leading-relaxed">
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Name</span>
+                      <span className="text-foreground font-bold">{cfg.name}</span>
+                    </div>
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Host</span>
+                      <span className="text-foreground font-bold font-mono">{cfg.host.split(":")[0]}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Port</span>
+                      <span className="text-foreground font-bold font-mono">{cfg.port}</span>
+                    </div>
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Encryption</span>
+                      <span className="text-foreground font-bold uppercase">{cfg.secure ? "SSL/TLS" : "STARTTLS"}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Auth method</span>
+                      <span className="text-foreground font-bold uppercase">LOGIN</span>
+                    </div>
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Username</span>
+                      <span className="text-foreground font-bold">{cfg.user}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Password</span>
+                      <span className="text-foreground font-bold">•••••••• (set)</span>
+                    </div>
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Sender name</span>
+                      <span className="text-foreground font-bold">Data Automation Studio</span>
+                    </div>
+
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Sender email</span>
+                      <span className="text-foreground font-bold">{cfg.sender}</span>
+                    </div>
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2">
+                      <span className="text-muted-foreground">Active</span>
+                      <span className="text-foreground font-bold">{cfg.active ? "Yes" : "No"}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[110px_1fr] items-baseline border-b border-border/20 pb-2 sm:col-span-2">
+                      <span className="text-muted-foreground">Last test</span>
+                      <span className="text-muted-foreground/80 font-bold">Never</span>
+                    </div>
+                  </div>
+                </Surface>
+              );
+            })()
+          )}
+
+          {/* EDIT & CREATE FORM VIEW - Matches 3rd screenshot */}
+          {(editingConfigId !== null || isAddingSmtp) && (
+            <Surface className="border border-border !p-5">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!smtpName.trim() || !smtpHost.trim() || !smtpSenderEmail.trim()) {
+                    toast.error("SMTP Name, Host, and Sender Email are required.");
+                    return;
+                  }
+                  if (editingConfigId) {
+                    // Update
+                    setSmtpConfigs(smtpConfigs.map(item => item.id === editingConfigId ? {
+                      ...item,
+                      name: smtpName,
+                      host: `${smtpHost}:${smtpPort}`,
+                      port: smtpPort,
+                      user: smtpUser,
+                      sender: smtpSenderEmail,
+                      secure: smtpEncryption === "SSL/TLS",
+                    } : item));
+                    toast.success("SMTP Configuration saved successfully.");
+                    setEditingConfigId(null);
+                  } else {
+                    // Create
+                    const newConfig: SMTPConfigItem = {
+                      id: Math.random().toString(),
+                      name: smtpName,
+                      host: `${smtpHost}:${smtpPort}`,
+                      port: smtpPort,
+                      user: smtpUser,
+                      sender: smtpSenderEmail,
+                      secure: smtpEncryption === "SSL/TLS",
+                      active: smtpConfigs.length === 0,
+                    };
+                    setSmtpConfigs([...smtpConfigs, newConfig]);
+                    toast.success(`SMTP Configuration "${smtpName}" created.`);
+                    setIsAddingSmtp(false);
+                  }
+                }}
+                className="space-y-5 text-xs font-semibold"
+              >
+                {/* Form Header */}
+                <div className="flex items-center gap-3 border-b border-border/40 pb-3 select-none">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingConfigId(null);
+                      setIsAddingSmtp(false);
+                    }}
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-border hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-primary">
+                    <Mail className="h-4.5 w-4.5" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">
+                      {editingConfigId ? `Edit — ${smtpName}` : "New SMTP Configuration"}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground font-semibold">Configuration - validation - test</p>
+                  </div>
+                </div>
+
+                {/* Configuration Name input */}
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">SMTP Configuration Name *</label>
+                  <Input
+                    value={smtpName}
+                    onChange={(e) => setSmtpName(e.target.value)}
+                    placeholder="e.g. Master SMTP Configuration"
+                    required
+                    className="h-10"
+                  />
+                  <p className="text-[10px] text-muted-foreground/75 leading-normal">Must be unique.</p>
+                </div>
+
+                {/* Server Settings */}
+                <div className="space-y-3.5 pt-1.5">
+                  <div className="text-[10.5px] font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide select-none">
+                    Server Settings
+                  </div>
+                  
+                  <div className="grid gap-4.5 sm:grid-cols-[1fr_200px]">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">SMTP Host *</label>
+                      <Input
+                        value={smtpHost}
+                        onChange={(e) => setSmtpHost(e.target.value)}
+                        placeholder="smtp.office365.com"
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">Port *</label>
+                      <Input
+                        value={smtpPort}
+                        onChange={(e) => setSmtpPort(e.target.value)}
+                        placeholder="587"
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4.5 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">Encryption</label>
+                      <Select value={smtpEncryption} onValueChange={setSmtpEncryption}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="STARTTLS" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="None">None</SelectItem>
+                          <SelectItem value="STARTTLS">STARTTLS</SelectItem>
+                          <SelectItem value="SSL/TLS">SSL/TLS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground block font-bold">Auth Method</label>
                       <Select value={smtpAuthMethod} onValueChange={setSmtpAuthMethod}>
-                        <SelectTrigger className="h-9.5">
+                        <SelectTrigger className="h-10">
                           <SelectValue placeholder="LOGIN" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="NONE">NONE</SelectItem>
                           <SelectItem value="PLAIN">PLAIN</SelectItem>
                           <SelectItem value="LOGIN">LOGIN</SelectItem>
-                          <SelectItem value="XOAUTH2">XOAUTH2</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                 </div>
 
-                {/* Section 2: Sender Identity */}
+                {/* Sender Identity */}
                 <div className="space-y-3.5 pt-2">
-                  <div className="text-xs font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide">
+                  <div className="text-[10.5px] font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide select-none">
                     Sender Identity
                   </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                  <div className="grid gap-4.5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Sender Name</label>
+                      <label className="text-muted-foreground block font-bold">Sender Name</label>
                       <Input
-                        placeholder="Data Automation Studio"
                         value={smtpSenderName}
                         onChange={(e) => setSmtpSenderName(e.target.value)}
-                        className="h-9.5"
+                        placeholder="Data Automation Studio"
+                        className="h-10"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                        Sender Email <span className="text-red-400">*</span>
-                      </label>
+                      <label className="text-muted-foreground block font-bold">Sender Email *</label>
                       <Input
-                        placeholder="sender@example.com"
                         value={smtpSenderEmail}
                         onChange={(e) => setSmtpSenderEmail(e.target.value)}
+                        placeholder="info.ecubeapps@ispatialtec.com"
                         required
-                        className="h-9.5"
+                        className="h-10"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Section 3: Authentication */}
+                {/* Authentication */}
                 <div className="space-y-3.5 pt-2">
-                  <div className="text-xs font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide">
+                  <div className="text-[10.5px] font-bold text-foreground border-l-2 border-primary pl-2 uppercase tracking-wide select-none">
                     Authentication
                   </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                  <div className="grid gap-4.5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Username</label>
+                      <label className="text-muted-foreground block font-bold">Username</label>
                       <Input
-                        placeholder="Username"
                         value={smtpUser}
                         onChange={(e) => setSmtpUser(e.target.value)}
-                        className="h-9.5"
+                        placeholder="info.ecubeapps@ispatialtec.com"
+                        className="h-10"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Password</label>
+                      <label className="text-muted-foreground block font-bold">Password</label>
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
-                          placeholder="••••••••••••"
                           value={smtpPass}
                           onChange={(e) => setSmtpPass(e.target.value)}
-                          className="h-9.5 pr-10"
+                          placeholder="•••••••• (unchanged)"
+                          className="h-10 pr-10"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
+                      <p className="text-[10px] text-muted-foreground/75 leading-normal">Leave blank to keep the saved password.</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Section 4: Validate Configuration with correct spacing */}
-                <div className="p-5 border border-border/30 rounded-xl bg-foreground/[0.01] space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg border shrink-0 ${
-                      isValidated
-                        ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
-                        : "bg-blue-500/10 border-blue-500/25 text-blue-400"
-                    }`}>
+                {/* Validation Info Box */}
+                <div className="p-4 rounded-xl border border-border/50 bg-[#0F172A] flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 shadow-soft select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-primary">
                       <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-foreground">Validate configuration</div>
-                      <div className="text-[11px] text-muted-foreground/80 mt-0.5 leading-relaxed font-semibold">
-                        No email is sent — checks server connection + credentials.
-                      </div>
+                      <div className="font-extrabold text-foreground text-xs">Validate configuration</div>
+                      <div className="text-[10.5px] text-muted-foreground font-semibold mt-0.5">No email is sent — checks server connection + credentials.</div>
                     </div>
                   </div>
-                  <div className="sm:pl-12 pl-0 pt-1">
-                    <Button
-                      type="button"
-                      disabled={isValidating || !smtpHost}
-                      onClick={() => {
-                        setIsValidating(true);
-                        setTimeout(() => {
-                          setIsValidating(false);
-                          setIsValidated(true);
-                          toast.success("SMTP connection and credentials validated successfully");
-                        }, 1000);
-                      }}
-                      className="h-8.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                      {isValidating ? (
-                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Check className="h-3.5 w-3.5" />
-                      )}
-                      {isValidating ? "Validating..." : "Validate"}
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsValidating(true);
+                      setTimeout(() => {
+                        setIsValidating(false);
+                        setIsValidated(true);
+                        toast.success("SMTP Connection settings validated successfully.");
+                      }, 800);
+                    }}
+                    disabled={isValidating || !smtpHost}
+                    className="h-8.5 px-4 bg-blue-600 hover:bg-blue-600/90 text-white font-extrabold text-xs rounded-lg shrink-0 self-end sm:self-center cursor-pointer shadow-soft"
+                  >
+                    {isValidating ? (
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    {isValidating ? "Validating..." : "Validate"}
+                  </Button>
                 </div>
 
-                {/* Section 5: Send Test Email */}
-                <div className="space-y-2 pt-1">
+                {/* Send Test Email Block */}
+                <div className="space-y-2 pt-1 select-none">
                   <div className="text-xs font-bold text-foreground">Send Test Email <span className="text-muted-foreground/60">(optional)</span></div>
-                  <p className="text-[10px] text-muted-foreground/80 leading-normal font-semibold font-semibold">Send a real test message. Validate first to enable this.</p>
+                  <p className="text-[10px] text-muted-foreground/80 leading-normal font-semibold">Send a real test message. Validate first to enable this.</p>
+                  
                   <div className="flex gap-3 max-w-lg">
                     <Input
-                      placeholder="test@example.com"
                       value={testEmail}
-                      disabled={!isValidated}
                       onChange={(e) => setTestEmail(e.target.value)}
+                      placeholder="test@example.com"
+                      disabled={!isValidated}
                       className="h-9.5 flex-1"
                     />
                     <Button
@@ -1150,50 +1465,34 @@ function SecurityAuthentication() {
                       onClick={() => {
                         toast.success(`Test email sent successfully to ${testEmail}`);
                       }}
-                      className="h-9.5 px-4 border border-border/60 hover:bg-foreground/[0.02] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="h-9.5 px-4 border border-border hover:bg-muted text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-soft transition-colors"
                     >
                       <Mail className="h-3.5 w-3.5" /> Send Test
                     </Button>
                   </div>
                 </div>
 
-                {/* Form Footer Actions */}
-                <div className="flex justify-between items-center pt-3 border-t border-border/40">
-                  {/* Warning message on the left */}
-                  <div className="flex items-center gap-1.5 text-xs text-amber-500 font-semibold leading-none">
-                    {!smtpName.trim() ? (
-                      <>
-                        <AlertTriangle className="h-4 w-4" /> Enter a configuration name.
-                      </>
-                    ) : !smtpHost.trim() ? (
-                      <>
-                        <AlertTriangle className="h-4 w-4" /> Enter an SMTP host.
-                      </>
-                    ) : !smtpSenderEmail.trim() ? (
-                      <>
-                        <AlertTriangle className="h-4 w-4" /> Enter a sender email address.
-                      </>
-                    ) : null}
-                  </div>
-
-                  <div className="flex gap-2.5">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-9 px-4 font-semibold text-xs transition-colors"
-                      onClick={() => setIsAddingSmtp(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={!smtpName.trim() || !smtpHost.trim() || !smtpSenderEmail.trim()}
-                      className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs"
-                    >
-                      Create configuration
-                    </Button>
-                  </div>
+                {/* Form Buttons */}
+                <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border/40 select-none">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingConfigId(null);
+                      setIsAddingSmtp(false);
+                    }}
+                    className="h-9.5 px-4 font-semibold text-xs transition-colors"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9.5 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs shadow-soft"
+                  >
+                    {editingConfigId ? "Save changes" : "Create configuration"}
+                  </Button>
                 </div>
+
               </form>
             </Surface>
           )}

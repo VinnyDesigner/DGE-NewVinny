@@ -8,6 +8,8 @@ import {
   Trash,
   SlidersHorizontal,
   Shield,
+  ShieldAlert,
+  FileSpreadsheet,
   Layers,
   Shapes,
   FileCog,
@@ -22,6 +24,7 @@ import {
   Compass,
   AlertTriangle,
   FolderOpen,
+  LayoutGrid
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -98,6 +101,8 @@ interface DataType {
   displayOrder: number;
   active: boolean;
   layerCount: number;
+  category?: string;
+  fileExtensions?: string;
   created: string;
   createdBy: string;
   updated: string;
@@ -112,6 +117,7 @@ interface SensitivityLevel {
   displayOrder: number;
   active: boolean;
   layerCount: number;
+  color?: string;
   created: string;
   createdBy: string;
   updated: string;
@@ -125,6 +131,7 @@ interface DataTheme {
   displayOrder: number;
   active: boolean;
   layerCount: number;
+  color?: string;
   created: string;
   createdBy: string;
   updated: string;
@@ -151,31 +158,31 @@ const seedGeometry: GeometryType[] = [
 ];
 
 const seedDataTypes: DataType[] = [
-  { id: "dt_1", name: "Vector", description: "Vector / spatial layer (points, lines, polygons...)", code: "VECTOR", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "dt_2", name: "Table", description: "Tabular / non-spatial dataset (no geometry)...", code: "TABLE", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "dt_3", name: "Raster", description: "Raster / image dataset", code: "RASTER", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "dt_1", name: "Vector", description: "Vector / spatial layer (points, lines, polygons)", code: "VECTOR", displayOrder: 1, active: true, layerCount: 0, category: "Spatial", fileExtensions: "", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "dt_2", name: "Table", description: "Tabular / non-spatial dataset (no geometry)", code: "TABLE", displayOrder: 2, active: true, layerCount: 0, category: "Non-Spatial", fileExtensions: "", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "dt_3", name: "Raster", description: "Raster / image dataset", code: "RASTER", displayOrder: 3, active: true, layerCount: 0, category: "Spatial", fileExtensions: ".tif, .img, .ecw", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedSensitivity: SensitivityLevel[] = [
-  { id: "sens_1", name: "Open Data", description: "Publishable to the public", level: "L1", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "sens_2", name: "Restricted", description: "Internal use only", level: "L2", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "sens_3", name: "Sensitive", description: "Limited internal distribution", level: "L3", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "sens_4", name: "Secured", description: "Controlled / NDA required", level: "L4", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "sens_5", name: "Secret", description: "Classified, Restricted Distribution", level: "L5", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_1", name: "Open Data", description: "Publishable to the public", level: "L1", displayOrder: 1, active: true, layerCount: 0, color: "#10B981", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_2", name: "Restricted", description: "Internal use only", level: "L2", displayOrder: 2, active: true, layerCount: 0, color: "#3B82F6", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_3", name: "Sensitive", description: "Limited internal distribution", level: "L3", displayOrder: 3, active: true, layerCount: 0, color: "#F59E0B", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_4", name: "Secured", description: "Controlled / NDA required", level: "L4", displayOrder: 4, active: true, layerCount: 0, color: "#F97316", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "sens_5", name: "Secret", description: "Classified, Restricted Distribution", level: "L5", displayOrder: 5, active: true, layerCount: 0, color: "#EF4444", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const seedThemes: DataTheme[] = [
-  { id: "thm_1", name: "Dark Gray Canvas", description: "Dark gray canvas basemap", displayOrder: 1, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_2", name: "Environmental", description: "Environmental thematic", displayOrder: 2, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_3", name: "Government Standard", description: "Government standard thematic", displayOrder: 3, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_4", name: "Human Geography", description: "Human geography thematic", displayOrder: 4, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_5", name: "Imagery", description: "Aerial / satellite imagery", displayOrder: 5, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_6", name: "Infrastructure", description: "Infrastructure analytical", displayOrder: 6, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_7", name: "Light Gray Canvas", description: "Light gray canvas basemap", displayOrder: 7, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_8", name: "National Geographic", description: "National Geographic cartographic", displayOrder: 8, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_9", name: "Navigation", description: "Navigation basemap", displayOrder: 9, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_10", name: "Nova", description: "Nova dark canvas", displayOrder: 10, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
-  { id: "thm_11", name: "Utility Networks", description: "Utility Networks basemap", displayOrder: 11, active: true, layerCount: 0, created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_1", name: "Dark Gray Canvas", description: "Dark gray canvas basemap", displayOrder: 1, active: true, layerCount: 0, color: "#10B981", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_2", name: "Environmental", description: "Environmental thematic", displayOrder: 2, active: true, layerCount: 0, color: "#3B82F6", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_3", name: "Government Standard", description: "Government standard thematic", displayOrder: 3, active: true, layerCount: 0, color: "#F59E0B", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_4", name: "Human Geography", description: "Human geography thematic", displayOrder: 4, active: true, layerCount: 0, color: "#EF4444", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_5", name: "Imagery", description: "Aerial / satellite imagery", displayOrder: 5, active: true, layerCount: 0, color: "#8B5CF6", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_6", name: "Infrastructure", description: "Infrastructure analytical", displayOrder: 6, active: true, layerCount: 0, color: "#14B8A6", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_7", name: "Light Gray Canvas", description: "Light gray canvas basemap", displayOrder: 7, active: true, layerCount: 0, color: "#6B7280", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_8", name: "National Geographic", description: "National Geographic cartographic", displayOrder: 8, active: true, layerCount: 0, color: "#EC4899", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_9", name: "Navigation", description: "Navigation basemap", displayOrder: 9, active: true, layerCount: 0, color: "#06B6D4", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_10", name: "Nova", description: "Nova dark canvas", displayOrder: 10, active: true, layerCount: 0, color: "#6366F1", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
+  { id: "thm_11", name: "Utility Networks", description: "Utility Networks basemap", displayOrder: 11, active: true, layerCount: 0, color: "#10B981", created: "02/05/2026, 01:19 PM", createdBy: "system", updated: "07/05/2026, 10:49 PM", updatedBy: "api" },
 ];
 
 const STORAGE_KEYS = {
@@ -188,7 +195,7 @@ const STORAGE_KEYS = {
 
 function LayerConfiguration() {
   const [activeTab, setActiveTab] = useState<"coverage" | "geometry" | "datatypes" | "sensitivity" | "themes">(
-    "coverage"
+    "datatypes"
   );
 
   // State managed collections
@@ -211,7 +218,21 @@ function LayerConfiguration() {
   const [dataTypes, setDataTypes] = useState<DataType[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(STORAGE_KEYS.DATATYPES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return parsed.map((item: any) => {
+            const match = seedDataTypes.find((s) => s.id === item.id || s.name === item.name);
+            return {
+              ...item,
+              category: item.category || match?.category || "Spatial",
+              fileExtensions: item.fileExtensions !== undefined ? item.fileExtensions : (match?.fileExtensions || "")
+            };
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
     return seedDataTypes;
   });
@@ -219,7 +240,20 @@ function LayerConfiguration() {
   const [sensitivities, setSensitivities] = useState<SensitivityLevel[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(STORAGE_KEYS.SENSITIVITY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return parsed.map((item: any) => {
+            const match = seedSensitivity.find((s) => s.id === item.id || s.name === item.name);
+            return {
+              ...item,
+              color: item.color || match?.color || "#10B981"
+            };
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
     return seedSensitivity;
   });
@@ -227,7 +261,20 @@ function LayerConfiguration() {
   const [themes, setThemes] = useState<DataTheme[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(STORAGE_KEYS.THEMES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return parsed.map((item: any) => {
+            const match = seedThemes.find((s) => s.id === item.id || s.name === item.name);
+            return {
+              ...item,
+              color: item.color || match?.color || "#10B981"
+            };
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
     return seedThemes;
   });
@@ -293,6 +340,8 @@ function LayerConfiguration() {
   const [descriptionField, setDescriptionField] = useState("");
   const [activeField, setActiveField] = useState(true);
   const [displayOrderField, setDisplayOrderField] = useState(1);
+  const [fileExtensionsField, setFileExtensionsField] = useState("");
+  const [colorField, setColorField] = useState("#10B981");
 
   // Helpers for badge mappings
   const getLevelBadge = (level: string) => {
@@ -375,12 +424,14 @@ function LayerConfiguration() {
   // Open modals & populate details
   const handleOpenAddModal = () => {
     setNameField("");
-    setLevelField("Emirate"); // Default level selected in dropdown
+    setLevelField(activeTab === "sensitivity" ? "1" : "Emirate"); // Default level selected in dropdown
     setCodeField("");
-    setCategoryField("Vector");
+    setCategoryField(activeTab === "datatypes" ? "Spatial" : "Vector");
     setDescriptionField("");
     setActiveField(true);
     setDisplayOrderField(1);
+    setFileExtensionsField("");
+    setColorField(activeTab === "sensitivity" ? "#6366F1" : "#10B981");
     setIsAddModalOpen(true);
   };
 
@@ -392,12 +443,14 @@ function LayerConfiguration() {
   const handleOpenEditModal = (item: any) => {
     setSelectedItem(item);
     setNameField(item.name || "");
-    setLevelField(item.level || "Region");
+    setLevelField(item.level || (activeTab === "sensitivity" ? "1" : "Region"));
     setCodeField(item.code || "");
-    setCategoryField(item.category || "Vector");
+    setCategoryField(item.category || (activeTab === "datatypes" ? "Spatial" : "Vector"));
     setDescriptionField(item.description || "");
     setActiveField(item.active);
     setDisplayOrderField(item.displayOrder || 1);
+    setFileExtensionsField(item.fileExtensions || "");
+    setColorField(item.color || "#10B981");
     setIsEditModalOpen(true);
   };
 
@@ -457,6 +510,8 @@ function LayerConfiguration() {
         displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        category: categoryField,
+        fileExtensions: fileExtensionsField,
         created: createdTime,
         createdBy: "system",
         updated: createdTime,
@@ -469,10 +524,11 @@ function LayerConfiguration() {
         id: "sens_" + Math.random().toString(),
         name: nameField.trim(),
         description: descriptionField.trim() || "Sensitivity classification rule",
-        level: levelField || "L1",
+        level: levelField || "1",
         displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        color: colorField || "#10B981",
         created: createdTime,
         createdBy: "system",
         updated: createdTime,
@@ -488,6 +544,7 @@ function LayerConfiguration() {
         displayOrder: displayOrderField,
         layerCount: 0,
         active: activeField,
+        color: colorField || "#10B981",
         created: createdTime,
         createdBy: "system",
         updated: createdTime,
@@ -548,6 +605,8 @@ function LayerConfiguration() {
               name: nameField.trim(),
               description: descriptionField.trim(),
               code: codeField.trim().toUpperCase(),
+              category: categoryField,
+              fileExtensions: fileExtensionsField,
               displayOrder: displayOrderField,
               active: activeField,
               updated: updatedTime,
@@ -567,6 +626,7 @@ function LayerConfiguration() {
               level: levelField,
               displayOrder: displayOrderField,
               active: activeField,
+              color: colorField,
               updated: updatedTime,
               updatedBy: "api",
             }
@@ -583,6 +643,7 @@ function LayerConfiguration() {
               description: descriptionField.trim(),
               displayOrder: displayOrderField,
               active: activeField,
+              color: colorField,
               updated: updatedTime,
               updatedBy: "api",
             }
@@ -645,9 +706,10 @@ function LayerConfiguration() {
         item.code.toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus =
         statusFilter === "all" || (statusFilter === "active" ? item.active : !item.active);
-      return matchSearch && matchStatus;
+      const matchCategory = categoryFilter === "all" || item.category === categoryFilter;
+      return matchSearch && matchStatus && matchCategory;
     });
-  }, [dataTypes, searchQuery, statusFilter]);
+  }, [dataTypes, searchQuery, statusFilter, categoryFilter]);
 
   const filteredSensitivity = useMemo(() => {
     return sensitivities.filter((item) => {
@@ -844,7 +906,23 @@ function LayerConfiguration() {
                     <SelectItem value="all">All Categories</SelectItem>
                     <SelectItem value="Vector">Vector</SelectItem>
                     <SelectItem value="Raster">Raster</SelectItem>
-                    <SelectItem value="- None">- None</SelectItem>
+                    <SelectItem value="Mixed">Mixed</SelectItem>
+                    <SelectItem value="- None">None / Tabular</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Data Types specific category filter */}
+              {activeTab === "datatypes" && (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[140px] h-9.5 text-xs font-semibold">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Spatial">Spatial</SelectItem>
+                    <SelectItem value="Non-Spatial">Non-Spatial</SelectItem>
+                    <SelectItem value="Semi spatial">Semi spatial</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -890,6 +968,36 @@ function LayerConfiguration() {
                 {activeTab === "sensitivity" && "Add Sensitivity Level"}
                 {activeTab === "themes" && "New Theme"}
               </Button>
+              {activeTab === "themes" && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const themesData = [
+                      ["Theme Name", "Description", "Active"],
+                      ["Topographic", "Topographical elevations, maps and terrain contours", "Yes"],
+                      ["Cadastral", "Cadastral plot boundaries, zoning info and lands", "Yes"],
+                      ["Utilities", "Utilities networks, electricity grid and telecom lines", "Yes"],
+                      ["Environment", "Environmental reserves, soil quality and vegetation", "Yes"]
+                    ];
+                    let csvContent = "data:text/csv;charset=utf-8,";
+                    themesData.forEach((row) => {
+                      csvContent += row.map(val => `"${val.replace(/"/g, '""')}"`).join(",") + "\r\n";
+                    });
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "data_themes_export.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast.success("Data Themes exported to Excel successfully");
+                  }}
+                  className="h-9.5 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20 bg-transparent flex items-center gap-1.5 font-semibold text-xs shrink-0 cursor-pointer transition-colors"
+                >
+                  <FileSpreadsheet className="h-4.5 w-4.5" />
+                  Export to Excel
+                </Button>
+              )}
             </div>
           </div>
 
@@ -1065,9 +1173,53 @@ function LayerConfiguration() {
                           />
                         </TableCell>
                         <TableCell className="font-bold text-xs text-foreground">
-                          <div>{item.name}</div>
-                          <div className="text-[10px] text-muted-foreground font-normal">
-                            {item.description}
+                          <div className="flex items-center gap-3">
+                            {item.name.toLowerCase() === "point" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-primary border border-blue-500/20">
+                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "polyline" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-primary border border-blue-500/20">
+                                <Compass className="h-3.5 w-3.5 rotate-45" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "polygon" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-primary border border-blue-500/20">
+                                <Shapes className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "multipatch" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-primary border border-blue-500/20">
+                                <Layers className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "tabular" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-500/10 text-slate-500 border border-slate-500/20">
+                                <LayoutGrid className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "raster" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                <LayoutGrid className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "none" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-500/10 text-slate-400 border border-border">
+                                <X className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {!["point", "polyline", "polygon", "multipatch", "tabular", "raster", "none"].includes(item.name.toLowerCase()) && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                <Shapes className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            <div>
+                              <div className="font-bold text-foreground">{item.name}</div>
+                              <div className="text-[10px] text-muted-foreground font-normal">
+                                {item.description}
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground">
@@ -1139,9 +1291,33 @@ function LayerConfiguration() {
                           />
                         </TableCell>
                         <TableCell className="font-bold text-xs text-foreground">
-                          <div>{item.name}</div>
-                          <div className="text-[10px] text-muted-foreground font-normal">
-                            {item.description}
+                          <div className="flex items-center gap-3">
+                            {item.name.toLowerCase() === "vector" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-primary border border-blue-500/20">
+                                <Shapes className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "table" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                <FileCog className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {item.name.toLowerCase() === "raster" && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                                <LayoutGrid className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            {!["vector", "table", "raster"].includes(item.name.toLowerCase()) && (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                <FileCog className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            <div>
+                              <div className="font-bold text-foreground">{item.name}</div>
+                              <div className="text-[10px] text-muted-foreground font-normal">
+                                {item.description}
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground">
@@ -1209,18 +1385,14 @@ function LayerConfiguration() {
                         </TableCell>
                         <TableCell className="font-bold text-xs text-foreground">
                           <span
-                            className={`inline-flex px-2.5 py-0.5 rounded text-[10px] font-bold ${
-                              item.name === "Open Data"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : item.name === "Restricted"
-                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                  : item.name === "Sensitive"
-                                    ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                                    : item.name === "Secured"
-                                      ? "bg-pink-500/10 text-pink-400 border border-pink-500/20"
-                                      : "bg-red-500/10 text-red-400 border border-red-500/20"
-                            }`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                            style={{
+                              backgroundColor: `${item.color || "#10B981"}15`,
+                              color: item.color || "#10B981",
+                              borderColor: `${item.color || "#10B981"}30`
+                            }}
                           >
+                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color || "#10B981" }} />
                             {item.name}
                           </span>
                         </TableCell>
@@ -1290,7 +1462,12 @@ function LayerConfiguration() {
                             className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
                           />
                         </TableCell>
-                        <TableCell className="font-bold text-xs text-foreground">{item.name}</TableCell>
+                        <TableCell className="font-bold text-xs text-foreground">
+                          <div className="flex items-center gap-2.5">
+                            <span className="h-2.5 w-2.5 rounded shrink-0 border border-border/20 shadow-sm" style={{ backgroundColor: item.color || "#10B981" }} />
+                            {item.name}
+                          </div>
+                        </TableCell>
                         <TableCell className="text-xs text-muted-foreground font-semibold">
                           {item.description || "—"}
                         </TableCell>
@@ -1460,75 +1637,416 @@ function LayerConfiguration() {
           {/* Header */}
           <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                <Compass className="h-5 w-5" />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                activeTab === "geometry"
+                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                  : activeTab === "datatypes"
+                    ? "bg-teal-500/10 text-teal-400 border-teal-500/20"
+                    : activeTab === "sensitivity"
+                      ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                      : activeTab === "themes"
+                        ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                        : "bg-purple-500/10 text-purple-400 border-purple-500/20"
+              }`}>
+                {activeTab === "geometry" ? (
+                  <Shapes className="h-5 w-5" />
+                ) : activeTab === "datatypes" ? (
+                  <FileCog className="h-5 w-5" />
+                ) : activeTab === "sensitivity" ? (
+                  <ShieldAlert className="h-5 w-5" />
+                ) : activeTab === "themes" ? (
+                  <LayoutGrid className="h-5 w-5" />
+                ) : (
+                  <Compass className="h-5 w-5" />
+                )}
               </div>
               <div>
                 <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
-                  Add Coverage Area
+                  {activeTab === "geometry"
+                    ? "Add Geometry Type"
+                    : activeTab === "datatypes"
+                      ? "Add Data Type"
+                      : activeTab === "sensitivity"
+                        ? "Add Sensitivity Level"
+                        : activeTab === "themes"
+                          ? "Add Data Theme"
+                          : "Add Coverage Area"}
                 </DialogTitle>
                 <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
-                  {levelField || "EMIRATE"}
+                  {activeTab === "geometry" || activeTab === "datatypes" || activeTab === "sensitivity" || activeTab === "themes"
+                    ? (activeField ? "Active" : "Inactive")
+                    : (levelField || "EMIRATE")}
                 </div>
               </div>
             </div>
-
           </div>
 
           <form onSubmit={handleAddConfiguration} className="p-6 space-y-5">
-            {/* Identity section */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Identity
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-muted-foreground">
-                    Name <span className="text-red-400">*</span>
-                  </label>
-                  <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+            {activeTab === "geometry" ? (
+              <>
+                {/* Geometry type inputs grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Type Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="e.g. Polygon"
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase());
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="POLYGON"
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase())}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
                 </div>
-                <Input
-                  placeholder="e.g. Abu Dhabi Island"
-                  value={nameField}
-                  onChange={(e) => setNameField(e.target.value.slice(0, 200))}
-                  required
-                  className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
-                />
-              </div>
-            </div>
 
-            {/* Classification Section (2nd image drop-down content) */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Classification
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Coverage Level <span className="text-red-400">*</span>
-                </label>
-                <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
-                    <SelectValue placeholder="Emirate" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
-                    <SelectItem value="Country">Country</SelectItem>
-                    <SelectItem value="Emirate">Emirate</SelectItem>
-                    <SelectItem value="City">City</SelectItem>
-                    <SelectItem value="Region">Region</SelectItem>
-                    <SelectItem value="District">District</SelectItem>
-                    <SelectItem value="Zone">Zone</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                    <Select value={categoryField} onValueChange={setCategoryField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Vector" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Vector">Vector</SelectItem>
+                        <SelectItem value="Raster">Raster</SelectItem>
+                        <SelectItem value="Mixed">Mixed</SelectItem>
+                        <SelectItem value="- None">None / Tabular</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            {/* Visibility Section */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Visibility
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe this geometry type and its use cases..."
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Footer buttons */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Add Geometry Type
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "datatypes" ? (
+              <>
+                {/* Data type inputs grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Type Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="e.g. Raster"
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase());
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="RASTER"
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase())}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                    <Select value={categoryField} onValueChange={setCategoryField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Spatial" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Spatial">Spatial</SelectItem>
+                        <SelectItem value="Non-Spatial">Non-Spatial</SelectItem>
+                        <SelectItem value="Semi spatial">Semi spatial</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">File Extensions</label>
+                  <Input
+                    placeholder=".tif, .img, .ecw (comma-separated)"
+                    value={fileExtensionsField}
+                    onChange={(e) => setFileExtensionsField(e.target.value)}
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe this data type and when it should be used..."
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Footer buttons */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Add Data Type
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "sensitivity" ? (
+              <>
+                {/* 1st Image: Add Sensitivity Level fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Level Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="e.g. Restricted"
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase().replace(/\s+/g, "_"));
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="RESTRICTED"
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase().replace(/\s+/g, "_"))}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Access Level <span className="text-red-400">*</span> <span className="text-[10px] text-muted-foreground font-normal">(1 = most open)</span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="7"
+                      value={levelField}
+                      onChange={(e) => setLevelField(e.target.value)}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground block">Badge Colour</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      "#10B981", "#3B82F6", "#F59E0B", "#F97316", "#EF4444", "#8B5CF6", "#14B8A6", "#6B7280", "#EC4899", "#06B6D4", "#6366F1"
+                    ].map((col) => (
+                      <button
+                        key={col}
+                        type="button"
+                        onClick={() => setColorField(col)}
+                        style={{ backgroundColor: col }}
+                        className={`h-6 w-6 rounded-full cursor-pointer transition-all ${
+                          colorField === col ? "ring-2 ring-white ring-offset-2 scale-110" : "hover:scale-105"
+                        }`}
+                      />
+                    ))}
+                    <div className="flex items-center gap-1.5 ml-2">
+                      <span className="h-5.5 w-5.5 rounded border border-border" style={{ backgroundColor: colorField }} />
+                      <span className="text-[11px] font-bold text-muted-foreground font-mono uppercase">{colorField}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe who can access data at this sensitivity level..."
+                    rows={3}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Preview Box */}
+                <div className="rounded-lg bg-background/40 border border-border/40 p-4 space-y-2">
+                  <span className="text-[10px] text-muted-foreground tracking-wider uppercase font-bold block">Preview</span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border"
+                      style={{
+                        backgroundColor: `${colorField}15`,
+                        color: colorField,
+                        borderColor: `${colorField}30`
+                      }}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: colorField }} />
+                      {nameField || "Level Name"}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-semibold">Access Level: {levelField || "7"}</span>
+                  </div>
+                </div>
+
+                {/* Footer buttons */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Add Level
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "themes" ? (
+              <>
+                {/* 4th Image: Add Data Theme fields */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Theme Name <span className="text-red-400">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Topographic"
+                    value={nameField}
+                    onChange={(e) => setNameField(e.target.value)}
+                    required
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe this theme and where it should be used..."
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-muted-foreground">Status</label>
                   <Select
@@ -1543,43 +2061,134 @@ function LayerConfiguration() {
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
-                    Inactive areas are hidden from operational dropdowns.
-                  </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
-                  <Input
-                    type="number"
-                    value={displayOrderField}
-                    onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
-                  />
-                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
-                    Lower numbers appear first in dropdowns.
-                  </p>
+                {/* Footer buttons */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Add Theme
+                  </Button>
                 </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                {/* Identity section */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Identity
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Name <span className="text-red-400">*</span>
+                      </label>
+                      <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+                    </div>
+                    <Input
+                      placeholder="e.g. Abu Dhabi Island"
+                      value={nameField}
+                      onChange={(e) => setNameField(e.target.value.slice(0, 200))}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                </div>
 
-            {/* Footer buttons */}
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
-                onClick={() => setIsAddModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs rounded-lg cursor-pointer transition-colors"
-              >
-                Add Coverage Area
-              </Button>
-            </div>
+                {/* Classification Section (2nd image drop-down content) */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Classification
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Coverage Level <span className="text-red-400">*</span>
+                    </label>
+                    <Select value={levelField} onValueChange={setLevelField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Emirate" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Country">Country</SelectItem>
+                        <SelectItem value="Emirate">Emirate</SelectItem>
+                        <SelectItem value="City">City</SelectItem>
+                        <SelectItem value="Region">Region</SelectItem>
+                        <SelectItem value="District">District</SelectItem>
+                        <SelectItem value="Zone">Zone</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Visibility Section */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Visibility
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                      <Select
+                        value={activeField ? "active" : "inactive"}
+                        onValueChange={(val) => setActiveField(val === "active")}
+                      >
+                        <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                          <SelectValue placeholder="Active" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                        Inactive areas are hidden from operational dropdowns.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
+                      <Input
+                        type="number"
+                        value={displayOrderField}
+                        onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                      />
+                      <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                        Lower numbers appear first in dropdowns.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer buttons */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsAddModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Add Coverage Area
+                  </Button>
+                </div>
+              </>
+            )}
           </form>
         </DialogContent>
       </Dialog>
@@ -1592,15 +2201,49 @@ function LayerConfiguration() {
           {/* Header */}
           <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                <Compass className="h-5 w-5" />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                activeTab === "geometry"
+                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                  : activeTab === "datatypes"
+                    ? "bg-teal-500/10 text-teal-400 border-teal-500/20"
+                    : activeTab === "sensitivity"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : activeTab === "themes"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-purple-500/10 text-purple-400 border-purple-500/20"
+              }`}>
+                {activeTab === "geometry" ? (
+                  <Shapes className="h-5 w-5" />
+                ) : activeTab === "datatypes" ? (
+                  <FileCog className="h-5 w-5" />
+                ) : activeTab === "sensitivity" ? (
+                  <ShieldAlert className="h-5 w-5" />
+                ) : activeTab === "themes" ? (
+                  <LayoutGrid className="h-5 w-5" />
+                ) : (
+                  <Compass className="h-5 w-5" />
+                )}
               </div>
               <div>
                 <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
-                  View Coverage Area
+                  {activeTab === "geometry"
+                    ? "View Geometry Type"
+                    : activeTab === "datatypes"
+                      ? "View Data Type"
+                      : activeTab === "sensitivity"
+                        ? "View Sensitivity Level"
+                        : activeTab === "themes"
+                          ? "View Data Theme"
+                          : "View Coverage Area"}
                 </DialogTitle>
                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wider">
-                  <span>{selectedItem?.level || "REGION"}</span>
+                  <span>
+                    {activeTab === "geometry" || activeTab === "datatypes" || activeTab === "sensitivity"
+                      ? (selectedItem?.code || "CODE")
+                      : activeTab === "themes"
+                        ? "THEME"
+                        : (selectedItem?.level || "REGION")}
+                  </span>
                   <span className="text-muted-foreground/45">•</span>
                   <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded">
                     Active
@@ -1608,121 +2251,428 @@ function LayerConfiguration() {
                 </div>
               </div>
             </div>
-
           </div>
 
           {selectedItem && (
             <div className="p-6 space-y-5">
-              {/* Identity view */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                  Identity
-                </div>
-                <div className="text-[15px] font-bold text-foreground">{selectedItem.name}</div>
-                
-                {/* Linked Layers container */}
-                <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/20 dark:bg-[#121A2A] text-xs">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
-                    <FolderOpen className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-extrabold text-indigo-400 tracking-wider uppercase leading-none">
-                      Linked Layers
+              {activeTab === "geometry" ? (
+                <>
+                  {/* View Geometry Fields (matching 2nd Image) */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Type Name *</label>
+                      <Input
+                        value={selectedItem.name}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
                     </div>
-                    <div className="text-xs text-muted-foreground/90 font-bold mt-1.5 leading-none">
-                      {selectedItem.layerCount} linked layers
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Code *</label>
+                      <Input
+                        value={selectedItem.code}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Classification view */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                  Classification
-                </div>
-                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
-                  <span className="text-muted-foreground font-semibold">Coverage Level</span>
-                  <span>{getLevelBadge(selectedItem.level)}</span>
-                </div>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                      <Input
+                        value={selectedItem.category}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                      <Input
+                        value={selectedItem.active ? "Active" : "Inactive"}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
 
-              {/* Visibility view */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                  Visibility
-                </div>
-                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
-                  <span className="text-muted-foreground font-semibold">Status</span>
-                  <span>{getStatusBadge(selectedItem.active)}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
-                  <span className="text-muted-foreground font-semibold">Display Order</span>
-                  <span className="font-bold text-foreground font-mono">{selectedItem.displayOrder}</span>
-                </div>
-              </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                    <textarea
+                      value={selectedItem.description}
+                      disabled
+                      rows={3}
+                      className="w-full rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed resize-none"
+                    />
+                  </div>
 
-              {/* History view */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                  History
-                </div>
-                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
-                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Created</span>
-                    <span className="text-foreground font-medium font-mono">{selectedItem.created}</span>
+                  <div className="grid grid-cols-2 gap-4 pt-1.5 select-none text-[11px] font-bold">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Layers Linked</span>
+                      <span className="text-foreground text-xs font-mono">{selectedItem.layerCount}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Status</span>
+                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Active
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Created By</span>
-                    <span className="text-foreground font-bold">{selectedItem.createdBy}</span>
-                  </div>
-                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Updated</span>
-                    <span className="text-foreground font-medium font-mono">{selectedItem.updated}</span>
-                  </div>
-                  <div className="flex justify-between px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Updated By</span>
-                    <span className="text-foreground font-bold">{selectedItem.updatedBy}</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Footer buttons with Edit & Delete on left and Close on right */}
-              <div className="flex items-center justify-between pt-4 border-t border-border/30">
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => {
-                      setIsViewModalOpen(false);
-                      handleOpenEditModal(selectedItem);
-                    }}
-                    className="h-8.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 hover:text-amber-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setIsViewModalOpen(false);
-                      handleOpenDeleteModal(selectedItem);
-                    }}
-                    className="h-8.5 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:text-red-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
-                  >
-                    <Trash className="h-3.5 w-3.5" /> Delete
-                  </Button>
-                </div>
-                <Button
-                  onClick={() => setIsViewModalOpen(false)}
-                  variant="outline"
-                  className="h-8.5 px-4 font-bold text-xs border-border/80 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg transition-colors"
-                >
-                  Close
-                </Button>
-              </div>
+                  {/* Close button aligned right */}
+                  <div className="flex justify-end pt-5 border-t border-border/30 mt-5">
+                    <button
+                      onClick={() => setIsViewModalOpen(false)}
+                      className="px-4.5 py-1.5 text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border rounded-lg cursor-pointer transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              ) : activeTab === "datatypes" ? (
+                <>
+                  {/* View Data Type Fields (matching 3rd Image) */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Type Name *</label>
+                      <Input
+                        value={selectedItem.name}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Code *</label>
+                      <Input
+                        value={selectedItem.code}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                      <Input
+                        value={selectedItem.category || "Spatial"}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                      <Input
+                        value={selectedItem.active ? "Active" : "Inactive"}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">File Extensions</label>
+                    <Input
+                      value={selectedItem.fileExtensions || ".tif, .img, .ecw (comma-separated)"}
+                      disabled
+                      className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                    <textarea
+                      value={selectedItem.description}
+                      disabled
+                      rows={3}
+                      className="w-full rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-1.5 select-none text-[11px] font-bold">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Layers Linked</span>
+                      <span className="text-foreground text-xs font-mono">{selectedItem.layerCount}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Status</span>
+                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Active
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Close button aligned right */}
+                  <div className="flex justify-end pt-5 border-t border-border/30 mt-5">
+                    <button
+                      onClick={() => setIsViewModalOpen(false)}
+                      className="px-4.5 py-1.5 text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border rounded-lg cursor-pointer transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              ) : activeTab === "sensitivity" ? (
+                <>
+                  {/* 2nd Image: View Sensitivity Level Fields */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Level Name *</label>
+                      <Input
+                        value={selectedItem.name}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Code *</label>
+                      <Input
+                        value={selectedItem.code}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Access Level * <span className="text-[10px] text-muted-foreground/60">(1 = most open)</span></label>
+                      <Input
+                        value={selectedItem.level}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                      <Input
+                        value={selectedItem.active ? "Active" : "Inactive"}
+                        disabled
+                        className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                    <textarea
+                      value={selectedItem.description}
+                      disabled
+                      rows={3}
+                      className="w-full rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed resize-none"
+                    />
+                  </div>
+
+                  {/* Preview Box */}
+                  <div className="rounded-lg bg-background/40 border border-border/40 p-4 space-y-2">
+                    <span className="text-[10px] text-muted-foreground tracking-wider uppercase font-bold block">Preview</span>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border"
+                        style={{
+                          backgroundColor: `${selectedItem.color || "#10B981"}15`,
+                          color: selectedItem.color || "#10B981",
+                          borderColor: `${selectedItem.color || "#10B981"}30`
+                        }}
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: selectedItem.color || "#10B981" }} />
+                        {selectedItem.name}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground font-semibold">Access Level: {selectedItem.level}</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-1.5 select-none text-[11px] font-bold">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Layers Linked</span>
+                      <span className="text-foreground text-xs font-mono">{selectedItem.layerCount}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Status</span>
+                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Active
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Close button aligned right */}
+                  <div className="flex justify-end pt-5 border-t border-border/30 mt-5">
+                    <button
+                      onClick={() => setIsViewModalOpen(false)}
+                      className="px-4.5 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-lg cursor-pointer transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              ) : activeTab === "themes" ? (
+                <>
+                  {/* 5th Image: View Data Theme Fields */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Theme Name *</label>
+                    <Input
+                      value={selectedItem.name}
+                      disabled
+                      className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                    <textarea
+                      value={selectedItem.description}
+                      disabled
+                      rows={3}
+                      className="w-full rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Input
+                      value={selectedItem.active ? "Active" : "Inactive"}
+                      disabled
+                      className="h-10 bg-background/50 border-border/60 text-xs text-foreground/80 font-bold opacity-80 cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-1.5 select-none text-[11px] font-bold">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Layers Linked</span>
+                      <span className="text-foreground text-xs font-mono">{selectedItem.layerCount}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground tracking-wider uppercase block">Colour</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="h-4.5 w-4.5 rounded-full border border-border" style={{ backgroundColor: selectedItem.color || "#10B981" }} />
+                        <span className="text-xs text-foreground font-mono uppercase">{selectedItem.color || "#10B981"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Close button aligned right */}
+                  <div className="flex justify-end pt-5 border-t border-border/30 mt-5">
+                    <button
+                      onClick={() => setIsViewModalOpen(false)}
+                      className="px-4.5 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-lg cursor-pointer transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Identity view */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                      Identity
+                    </div>
+                    <div className="text-[15px] font-bold text-foreground">{selectedItem.name}</div>
+                    
+                    {/* Linked Layers container */}
+                    <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/20 dark:bg-[#121A2A] text-xs">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                        <FolderOpen className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-extrabold text-indigo-400 tracking-wider uppercase leading-none">
+                          Linked Layers
+                        </div>
+                        <div className="text-xs text-muted-foreground/90 font-bold mt-1.5 leading-none">
+                          {selectedItem.layerCount} linked layers
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Classification view */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                      Classification
+                    </div>
+                    <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                      <span className="text-muted-foreground font-semibold">Coverage Level</span>
+                      <span>{getLevelBadge(selectedItem.level)}</span>
+                    </div>
+                  </div>
+
+                  {/* Visibility view */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                      Visibility
+                    </div>
+                    <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                      <span className="text-muted-foreground font-semibold">Status</span>
+                      <span>{getStatusBadge(selectedItem.active)}</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-border/20 pb-2 text-xs">
+                      <span className="text-muted-foreground font-semibold">Display Order</span>
+                      <span className="font-bold text-foreground font-mono">{selectedItem.displayOrder}</span>
+                    </div>
+                  </div>
+
+                  {/* History view */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                      History
+                    </div>
+                    <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
+                      <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Created</span>
+                        <span className="text-foreground font-medium font-mono">{selectedItem.created}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Created By</span>
+                        <span className="text-foreground font-bold">{selectedItem.createdBy}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Updated</span>
+                        <span className="text-foreground font-medium font-mono">{selectedItem.updated}</span>
+                      </div>
+                      <div className="flex justify-between px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Updated By</span>
+                        <span className="text-foreground font-bold">{selectedItem.updatedBy}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer buttons with Edit & Delete on left and Close on right */}
+                  <div className="flex items-center justify-between pt-4 border-t border-border/30">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => {
+                          setIsViewModalOpen(false);
+                          handleOpenEditModal(selectedItem);
+                        }}
+                        className="h-8.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 hover:text-amber-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setIsViewModalOpen(false);
+                          handleOpenDeleteModal(selectedItem);
+                        }}
+                        className="h-8.5 px-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:text-red-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors"
+                      >
+                        <Trash className="h-3.5 w-3.5" /> Delete
+                      </Button>
+                    </div>
+                    <Button
+                      onClick={() => setIsViewModalOpen(false)}
+                      variant="outline"
+                      className="h-8.5 px-4 font-bold text-xs border-border/80 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg transition-colors"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
-
-      {/* ========================================== */}
+{/* ========================================== */}
       {/* 4th IMAGE: EDIT COVERAGE AREA DETAILS     */}
       {/* ========================================== */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
@@ -1730,15 +2680,49 @@ function LayerConfiguration() {
           {/* Header */}
           <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                <Compass className="h-5 w-5" />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                activeTab === "geometry"
+                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                  : activeTab === "datatypes"
+                    ? "bg-teal-500/10 text-teal-400 border-teal-500/20"
+                    : activeTab === "sensitivity"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : activeTab === "themes"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-purple-500/10 text-purple-400 border-purple-500/20"
+              }`}>
+                {activeTab === "geometry" ? (
+                  <Shapes className="h-5 w-5" />
+                ) : activeTab === "datatypes" ? (
+                  <FileCog className="h-5 w-5" />
+                ) : activeTab === "sensitivity" ? (
+                  <ShieldAlert className="h-5 w-5" />
+                ) : activeTab === "themes" ? (
+                  <LayoutGrid className="h-5 w-5" />
+                ) : (
+                  <Compass className="h-5 w-5" />
+                )}
               </div>
               <div>
                 <DialogTitle className="text-[14px] font-bold text-foreground leading-normal">
-                  Edit Coverage Area
+                  {activeTab === "geometry"
+                    ? "Edit Geometry Type"
+                    : activeTab === "datatypes"
+                      ? "Edit Data Type"
+                      : activeTab === "sensitivity"
+                        ? "Edit Sensitivity Level"
+                        : activeTab === "themes"
+                          ? "Edit Data Theme"
+                          : "Edit Coverage Area"}
                 </DialogTitle>
                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wider">
-                  <span>{selectedItem?.level || "REGION"}</span>
+                  <span>
+                    {activeTab === "geometry" || activeTab === "datatypes" || activeTab === "sensitivity"
+                      ? (selectedItem?.code || "CODE")
+                      : activeTab === "themes"
+                        ? "THEME"
+                        : (selectedItem?.level || "REGION")}
+                  </span>
                   <span className="text-muted-foreground/45">•</span>
                   <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded">
                     Active
@@ -1746,62 +2730,368 @@ function LayerConfiguration() {
                 </div>
               </div>
             </div>
-
           </div>
 
           <form onSubmit={handleEditConfiguration} className="p-6 space-y-5">
-            {/* Identity section */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Identity
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-muted-foreground">
-                    Name <span className="text-red-400">*</span>
-                  </label>
-                  <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+            {activeTab === "geometry" ? (
+              <>
+                {/* Geometry type inputs grid (matching 3rd Image) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Type Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase());
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase())}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
                 </div>
-                <Input
-                  value={nameField}
-                  onChange={(e) => setNameField(e.target.value.slice(0, 200))}
-                  required
-                  className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs font-bold focus:ring-primary text-foreground"
-                />
-              </div>
-            </div>
 
-            {/* Classification Section */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Classification
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Coverage Level <span className="text-red-400">*</span>
-                </label>
-                <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
-                    <SelectItem value="Country">Country</SelectItem>
-                    <SelectItem value="Emirate">Emirate</SelectItem>
-                    <SelectItem value="City">City</SelectItem>
-                    <SelectItem value="Region">Region</SelectItem>
-                    <SelectItem value="District">District</SelectItem>
-                    <SelectItem value="Zone">Zone</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                    <Select value={categoryField} onValueChange={setCategoryField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Vector" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Vector">Vector</SelectItem>
+                        <SelectItem value="Raster">Raster</SelectItem>
+                        <SelectItem value="Mixed">Mixed</SelectItem>
+                        <SelectItem value="- None">None / Tabular</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            {/* Visibility Section */}
-            <div className="space-y-2">
-              <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                Visibility
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Footer Cancel & Save Changes */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "datatypes" ? (
+              <>
+                {/* Data type inputs grid (matching 4th Image) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Type Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase());
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase())}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                    <Select value={categoryField} onValueChange={setCategoryField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Spatial" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Spatial">Spatial</SelectItem>
+                        <SelectItem value="Non-Spatial">Non-Spatial</SelectItem>
+                        <SelectItem value="Semi spatial">Semi spatial</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">File Extensions</label>
+                  <Input
+                    placeholder=".tif, .img, .ecw (comma-separated)"
+                    value={fileExtensionsField}
+                    onChange={(e) => setFileExtensionsField(e.target.value)}
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Footer Cancel & Save Changes */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "sensitivity" ? (
+              <>
+                {/* 3rd Image: Edit Sensitivity Level Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Level Name <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="e.g. Restricted"
+                      value={nameField}
+                      onChange={(e) => {
+                        setNameField(e.target.value);
+                        if (!codeField) {
+                          setCodeField(e.target.value.toUpperCase().replace(/\s+/g, "_"));
+                        }
+                      }}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Code <span className="text-red-400">*</span>
+                    </label>
+                    <Input
+                      placeholder="RESTRICTED"
+                      value={codeField}
+                      onChange={(e) => setCodeField(e.target.value.toUpperCase().replace(/\s+/g, "_"))}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Access Level <span className="text-red-400">*</span> <span className="text-[10px] text-muted-foreground font-normal">(1 = most open)</span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="7"
+                      value={levelField}
+                      onChange={(e) => setLevelField(e.target.value)}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                    <Select
+                      value={activeField ? "active" : "inactive"}
+                      onValueChange={(val) => setActiveField(val === "active")}
+                    >
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Active" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground block">Badge Colour</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      "#10B981", "#3B82F6", "#F59E0B", "#F97316", "#EF4444", "#8B5CF6", "#14B8A6", "#6B7280", "#EC4899", "#06B6D4", "#6366F1"
+                    ].map((col) => (
+                      <button
+                        key={col}
+                        type="button"
+                        onClick={() => setColorField(col)}
+                        style={{ backgroundColor: col }}
+                        className={`h-6 w-6 rounded-full cursor-pointer transition-all ${
+                          colorField === col ? "ring-2 ring-white ring-offset-2 scale-110" : "hover:scale-105"
+                        }`}
+                      />
+                    ))}
+                    <div className="flex items-center gap-1.5 ml-2">
+                      <span className="h-5.5 w-5.5 rounded border border-border" style={{ backgroundColor: colorField }} />
+                      <span className="text-[11px] font-bold text-muted-foreground font-mono uppercase">{colorField}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe who can access data at this sensitivity level..."
+                    rows={3}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
+                {/* Preview Box */}
+                <div className="rounded-lg bg-background/40 border border-border/40 p-4 space-y-2">
+                  <span className="text-[10px] text-muted-foreground tracking-wider uppercase font-bold block">Preview</span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border"
+                      style={{
+                        backgroundColor: `${colorField}15`,
+                        color: colorField,
+                        borderColor: `${colorField}30`
+                      }}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: colorField }} />
+                      {nameField || "Level Name"}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-semibold">Access Level: {levelField || "7"}</span>
+                  </div>
+                </div>
+
+                {/* Footer Cancel & Save Changes (styled green/teal as in 3rd image) */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </>
+            ) : activeTab === "themes" ? (
+              <>
+                {/* Edit Data Theme fields (matching 5th Image but editable) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Theme Name <span className="text-red-400">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Topographic"
+                    value={nameField}
+                    onChange={(e) => setNameField(e.target.value)}
+                    required
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Describe this theme and where it should be used..."
+                    rows={4}
+                    value={descriptionField}
+                    onChange={(e) => setDescriptionField(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background dark:bg-[#0E1726]/75 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                  />
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-muted-foreground">Status</label>
                   <Select
@@ -1816,68 +3106,181 @@ function LayerConfiguration() {
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
-                    Inactive areas are hidden from operational dropdowns.
-                  </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
-                  <Input
-                    type="number"
-                    value={displayOrderField}
-                    onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
-                  />
-                  <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
-                    Lower numbers appear first in dropdowns.
-                  </p>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground block">Colour</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      "#10B981", "#3B82F6", "#F59E0B", "#F97316", "#EF4444", "#8B5CF6", "#14B8A6", "#6B7280", "#EC4899", "#06B6D4", "#6366F1"
+                    ].map((col) => (
+                      <button
+                        key={col}
+                        type="button"
+                        onClick={() => setColorField(col)}
+                        style={{ backgroundColor: col }}
+                        className={`h-6 w-6 rounded-full cursor-pointer transition-all ${
+                          colorField === col ? "ring-2 ring-white ring-offset-2 scale-110" : "hover:scale-105"
+                        }`}
+                      />
+                    ))}
+                    <div className="flex items-center gap-1.5 ml-2">
+                      <span className="h-5.5 w-5.5 rounded border border-border" style={{ backgroundColor: colorField }} />
+                      <span className="text-[11px] font-bold text-muted-foreground font-mono uppercase">{colorField}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* History grid Section */}
-            {selectedItem && (
-              <div className="space-y-2">
-                <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
-                  History
+                {/* Footer Cancel & Save Changes (styled primary blue as in instruction) */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Save Changes
+                  </Button>
                 </div>
-                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
-                  <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Created</span>
-                    <span className="text-foreground font-medium font-mono">
-                      {selectedItem.created} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
-                      <span className="font-bold text-foreground/90">{selectedItem.createdBy}</span>
-                    </span>
+              </>
+            ) : (
+              <>
+                {/* Identity section */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Identity
                   </div>
-                  <div className="flex justify-between px-3.5 py-2">
-                    <span className="text-muted-foreground font-semibold">Updated</span>
-                    <span className="text-foreground font-medium font-mono">
-                      {selectedItem.updated} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
-                      <span className="font-bold text-foreground/90">{selectedItem.updatedBy}</span>
-                    </span>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Name <span className="text-red-400">*</span>
+                      </label>
+                      <span className="text-[10px] text-muted-foreground/50">{nameField.length}/200</span>
+                    </div>
+                    <Input
+                      value={nameField}
+                      onChange={(e) => setNameField(e.target.value.slice(0, 200))}
+                      required
+                      className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs font-bold focus:ring-primary text-foreground"
+                    />
                   </div>
                 </div>
-              </div>
+
+                {/* Classification Section */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Classification
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Coverage Level <span className="text-red-400">*</span>
+                    </label>
+                    <Select value={levelField} onValueChange={setLevelField}>
+                      <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                        <SelectValue placeholder="Region" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                        <SelectItem value="Country">Country</SelectItem>
+                        <SelectItem value="Emirate">Emirate</SelectItem>
+                        <SelectItem value="City">City</SelectItem>
+                        <SelectItem value="Region">Region</SelectItem>
+                        <SelectItem value="District">District</SelectItem>
+                        <SelectItem value="Zone">Zone</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Visibility Section */}
+                <div className="space-y-2">
+                  <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                    Visibility
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Status</label>
+                      <Select
+                        value={activeField ? "active" : "inactive"}
+                        onValueChange={(val) => setActiveField(val === "active")}
+                      >
+                        <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
+                          <SelectValue placeholder="Active" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                        Inactive areas are hidden from operational dropdowns.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Display Order</label>
+                      <Input
+                        type="number"
+                        value={displayOrderField}
+                        onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
+                      />
+                      <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
+                        Lower numbers appear first in dropdowns.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* History grid Section */}
+                {selectedItem && (
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
+                      History
+                    </div>
+                    <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
+                      <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Created</span>
+                        <span className="text-foreground font-medium font-mono">
+                          {selectedItem.created} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
+                          <span className="font-bold text-foreground/90">{selectedItem.createdBy}</span>
+                        </span>
+                      </div>
+                      <div className="flex justify-between px-3.5 py-2">
+                        <span className="text-muted-foreground font-semibold">Updated</span>
+                        <span className="text-foreground font-medium font-mono">
+                          {selectedItem.updated} <span className="text-muted-foreground/60 ml-2">By</span>{" "}
+                          <span className="font-bold text-foreground/90">{selectedItem.updatedBy}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer Cancel & Save Changes */}
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </>
             )}
-
-            {/* Footer Cancel & Save Changes */}
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-border/30">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
-                onClick={() => setIsEditModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs rounded-lg cursor-pointer transition-colors"
-              >
-                Save Changes
-              </Button>
-            </div>
           </form>
         </DialogContent>
       </Dialog>

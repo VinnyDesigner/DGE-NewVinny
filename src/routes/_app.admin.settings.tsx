@@ -239,37 +239,6 @@ function AdminDashboard() {
               </div>
             </div>
 
-            {/* OAuth / OpenID Connect */}
-            <div className="flex items-center justify-between p-3 border border-border/50 rounded-xl bg-foreground/[0.01] hover:bg-foreground/[0.02] transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/[0.04] border border-border/50 text-muted-foreground">
-                  <Database className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-foreground">OAuth / OpenID Connect</div>
-                  <div className="text-xs text-muted-foreground">14 users</div>
-                </div>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-500/15 text-emerald-500 border border-emerald-500/25">
-                Active
-              </div>
-            </div>
-
-            {/* SAML 2.0 */}
-            <div className="flex items-center justify-between p-3 border border-border/50 rounded-xl bg-foreground/[0.01] hover:bg-foreground/[0.02] transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/[0.04] border border-border/50 text-muted-foreground">
-                  <Database className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-foreground">SAML 2.0</div>
-                  <div className="text-xs text-muted-foreground">0 users</div>
-                </div>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-500/15 text-slate-400 border border-slate-500/25">
-                Inactive
-              </div>
-            </div>
           </div>
         </Surface>
       </div>

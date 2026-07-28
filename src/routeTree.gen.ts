@@ -48,6 +48,8 @@ import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
 import { Route as AppAdminRolesRouteImport } from './routes/_app.admin.roles'
 import { Route as AppAdminPermissionsRouteImport } from './routes/_app.admin.permissions'
+import { Route as AppAdminOrchestrationRouteImport } from './routes/_app.admin.orchestration'
+import { Route as AppAdminNotificationsRouteImport } from './routes/_app.admin.notifications'
 import { Route as AppAdminHealthRouteImport } from './routes/_app.admin.health'
 import { Route as AppAdminAuditRouteImport } from './routes/_app.admin.audit'
 
@@ -251,6 +253,16 @@ const AppAdminPermissionsRoute = AppAdminPermissionsRouteImport.update({
   path: '/admin/permissions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminOrchestrationRoute = AppAdminOrchestrationRouteImport.update({
+  id: '/admin/orchestration',
+  path: '/admin/orchestration',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminNotificationsRoute = AppAdminNotificationsRouteImport.update({
+  id: '/admin/notifications',
+  path: '/admin/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminHealthRoute = AppAdminHealthRouteImport.update({
   id: '/admin/health',
   path: '/admin/health',
@@ -268,6 +280,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/health': typeof AppAdminHealthRoute
+  '/admin/notifications': typeof AppAdminNotificationsRoute
+  '/admin/orchestration': typeof AppAdminOrchestrationRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/roles': typeof AppAdminRolesRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -310,6 +324,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/health': typeof AppAdminHealthRoute
+  '/admin/notifications': typeof AppAdminNotificationsRoute
+  '/admin/orchestration': typeof AppAdminOrchestrationRoute
   '/admin/permissions': typeof AppAdminPermissionsRoute
   '/admin/roles': typeof AppAdminRolesRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -354,6 +370,8 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/health': typeof AppAdminHealthRoute
+  '/_app/admin/notifications': typeof AppAdminNotificationsRoute
+  '/_app/admin/orchestration': typeof AppAdminOrchestrationRoute
   '/_app/admin/permissions': typeof AppAdminPermissionsRoute
   '/_app/admin/roles': typeof AppAdminRolesRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
@@ -398,6 +416,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/admin/audit'
     | '/admin/health'
+    | '/admin/notifications'
+    | '/admin/orchestration'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/settings'
@@ -440,6 +460,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/admin/audit'
     | '/admin/health'
+    | '/admin/notifications'
+    | '/admin/orchestration'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/settings'
@@ -483,6 +505,8 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/admin/audit'
     | '/_app/admin/health'
+    | '/_app/admin/notifications'
+    | '/_app/admin/orchestration'
     | '/_app/admin/permissions'
     | '/_app/admin/roles'
     | '/_app/admin/settings'
@@ -801,6 +825,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPermissionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin/orchestration': {
+      id: '/_app/admin/orchestration'
+      path: '/admin/orchestration'
+      fullPath: '/admin/orchestration'
+      preLoaderRoute: typeof AppAdminOrchestrationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/notifications': {
+      id: '/_app/admin/notifications'
+      path: '/admin/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AppAdminNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin/health': {
       id: '/_app/admin/health'
       path: '/admin/health'
@@ -822,6 +860,8 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminHealthRoute: typeof AppAdminHealthRoute
+  AppAdminNotificationsRoute: typeof AppAdminNotificationsRoute
+  AppAdminOrchestrationRoute: typeof AppAdminOrchestrationRoute
   AppAdminPermissionsRoute: typeof AppAdminPermissionsRoute
   AppAdminRolesRoute: typeof AppAdminRolesRoute
   AppAdminSettingsRoute: typeof AppAdminSettingsRoute
@@ -863,6 +903,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminHealthRoute: AppAdminHealthRoute,
+  AppAdminNotificationsRoute: AppAdminNotificationsRoute,
+  AppAdminOrchestrationRoute: AppAdminOrchestrationRoute,
   AppAdminPermissionsRoute: AppAdminPermissionsRoute,
   AppAdminRolesRoute: AppAdminRolesRoute,
   AppAdminSettingsRoute: AppAdminSettingsRoute,

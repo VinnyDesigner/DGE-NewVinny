@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import {
   Activity,
@@ -26,7 +26,11 @@ import {
   Wrench,
   GitFork,
   X,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft,
+  Cog,
+  ArrowRight,
+  ShieldCheck
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -101,6 +105,22 @@ const initialSchedules: ScheduleItem[] = [
 
 const tabs = ["All", "Active", "Inactive"];
 
+const layersList = [
+  { id: "layer_1", name: "L_DMAUDM_MUNICIPALITYBOUNDARY", agency: "L_DMAUDM_MUNICIPALITYBOUNDARY", db: "L_DMAUDM_MUNICIPALITYBOUNDARY", geomType: "POLYLINE", active: true },
+  { id: "layer_2", name: "L_DMAUDM_DISTRICTBOUNDARY", agency: "L_DMAUDM_DISTRICTBOUNDARY", db: "L_DMAUDM_DISTRICTBOUNDARY", geomType: "POLYLINE", active: true },
+  { id: "layer_3", name: "L_DMAUDM_DISTRICT", agency: "L_DMAUDM_DISTRICT", db: "L_DMAUDM_DISTRICT", geomType: "POLYGON", active: true },
+  { id: "layer_4", name: "L_DMAUDM_MUNICIPALITY", agency: "L_DMAUDM_MUNICIPALITY", db: "L_DMAUDM_MUNICIPALITY", geomType: "POLYGON", active: true },
+];
+
+function ConfigTile({ label, value, valueClassName }: { label: string; value: string; valueClassName?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card/50 p-3.5 space-y-1">
+      <span className="text-[9px] font-bold text-muted-foreground/80 tracking-wider uppercase block select-none">{label}</span>
+      <div className={cn("font-extrabold text-foreground text-xs leading-tight", valueClassName)}>{value}</div>
+    </div>
+  );
+}
+
 function ManageSchedulesPage() {
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -108,6 +128,39 @@ function ManageSchedulesPage() {
   // App views
   const [isEditing, setIsEditing] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ScheduleItem | null>(null);
+
+  // Edit Step Wizard states
+  const [editStep, setEditStep] = useState(1);
+  const [selectedEditLayers, setSelectedEditLayers] = useState<string[]>(["layer_1", "layer_2", "layer_3", "layer_4"]);
+  const [editLayersSearchQuery, setEditLayersSearchQuery] = useState("");
+  
+  // Schedule state fields
+  const [editScheduleName, setEditScheduleName] = useState("Test");
+  const [editScheduleDescription, setEditScheduleDescription] = useState("");
+  const [editRecurrenceMode, setEditRecurrenceMode] = useState("simple"); // "simple" or "advanced"
+  const [editFrequency, setEditFrequency] = useState("daily");
+  const [editStartDate, setEditStartDate] = useState("2026-06-14");
+  const [editStartTime, setEditStartTime] = useState("08:00");
+  const [editEndDate, setEditEndDate] = useState("");
+  const [editTimezone, setEditTimezone] = useState("Asia/Dubai (GST, UTC+4)");
+  const [editPriority, setEditPriority] = useState("medium");
+  const [editRetryOnFailure, setEditRetryOnFailure] = useState(true);
+  const [editMaxAttempts, setEditMaxAttempts] = useState(3);
+  const [editRetryInterval, setEditRetryInterval] = useState(60);
+  const [editNotifyAdmin, setEditNotifyAdmin] = useState(false);
+  const [editDefaultRulesBehavior, setEditDefaultRulesBehavior] = useState("strict"); // "strict", "warning", "skip"
+  const [editSpatialRulesBehavior, setEditSpatialRulesBehavior] = useState("strict"); // "strict", "warning", "skip"
+
+  // Advanced Recurrence fields
+  const [advancedRepeat, setAdvancedRepeat] = useState("Weekly");
+  const [advancedEvery, setAdvancedEvery] = useState(1);
+  const [advancedDays, setAdvancedDays] = useState<string[]>(["M"]);
+  const [advancedStartTime, setAdvancedStartTime] = useState("08:00");
+  const [advancedTimezone, setAdvancedTimezone] = useState("Asia/Dubai (GST, UTC+4)");
+  const [advancedStarts, setAdvancedStarts] = useState("2026-06-14");
+  const [advancedEndsMode, setAdvancedEndsMode] = useState("never"); // "never", "after", "on"
+  const [advancedEndsAfterRuns, setAdvancedEndsAfterRuns] = useState(10);
+  const [advancedEndsOnDate, setAdvancedEndsOnDate] = useState("");
 
   // Modal Dialogs state
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -156,6 +209,8 @@ function ManageSchedulesPage() {
 
   const handleOpenEdit = (s: ScheduleItem) => {
     setEditingSchedule(s);
+    setEditScheduleName(s.name);
+    setEditStep(1);
     setIsEditing(true);
   };
 
@@ -172,6 +227,19 @@ function ManageSchedulesPage() {
 
   // If in Edit mode, render the layout matching the 2nd Image
   if (isEditing && editingSchedule) {
+    const selectedEntityObj = { name: "Abu Dhabi Digital Authority", region: "Digital", code: "ADDA", deliveries: 1, tone: "primary" };
+    const toolDisplayNames: Record<string, string> = {
+      pipeline: "Full Pipeline Flow",
+      "delta-sync": "Delta Sync Engine",
+      "external-sync": "External Data Sync Engine",
+      metadata: "Metadata Validation Engine",
+      compress: "Database Compress Utility",
+      analyzer: "Data Analyzer",
+    };
+
+    // Calculate percent based on current editStep
+    const editPercent = Math.round((editStep / 3) * 100);
+
     return (
       <div className="space-y-6">
         {/* Page Header */}
@@ -183,7 +251,7 @@ function ManageSchedulesPage() {
               onClick={() => setIsEditing(false)}
               className="inline-flex h-9.5 items-center gap-2 rounded-lg border border-border bg-card px-4 text-xs font-bold text-foreground/80 hover:text-foreground cursor-pointer transition-colors"
             >
-              <ArrowLeftIcon className="h-4 w-4" /> Manage Schedules
+              <ArrowLeft className="h-4 w-4" /> Manage Schedules
             </button>
           }
         />
@@ -191,93 +259,964 @@ function ManageSchedulesPage() {
         {/* Edit View Stepper layout */}
         <Surface className="!p-4 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-1 min-w-[600px] select-none text-[13px] font-bold">
-            <div className="flex flex-1 items-center gap-2 text-blue-500">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+            <button
+              onClick={() => setEditStep(1)}
+              className={cn(
+                "flex items-center gap-2 rounded px-3 py-1 cursor-pointer transition-all",
+                editStep === 1 ? "text-blue-500 font-extrabold" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-full border transition-all duration-300",
+                editStep === 1 ? "bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold" : "bg-muted text-muted-foreground border-border"
+              )}>
                 <Layers className="h-3.5 w-3.5" />
               </span>
               Layers
-            </div>
+            </button>
             <span className="h-px flex-1 bg-border/60 mx-2" />
-            <div className="flex flex-1 items-center gap-2 text-muted-foreground">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border">
+            
+            <button
+              onClick={() => setEditStep(2)}
+              className={cn(
+                "flex items-center gap-2 rounded px-3 py-1 cursor-pointer transition-all",
+                editStep === 2 ? "text-blue-500 font-extrabold" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-full border transition-all duration-300",
+                editStep === 2 ? "bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold" : "bg-muted text-muted-foreground border-border"
+              )}>
                 <Calendar className="h-3.5 w-3.5" />
               </span>
               Schedule
-            </div>
+            </button>
             <span className="h-px flex-1 bg-border/60 mx-2" />
-            <div className="flex flex-1 items-center gap-2 text-muted-foreground">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border">
+            
+            <button
+              onClick={() => setEditStep(3)}
+              className={cn(
+                "flex items-center gap-2 rounded px-3 py-1 cursor-pointer transition-all",
+                editStep === 3 ? "text-blue-500 font-extrabold" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-full border transition-all duration-300",
+                editStep === 3 ? "bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold" : "bg-muted text-muted-foreground border-border"
+              )}>
                 <Check className="h-3.5 w-3.5" />
               </span>
               Review
-            </div>
+            </button>
           </div>
         </Surface>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_340px] items-start">
           
-          {/* Main Select Layers card */}
-          <div className="space-y-4">
+          {/* Left Side Wizard Column */}
+          <div className="space-y-5">
             
             {/* Locked summary info ribbon */}
-            <div className="border border-border/80 bg-foreground/[0.03] rounded-xl px-4 py-3 text-xs font-semibold text-muted-foreground flex items-start gap-2.5 leading-relaxed select-none">
+            <div className="border border-border/80 bg-foreground/[0.03] rounded-xl px-4 py-3.5 text-xs font-semibold text-muted-foreground flex items-start gap-2.5 leading-relaxed select-none">
               <Lock className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-foreground">Locked — editing layers & schedule only:</span>{" "}
                 Entity: <span className="text-foreground">Abu Dhabi Digital Authority</span>,{" "}
-                Source: <span className="text-foreground">—</span>,{" "}
-                Tool: <span className="text-foreground">Full Pipeline Flow</span>,{" "}
+                Source: <span className="text-foreground">FGDB1</span>,{" "}
+                Tool: <span className="text-foreground">Data Delivery Pipeline</span>,{" "}
                 Runtime: <span className="text-foreground">ArcGIS Pro Runtime</span>,{" "}
                 Target: <span className="text-foreground">Internal Database</span>
               </div>
             </div>
 
-            {/* Select Layers configuration step details */}
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-bold text-foreground">Select Layers</h3>
-                <p className="text-xs text-muted-foreground font-semibold">
-                  Choose one or more data layers to include in this schedule. All selected layers will be processed by the same tool.
-                </p>
-              </div>
-
-              {/* Filtering row */}
-              <div className="flex gap-2.5 items-center">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search layers by name or code..."
-                    className="h-9 w-full rounded-lg border border-border bg-card pl-10 pr-3 text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                  />
+            {/* STEP 1: Select Layers (1st & 2nd Image) */}
+            {editStep === 1 && (
+              <>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-foreground">Select Layers</h3>
+                  <p className="text-xs text-muted-foreground font-semibold">
+                    Choose one or more data layers to include in this schedule. All selected layers will be processed by the same tool.
+                  </p>
                 </div>
-                <button className="h-9 px-3.5 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft">
-                  Select All
-                </button>
-                <button className="h-9 px-3.5 bg-transparent border border-border hover:bg-muted text-muted-foreground font-bold text-xs rounded-lg cursor-pointer transition-colors">
-                  Clear
-                </button>
-              </div>
 
-              {/* No layers card content */}
-              <div className="border border-dashed border-border rounded-2xl p-12 bg-card/20 flex flex-col items-center justify-center text-center gap-3 select-none">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted border border-border text-muted-foreground/60">
-                  <FolderOpen className="h-6 w-6" />
+                {/* Filtering row */}
+                <div className="flex gap-2.5 items-center">
+                  <div className="relative flex-1">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search layers by name or code..."
+                      value={editLayersSearchQuery}
+                      onChange={(e) => setEditLayersSearchQuery(e.target.value)}
+                      className="h-9 w-full rounded-lg border border-border bg-card pl-10 pr-3 text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (selectedEditLayers.length === layersList.length) {
+                        setSelectedEditLayers([]);
+                      } else {
+                        setSelectedEditLayers(layersList.map((l) => l.id));
+                      }
+                    }}
+                    className="h-9 px-3.5 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
+                  >
+                    {selectedEditLayers.length === layersList.length ? "Deselect All" : "Select All"}
+                  </button>
+                  <button
+                    onClick={() => setSelectedEditLayers([])}
+                    className="h-9 px-3.5 bg-transparent border border-border hover:bg-muted text-muted-foreground font-bold text-xs rounded-lg cursor-pointer transition-colors"
+                  >
+                    Clear
+                  </button>
                 </div>
-                <div className="text-xs font-bold text-foreground">No layers found</div>
-              </div>
 
-              {/* Flow Action */}
-              <div className="flex justify-end pt-4 border-t border-border/20">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="inline-flex h-9.5 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
-                >
-                  Continue <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
+                {/* Summary selected notification ribbon */}
+                {selectedEditLayers.length > 0 && (
+                  <div className="bg-primary/5 border border-primary/20 text-primary rounded-xl px-4 py-3 text-xs font-bold flex items-center gap-2 select-none shadow-soft">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-primary text-white text-[10px]">
+                      {selectedEditLayers.length}
+                    </span>
+                    <span>
+                      layers selected - {selectedEditLayers.map((id) => layersList.find((l) => l.id === id)?.name).join(", ")}
+                    </span>
+                  </div>
+                )}
 
-            </div>
+                {/* Layers checklists list */}
+                <div className="space-y-3">
+                  {layersList
+                    .filter((l) => l.name.toLowerCase().includes(editLayersSearchQuery.toLowerCase()))
+                    .map((layer) => {
+                      const isChecked = selectedEditLayers.includes(layer.id);
+                      return (
+                        <div
+                          key={layer.id}
+                          onClick={() => {
+                            if (isChecked) {
+                              setSelectedEditLayers(selectedEditLayers.filter((id) => id !== layer.id));
+                            } else {
+                              setSelectedEditLayers([...selectedEditLayers, layer.id]);
+                            }
+                          }}
+                          className={cn(
+                            "p-4.5 rounded-xl border flex items-start justify-between cursor-pointer transition-all hover:bg-muted/15 text-xs font-semibold",
+                            isChecked ? "border-primary bg-primary/5 shadow-soft" : "border-border bg-card"
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {}}
+                              className="h-4.5 w-4.5 rounded border-border/60 bg-card accent-primary mt-0.5 pointer-events-none"
+                            />
+                            <span className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground border border-border">
+                              <Layers className="h-4.5 w-4.5" />
+                            </span>
+                            <div className="min-w-0">
+                              <div className="font-extrabold text-foreground truncate max-w-[280px] sm:max-w-md">{layer.name}</div>
+                              <div className="text-[10px] text-muted-foreground/80 mt-1 flex flex-wrap items-center gap-1.5 leading-none">
+                                <span>Agency Layer: {layer.agency}</span>
+                                <span>•</span>
+                                <span>DB Layer: {layer.db}</span>
+                              </div>
+                              <div className="mt-2.5 flex items-center gap-1.5 text-[9px] font-extrabold font-mono">
+                                <span className="bg-blue-500/10 text-primary border border-blue-500/20 px-1.5 py-0.2 rounded uppercase">
+                                  {layer.geomType}
+                                </span>
+                                <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2">
+                                  <span className="h-1 w-1 rounded-full bg-emerald-400" /> Active
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {/* Navigation actions footer */}
+                <div className="flex justify-end pt-4 border-t border-border/20">
+                  <button
+                    onClick={() => setEditStep(2)}
+                    className="inline-flex h-9.5 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+                  >
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* STEP 2: Configure Schedule (3rd, 4th and 5th Image) */}
+            {editStep === 2 && (
+              <>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-foreground">Configure Schedule</h3>
+                  <p className="text-xs text-muted-foreground font-semibold">Define when and how often this job runs.</p>
+                </div>
+
+                {/* Section 1: Schedule Details */}
+                <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-3 select-none">
+                    <Cog className="h-4 w-4 text-primary" /> Schedule Details
+                  </h3>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Schedule Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editScheduleName}
+                      onChange={(e) => setEditScheduleName(e.target.value)}
+                      required
+                      placeholder="e.g. Daily L_DMAUDM_MUNICIPALITYBOUNDARY Sync"
+                      className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Description</label>
+                    <textarea
+                      rows={3}
+                      value={editScheduleDescription}
+                      onChange={(e) => setEditScheduleDescription(e.target.value)}
+                      placeholder="Optional description..."
+                      className="w-full rounded-lg border border-border/60 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
+                    />
+                  </div>
+                </div>
+
+                {/* Section 2: Recurrence */}
+                <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-2 select-none">
+                    <RefreshCw className="h-4 w-4 text-primary" /> Recurrence
+                  </h3>
+                  
+                  <div className="flex bg-muted/65 p-1 rounded-lg w-fit">
+                    <button
+                      type="button"
+                      onClick={() => setEditRecurrenceMode("simple")}
+                      className={cn(
+                        "px-3.5 py-1.5 rounded-md text-[11px] font-extrabold cursor-pointer transition-all",
+                        editRecurrenceMode === "simple" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Simple
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditRecurrenceMode("advanced")}
+                      className={cn(
+                        "px-3.5 py-1.5 rounded-md text-[11px] font-extrabold cursor-pointer transition-all",
+                        editRecurrenceMode === "advanced" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Advanced
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
+                    {editRecurrenceMode === "advanced" 
+                      ? "Build a custom recurrence rule with a live preview of the next runs."
+                      : "Pick a standard cadence. Switch to Advanced for custom rules (e.g. Mon/Wed/Fri, 2nd Tuesday, one-time)."}
+                  </p>
+                </div>
+
+                {/* Section 2b: Advanced Recurrence (5th Image) */}
+                {editRecurrenceMode === "advanced" && (
+                  <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-3 select-none">
+                      <RefreshCw className="h-4 w-4 text-primary" /> Recurrence Rule
+                    </h3>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Repeat</label>
+                        <select
+                          value={advancedRepeat}
+                          onChange={(e) => setAdvancedRepeat(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                        >
+                          <option value="Daily">Daily</option>
+                          <option value="Weekly">Weekly</option>
+                          <option value="Monthly">Monthly</option>
+                          <option value="Yearly">Yearly</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Every</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={1}
+                            value={advancedEvery}
+                            onChange={(e) => setAdvancedEvery(Math.max(1, parseInt(e.target.value) || 1))}
+                            className="h-10 w-24 rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                          />
+                          <span className="text-xs text-muted-foreground font-semibold">
+                            {advancedRepeat === "Weekly" ? "week(s)" : advancedRepeat === "Daily" ? "day(s)" : "month(s)"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {advancedRepeat === "Weekly" && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-muted-foreground block font-bold">On these days</label>
+                        <div className="flex flex-wrap gap-2 select-none">
+                          {["M", "T", "W", "T", "F", "S", "S"].map((day, idx) => {
+                            const dayKey = day + (idx === 3 || idx === 5 || idx === 6 ? idx : "");
+                            const isSelected = advancedDays.includes(dayKey);
+                            return (
+                              <button
+                                key={dayKey}
+                                type="button"
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setAdvancedDays(advancedDays.filter((d) => d !== dayKey));
+                                  } else {
+                                    setAdvancedDays([...advancedDays, dayKey]);
+                                  }
+                                }}
+                                className={cn(
+                                  "h-8 w-8 rounded-full border text-[11px] font-extrabold flex items-center justify-center cursor-pointer transition-all",
+                                  isSelected
+                                    ? "bg-primary border-primary text-white shadow-soft"
+                                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                {day}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Start time</label>
+                        <input
+                          type="time"
+                          value={advancedStartTime}
+                          onChange={(e) => setAdvancedStartTime(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Timezone</label>
+                        <input
+                          type="text"
+                          value={advancedTimezone}
+                          onChange={(e) => setAdvancedTimezone(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground block font-bold">Starts *</label>
+                      <input
+                        type="date"
+                        value={advancedStarts}
+                        onChange={(e) => setAdvancedStarts(e.target.value)}
+                        className="h-10 w-full sm:w-1/2 rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                      />
+                    </div>
+
+                    <div className="space-y-2.5 pt-2.5 border-t border-border/20">
+                      <label className="text-xs font-semibold text-muted-foreground block">Ends</label>
+                      <div className="space-y-3 font-semibold text-xs">
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="radio"
+                            id="editEndsNever"
+                            name="editAdvancedEnds"
+                            checked={advancedEndsMode === "never"}
+                            onChange={() => setAdvancedEndsMode("never")}
+                            className="h-4.5 w-4.5 border-border/60 bg-card accent-primary"
+                          />
+                          <label htmlFor="editEndsNever" className="text-foreground cursor-pointer select-none">Never</label>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="radio"
+                            id="editEndsAfter"
+                            name="editAdvancedEnds"
+                            checked={advancedEndsMode === "after"}
+                            onChange={() => setAdvancedEndsMode("after")}
+                            className="h-4.5 w-4.5 border-border/60 bg-card accent-primary"
+                          />
+                          <label htmlFor="editEndsAfter" className="text-foreground cursor-pointer select-none">After</label>
+                          <input
+                            type="number"
+                            min={1}
+                            disabled={advancedEndsMode !== "after"}
+                            value={advancedEndsAfterRuns}
+                            onChange={(e) => setAdvancedEndsAfterRuns(Math.max(1, parseInt(e.target.value) || 1))}
+                            className="h-8 w-20 rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold disabled:opacity-50"
+                          />
+                          <span className="text-muted-foreground">runs</span>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="radio"
+                            id="editEndsOn"
+                            name="editAdvancedEnds"
+                            checked={advancedEndsMode === "on"}
+                            onChange={() => setAdvancedEndsMode("on")}
+                            className="h-4.5 w-4.5 border-border/60 bg-card accent-primary"
+                          />
+                          <label htmlFor="editEndsOn" className="text-foreground cursor-pointer select-none">On</label>
+                          <input
+                            type="date"
+                            disabled={advancedEndsMode !== "on"}
+                            value={advancedEndsOnDate}
+                            onChange={(e) => setAdvancedEndsOnDate(e.target.value)}
+                            className="h-8 w-44 rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold disabled:opacity-50"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-border/20">
+                      <button type="button" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold">
+                        Advanced options <ChevronDown className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {/* Preview box */}
+                    <div className="rounded-lg bg-blue-500/5 border border-blue-500/10 p-4 space-y-1.5">
+                      <div className="text-xs text-primary font-bold">Preview</div>
+                      <p className="text-[11px] text-muted-foreground font-semibold leading-relaxed">
+                        Every week on {advancedDays.map((d) => d.startsWith("M") ? "Monday" : d.startsWith("T") ? "Tuesday" : d.startsWith("W") ? "Wednesday" : d.startsWith("F") ? "Friday" : "day").join(", ")} times shown in {advancedTimezone}
+                      </p>
+                      <div className="text-[10px] text-amber-500/80 font-bold flex items-center gap-1 mt-1">
+                        <span className="h-1 w-1 rounded-full bg-amber-500" /> Adjust the rule to see upcoming runs.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 3: Frequency (Only in simple mode) */}
+                {editRecurrenceMode === "simple" && (
+                  <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-3 select-none">
+                      <Calendar className="h-4 w-4 text-primary" /> Frequency
+                    </h3>
+                    
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                      {["daily", "weekly", "monthly", "quarterly", "half-yearly", "yearly"].map((freq) => {
+                        const isSelected = editFrequency === freq;
+                        return (
+                          <button
+                            key={freq}
+                            type="button"
+                            onClick={() => setEditFrequency(freq)}
+                            className={cn(
+                              "h-10 rounded-lg border text-[11px] font-extrabold capitalize cursor-pointer transition-all select-none",
+                              isSelected
+                                ? "border-primary bg-primary/5 text-primary shadow-soft"
+                                : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted/15"
+                            )}
+                          >
+                            {freq.replace("-", " ")}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 4: Timing (Only in simple mode) */}
+                {editRecurrenceMode === "simple" && (
+                  <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-3 select-none">
+                      <Clock className="h-4 w-4 text-primary" /> Timing
+                    </h3>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5 relative">
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Start Date <span className="text-red-400">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="date"
+                            value={editStartDate}
+                            onChange={(e) => setEditStartDate(e.target.value)}
+                            className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 pr-10 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                          />
+                          <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Start Time</label>
+                        <input
+                          type="time"
+                          value={editStartTime}
+                          onChange={(e) => setEditStartTime(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5 relative">
+                        <label className="text-xs font-semibold text-muted-foreground">End Date (optional)</label>
+                        <div className="relative">
+                          <input
+                            type="date"
+                            value={editEndDate}
+                            onChange={(e) => setEditEndDate(e.target.value)}
+                            className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 pr-10 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                          />
+                          <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground font-bold">Timezone</label>
+                        <input
+                          type="text"
+                          value={editTimezone}
+                          onChange={(e) => setEditTimezone(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-border/60 bg-background pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 5: Run Options */}
+                <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 border-b border-border/30 pb-2 mb-3 select-none">
+                    <Zap className="h-4 w-4 text-primary" /> Run Options
+                  </h3>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">Priority</label>
+                    <div className="flex bg-muted/65 p-1 rounded-lg w-full max-w-[400px]">
+                      {["high", "medium", "low"].map((prio) => {
+                        const isSelected = editPriority === prio;
+                        return (
+                          <button
+                            key={prio}
+                            type="button"
+                            onClick={() => setEditPriority(prio)}
+                            className={cn(
+                              "flex-1 py-1.5 rounded-md text-[11px] font-extrabold capitalize cursor-pointer transition-all select-none",
+                              isSelected
+                                ? "bg-card text-foreground shadow-sm font-bold border border-border/30"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {prio}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 space-y-3 border-t border-border/20 mt-3">
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        id="editRetryOnFailure"
+                        checked={editRetryOnFailure}
+                        onChange={(e) => setEditRetryOnFailure(e.target.checked)}
+                        className="h-4.5 w-4.5 rounded border-border/60 bg-card accent-primary mt-0.5 cursor-pointer"
+                      />
+                      <div className="space-y-3 flex-1">
+                        <label htmlFor="editRetryOnFailure" className="text-xs font-semibold text-foreground cursor-pointer select-none">
+                          Retry on failure
+                        </label>
+                        {editRetryOnFailure && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] text-muted-foreground font-bold">Max attempts</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={editMaxAttempts}
+                                onChange={(e) => setEditMaxAttempts(Math.max(1, parseInt(e.target.value) || 1))}
+                                className="h-9 w-full rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] text-muted-foreground font-bold">Retry interval (min)</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={editRetryInterval}
+                                onChange={(e) => setEditRetryInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                                className="h-9 w-full rounded-lg border border-border/60 bg-background pl-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3.5 border-t border-border/20">
+                    <div className="space-y-1 select-none">
+                      <span className="text-[11px] font-bold text-foreground">
+                        Notification groups
+                      </span>
+                      <p className="text-[10px] text-muted-foreground font-semibold leading-normal">
+                        Success / failure emails for this schedule go to the selected groups. Leave empty to use the entity's default recipients.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card mt-3 text-xs font-semibold">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          id="editNotifyAdmin"
+                          checked={editNotifyAdmin}
+                          onChange={(e) => setEditNotifyAdmin(e.target.checked)}
+                          className="h-4.5 w-4.5 rounded border-border/60 bg-card accent-primary cursor-pointer"
+                        />
+                        <label htmlFor="editNotifyAdmin" className="text-foreground cursor-pointer select-none">
+                          Administrators
+                        </label>
+                      </div>
+                      <span className="px-2 py-0.5 rounded bg-muted text-[10px] font-extrabold font-mono text-muted-foreground border border-border select-none leading-none">
+                        ADMIN
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rules Configuration Card (from user screenshot) */}
+                <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+                  <div className="flex items-center gap-2 border-b border-border/30 pb-2.5 mb-2 select-none">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500/10 text-rose-400">
+                      <ShieldCheck className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                        Rules Configuration
+                      </h3>
+                      <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">
+                        Configure how validation rules behave during execution
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-5">
+                    {/* Default Rules */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                        <span className="h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-500/20" />
+                        <span>
+                          Default Rules <span className="text-muted-foreground font-semibold text-[11px]">— Field-level validation</span>
+                        </span>
+                      </div>
+                      
+                      <div className="grid gap-2.5 pl-4 sm:grid-cols-3">
+                        {[
+                          { value: "strict", label: "Strict", desc: "Fail on violation" },
+                          { value: "warning", label: "Warning", desc: "Log & continue" },
+                          { value: "skip", label: "Skip", desc: "No validation" }
+                        ].map((opt) => {
+                          const isSelected = editDefaultRulesBehavior === opt.value;
+                          return (
+                            <label
+                              key={opt.value}
+                              className={cn(
+                                "flex items-center gap-2 px-3.5 py-2.5 rounded-lg border text-xs font-semibold cursor-pointer select-none transition-all",
+                                isSelected 
+                                  ? "border-primary bg-primary/5 text-foreground" 
+                                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              <input
+                                type="radio"
+                                name="editDefaultRulesBehavior"
+                                checked={isSelected}
+                                onChange={() => setEditDefaultRulesBehavior(opt.value)}
+                                className="h-4.5 w-4.5 border-border/60 bg-card accent-primary"
+                              />
+                              <div>
+                                <span className="font-extrabold text-foreground">{opt.label}</span>{" "}
+                                <span className="text-[10.5px] text-muted-foreground font-medium">· {opt.desc}</span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Spatial Rules */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                        <span className="h-2 w-2 rounded-full bg-purple-500 ring-4 ring-purple-500/20" />
+                        <span>
+                          Spatial Rules <span className="text-muted-foreground font-semibold text-[11px]">— Data quality rules</span>
+                        </span>
+                      </div>
+
+                      <div className="grid gap-2.5 pl-4 sm:grid-cols-3">
+                        {[
+                          { value: "strict", label: "Strict", desc: "Fail on violation" },
+                          { value: "warning", label: "Warning", desc: "Log & continue" },
+                          { value: "skip", label: "Skip", desc: "No validation" }
+                        ].map((opt) => {
+                          const isSelected = editSpatialRulesBehavior === opt.value;
+                          return (
+                            <label
+                              key={opt.value}
+                              className={cn(
+                                "flex items-center gap-2 px-3.5 py-2.5 rounded-lg border text-xs font-semibold cursor-pointer select-none transition-all",
+                                isSelected 
+                                  ? "border-primary bg-primary/5 text-foreground" 
+                                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              <input
+                                type="radio"
+                                name="editSpatialRulesBehavior"
+                                checked={isSelected}
+                                onChange={() => setEditSpatialRulesBehavior(opt.value)}
+                                className="h-4.5 w-4.5 border-border/60 bg-card accent-primary"
+                              />
+                              <div>
+                                <span className="font-extrabold text-foreground">{opt.label}</span>{" "}
+                                <span className="text-[10.5px] text-muted-foreground font-medium">· {opt.desc}</span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Info Ribbon */}
+                    <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10 text-xs font-semibold text-primary leading-normal select-none">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                      <span>Rule settings can be modified later in the schedule configuration if needed.</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation Actions */}
+                <div className="flex justify-between items-center pt-4 border-t border-border/20">
+                  <button
+                    onClick={() => setEditStep(1)}
+                    className="inline-flex h-9.5 items-center gap-2 rounded-lg border border-border bg-card px-4 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </button>
+                  <button
+                    onClick={() => setEditStep(3)}
+                    className="inline-flex h-9.5 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+                  >
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* STEP 3: Review & Save (Confirm settings) */}
+            {editStep === 3 && (
+              <>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-foreground">Review & Save</h3>
+                  <p className="text-xs text-muted-foreground font-semibold">Confirm your configuration before saving the schedule.</p>
+                </div>
+
+                {/* Blue job summary banner */}
+                <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4.5 shadow-soft relative overflow-hidden">
+                  <div className="flex items-center gap-4.5">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/20">
+                      <GitFork className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-extrabold tracking-widest text-white/70 uppercase block">PIPELINE FLOW JOB</span>
+                      <div className="font-extrabold text-[15px]">{editScheduleName || "vuysda"}</div>
+                      <div className="text-[11px] text-white/80 font-bold flex flex-wrap items-center gap-1.5">
+                        <span>Data Delivery Pipeline</span>
+                        <span>•</span>
+                        <span>Full Load</span>
+                        <span>•</span>
+                        <span className="capitalize">{editFrequency}</span>
+                        <span>•</span>
+                        <span>{editTimezone}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inline flow steps matching 1st screenshot */}
+                  <div className="flex items-center gap-1.5 self-start sm:self-center select-none text-[9.5px] font-extrabold tracking-wide">
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/10 border border-white/20 text-white leading-none">
+                      <Layers className="h-3 w-3" /> Data Collection
+                    </span>
+                    <ChevronRight className="h-3 w-3 text-white/60 shrink-0" />
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/10 border border-white/20 text-white leading-none">
+                      <Wrench className="h-3 w-3" /> Data Quality
+                    </span>
+                    <ChevronRight className="h-3 w-3 text-white/60 shrink-0" />
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/10 border border-white/20 text-white leading-none">
+                      <GitFork className="h-3 w-3" /> Data Loading
+                    </span>
+                  </div>
+                </div>
+
+                {/* DATA TARGET Section */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">DATA TARGET</h3>
+                  
+                  <div className="rounded-xl border border-border bg-card p-4 space-y-4">
+                    {/* Entity subcard header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-primary border border-blue-500/20">
+                          <Building2 className="h-4.5 w-4.5" />
+                        </span>
+                        <div>
+                          <div className="font-bold text-foreground text-xs">{selectedEntityObj.name}</div>
+                          <div className="text-[10px] text-muted-foreground font-bold">{selectedEntityObj.code} - Semi-Government</div>
+                        </div>
+                      </div>
+                      
+                      <span className="bg-blue-500/10 text-primary border border-blue-500/20 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase leading-none select-none">
+                        {selectedEditLayers.length} {selectedEditLayers.length === 1 ? 'layer' : 'layers'}
+                      </span>
+                    </div>
+
+                    {/* Selected Layers subcard rows */}
+                    <div className="border-t border-border/40 pt-3.5 space-y-2.5">
+                      {selectedEditLayers.map((layerId) => {
+                        const layerObj = layersList.find((l) => l.id === layerId);
+                        if (!layerObj) return null;
+                        return (
+                          <div key={layerId} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card/60">
+                            <div className="flex items-center gap-3">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground border border-border">
+                                <Layers className="h-4 w-4" />
+                              </span>
+                              <div>
+                                <div className="font-extrabold text-foreground text-[11px] leading-tight">{layerObj.name}</div>
+                                <div className="text-[10px] text-muted-foreground font-semibold leading-none mt-0.5">{layerObj.agency}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[9px] font-extrabold font-mono">
+                              <span className="bg-blue-500/10 text-primary border border-blue-500/20 px-1.5 py-0.2 rounded uppercase">
+                                {layerObj.geomType}
+                              </span>
+                              <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2">
+                                <span className="h-1 w-1 rounded-full bg-emerald-400" /> Active
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* CONFIGURATION Section */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">CONFIGURATION</h3>
+                  
+                  <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+                    <ConfigTile label="FREQUENCY" value={editRecurrenceMode === "advanced" ? advancedRepeat : editFrequency} />
+                    <ConfigTile label="START DATE" value={editRecurrenceMode === "advanced" ? advancedStarts : editStartDate} />
+                    <ConfigTile label="START TIME" value={editRecurrenceMode === "advanced" ? advancedStartTime : editStartTime} />
+                    <ConfigTile label="END DATE" value={editEndDate || "No end"} />
+                    <ConfigTile label="TIMEZONE" value={editRecurrenceMode === "advanced" ? advancedTimezone : editTimezone} />
+                    <ConfigTile 
+                      label="PRIORITY" 
+                      value={editPriority} 
+                      valueClassName={cn(
+                        editPriority === "high" && "text-rose-500 font-extrabold uppercase",
+                        editPriority === "medium" && "text-amber-500 font-extrabold uppercase",
+                        editPriority === "low" && "text-blue-500 font-extrabold uppercase"
+                      )} 
+                    />
+                    <ConfigTile label="DELIVERY" value="Full Load" valueClassName="text-blue-500 font-extrabold" />
+                    <ConfigTile label="RUNTIME" value="ArcGIS Pro Runtime" />
+                  </div>
+                </div>
+
+                {/* ACTIVE OPTIONS Section */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">ACTIVE OPTIONS</h3>
+                  <div className="flex flex-wrap items-center gap-2 select-none text-[10px] font-extrabold">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 text-emerald-400">
+                      <Check className="h-3.5 w-3.5" /> Active on save
+                    </span>
+                    {editRetryOnFailure && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-primary">
+                        <Check className="h-3.5 w-3.5" /> Auto-retry ({editMaxAttempts}x)
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 text-purple-400">
+                      <GitFork className="h-3.5 w-3.5 animate-pulse" /> Full Load delivery
+                    </span>
+                  </div>
+                </div>
+
+                {/* RULES CONFIGURATION Section (matching 2nd screenshot) */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">RULES CONFIGURATION</h3>
+                  
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {/* Default Rules */}
+                    <div className="rounded-xl border border-border bg-card p-4 space-y-1.5">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> DEFAULT RULES
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-semibold text-foreground/90">
+                        <span className="inline-flex items-center rounded bg-rose-500/10 text-rose-400 px-1.5 py-0.5 text-[10px] font-extrabold uppercase select-none leading-none">
+                          {editDefaultRulesBehavior === "strict" ? "Strict" : editDefaultRulesBehavior === "warning" ? "Warning" : "Skip"}
+                        </span>
+                        <span className="text-muted-foreground text-[10px] font-bold">
+                          — {editDefaultRulesBehavior === "strict" ? "Fall on violation" : editDefaultRulesBehavior === "warning" ? "Log & continue" : "No validation"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Spatial Rules */}
+                    <div className="rounded-xl border border-border bg-card p-4 space-y-1.5">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <span className="h-1.5 w-1.5 rounded-full bg-purple-500" /> SPATIAL RULES
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-semibold text-foreground/90">
+                        <span className="inline-flex items-center rounded bg-rose-500/10 text-rose-400 px-1.5 py-0.5 text-[10px] font-extrabold uppercase select-none leading-none">
+                          {editSpatialRulesBehavior === "strict" ? "Strict" : editSpatialRulesBehavior === "warning" ? "Warning" : "Skip"}
+                        </span>
+                        <span className="text-muted-foreground text-[10px] font-bold">
+                          — {editSpatialRulesBehavior === "strict" ? "Fall on violation" : editSpatialRulesBehavior === "warning" ? "Log & continue" : "No validation"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation Actions */}
+                <div className="flex justify-between items-center pt-4 border-t border-border/20">
+                  <button
+                    onClick={() => setEditStep(2)}
+                    className="inline-flex h-9.5 items-center gap-2 rounded-lg border border-border bg-card px-4 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      toast.success(`Schedule "${editScheduleName}" updated successfully.`);
+                      setIsEditing(false);
+                    }}
+                    className="inline-flex h-9.5 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+                  >
+                    <Check className="h-4 w-4" /> Save Changes
+                  </button>
+                </div>
+              </>
+            )}
 
           </div>
 
@@ -294,11 +1233,11 @@ function ManageSchedulesPage() {
             <div className="space-y-4">
               <div className="text-muted-foreground">
                 <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
-                  <span>Step 4 of 7</span>
-                  <span className="text-primary">57% complete</span>
+                  <span>Step {editStep === 1 ? 4 : editStep === 2 ? 6 : 7} of 7</span>
+                  <span className="text-primary">{editStep === 1 ? 57 : editStep === 2 ? 86 : 100}% complete</span>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary" style={{ width: "57%" }} />
+                  <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${editStep === 1 ? 57 : editStep === 2 ? 86 : 100}%` }} />
                 </div>
               </div>
 
@@ -312,18 +1251,42 @@ function ManageSchedulesPage() {
                     Abu Dhabi Digital Authority
                   </div>
                   <div className="mt-1.5 text-[10px] text-muted-foreground font-bold font-mono bg-muted/80 w-fit px-1.5 py-0.5 rounded border border-border/60">
-                    2 deliveries
+                    {selectedEntityObj.deliveries} deliveries
                   </div>
                 </div>
 
                 {/* Layers */}
                 <div className="rounded-lg border border-border bg-card/45 p-3.5">
-                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    <Layers className="h-4 w-4 text-primary" /> Layers
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <Layers className="h-4 w-4 text-primary" /> Layers
+                    </div>
+                    {selectedEditLayers.length > 0 && (
+                      <span className="bg-blue-500/10 text-primary border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase font-mono leading-none">
+                        {selectedEditLayers.length} Selected
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-1.5 font-bold text-foreground/90">
-                    Not configured
-                  </div>
+                  {selectedEditLayers.length > 0 ? (
+                    <div className="mt-2 max-h-[140px] overflow-y-auto space-y-2.5 scrollbar-none pr-1">
+                      {selectedEditLayers.map((layerId) => {
+                        const layerObj = layersList.find((l) => l.id === layerId);
+                        if (!layerObj) return null;
+                        return (
+                          <div key={layerId} className="text-xs font-semibold leading-normal">
+                            <div className="text-foreground text-[11px] font-bold truncate">{layerObj.name}</div>
+                            <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <span className="uppercase text-[9px] font-extrabold font-mono text-primary/80">{layerObj.geomType}</span>
+                              <span>•</span>
+                              <span className="text-[9px] font-extrabold text-emerald-400">Active</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="mt-1 text-xs text-muted-foreground block">Not configured</span>
+                  )}
                 </div>
 
                 {/* Tool */}
@@ -332,7 +1295,7 @@ function ManageSchedulesPage() {
                     <Wrench className="h-4 w-4 text-primary" /> Tool
                   </div>
                   <div className="font-bold text-foreground">
-                    Full Pipeline Flow
+                    Data Delivery Pipeline
                   </div>
                   <div className="text-[10px] text-muted-foreground/90 font-bold leading-normal">
                     ~10 min · 96.5% success
@@ -349,7 +1312,7 @@ function ManageSchedulesPage() {
                       <span className="text-muted-foreground/80 font-bold">~8 min</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Internal Data Sync</span>
+                      <span>Data Loading</span>
                       <span className="text-muted-foreground/80 font-bold">~6 min</span>
                     </div>
                   </div>
@@ -367,15 +1330,21 @@ function ManageSchedulesPage() {
                   <div className="space-y-2 text-xs font-semibold text-muted-foreground">
                     <div className="flex items-center justify-between">
                       <span>Frequency</span>
-                      <span className="font-bold text-foreground">Daily</span>
+                      <span className="font-bold text-foreground capitalize">
+                        {editRecurrenceMode === "advanced" ? advancedRepeat : editFrequency}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Start</span>
-                      <span className="font-bold text-foreground">2028-06-14 · 09:00</span>
+                      <span className="font-bold text-foreground">
+                        {editRecurrenceMode === "advanced" ? `${advancedStarts} ${advancedStartTime}` : `${editStartDate} ${editStartTime}`}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Timezone</span>
-                      <span className="font-bold text-foreground">Asia/Dubai (UTC+4)</span>
+                      <span className="font-bold text-foreground">
+                        {editRecurrenceMode === "advanced" ? advancedTimezone : editTimezone}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -399,9 +1368,11 @@ function ManageSchedulesPage() {
         title="Manage Schedules"
         description="Monitor and manage all automated delivery pipeline schedules across all flow types"
         actions={
-          <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-[14px] font-bold text-white shadow-soft transition-colors cursor-pointer">
-            <Plus className="h-4 w-4" /> New Schedule
-          </button>
+          <Link to="/operations/create-schedule">
+            <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary hover:bg-primary/95 px-4 text-[14px] font-bold text-white shadow-soft transition-colors cursor-pointer">
+              <Plus className="h-4 w-4" /> New Schedule
+            </button>
+          </Link>
         }
       />
 

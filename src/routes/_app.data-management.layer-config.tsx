@@ -1456,9 +1456,9 @@ function LayerConfiguration() {
       {/* 1st & 2nd IMAGE: ADD/CREATE COVERAGE AREA MODAL */}
       {/* ============================================== */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+        <DialogContent className="max-w-[500px] border border-border bg-card text-foreground p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+          <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
                 <Compass className="h-5 w-5" />
@@ -1498,7 +1498,7 @@ function LayerConfiguration() {
                   value={nameField}
                   onChange={(e) => setNameField(e.target.value.slice(0, 200))}
                   required
-                  className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                  className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
                 />
               </div>
             </div>
@@ -1513,10 +1513,10 @@ function LayerConfiguration() {
                   Coverage Level <span className="text-red-400">*</span>
                 </label>
                 <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                  <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
                     <SelectValue placeholder="Emirate" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111A2C] border-border text-xs">
+                  <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
                     <SelectItem value="Country">Country</SelectItem>
                     <SelectItem value="Emirate">Emirate</SelectItem>
                     <SelectItem value="City">City</SelectItem>
@@ -1540,10 +1540,10 @@ function LayerConfiguration() {
                     value={activeField ? "active" : "inactive"}
                     onValueChange={(val) => setActiveField(val === "active")}
                   >
-                    <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                    <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
                       <SelectValue placeholder="Active" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#111A2C] border-border text-xs">
+                    <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
@@ -1559,7 +1559,7 @@ function LayerConfiguration() {
                     type="number"
                     value={displayOrderField}
                     onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
                   />
                   <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
                     Lower numbers appear first in dropdowns.
@@ -1573,7 +1573,7 @@ function LayerConfiguration() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
                 onClick={() => setIsAddModalOpen(false)}
               >
                 Cancel
@@ -1593,9 +1593,9 @@ function LayerConfiguration() {
       {/* 3rd IMAGE: VIEW COVERAGE AREA DETAILS     */}
       {/* ========================================== */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+        <DialogContent className="max-w-[500px] border border-border bg-card text-foreground p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+          <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
                 <Compass className="h-5 w-5" />
@@ -1631,7 +1631,7 @@ function LayerConfiguration() {
                 <div className="text-[15px] font-bold text-foreground">{selectedItem.name}</div>
                 
                 {/* Linked Layers container */}
-                <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/50 bg-[#121A2A] text-xs">
+                <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/20 dark:bg-[#121A2A] text-xs">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
                     <FolderOpen className="h-4 w-4" />
                   </div>
@@ -1677,7 +1677,7 @@ function LayerConfiguration() {
                 <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
                   History
                 </div>
-                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-foreground/[0.01]">
+                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
                   <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
                     <span className="text-muted-foreground font-semibold">Created</span>
                     <span className="text-foreground font-medium font-mono">{selectedItem.created}</span>
@@ -1736,9 +1736,9 @@ function LayerConfiguration() {
       {/* 4th IMAGE: EDIT COVERAGE AREA DETAILS     */}
       {/* ========================================== */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-[500px] border border-border bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+        <DialogContent className="max-w-[500px] border border-border bg-card text-foreground p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
           {/* Header */}
-          <div className="flex items-center justify-between bg-[#131C2E] px-6 py-4 border-b border-border/30">
+          <div className="flex items-center justify-between bg-muted/40 dark:bg-[#131C2E] px-6 py-4 border-b border-border/30">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
                 <Compass className="h-5 w-5" />
@@ -1781,7 +1781,7 @@ function LayerConfiguration() {
                   value={nameField}
                   onChange={(e) => setNameField(e.target.value.slice(0, 200))}
                   required
-                  className="h-10 bg-[#0E1726]/75 border-border/60 text-xs font-bold focus:ring-primary"
+                  className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs font-bold focus:ring-primary text-foreground"
                 />
               </div>
             </div>
@@ -1796,10 +1796,10 @@ function LayerConfiguration() {
                   Coverage Level <span className="text-red-400">*</span>
                 </label>
                 <Select value={levelField} onValueChange={setLevelField}>
-                  <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                  <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
                     <SelectValue placeholder="Region" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111A2C] border-border text-xs">
+                  <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
                     <SelectItem value="Country">Country</SelectItem>
                     <SelectItem value="Emirate">Emirate</SelectItem>
                     <SelectItem value="City">City</SelectItem>
@@ -1823,10 +1823,10 @@ function LayerConfiguration() {
                     value={activeField ? "active" : "inactive"}
                     onValueChange={(val) => setActiveField(val === "active")}
                   >
-                    <SelectTrigger className="h-10 bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer">
+                    <SelectTrigger className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs text-foreground cursor-pointer font-bold">
                       <SelectValue placeholder="Active" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#111A2C] border-border text-xs">
+                    <SelectContent className="bg-card dark:bg-[#111A2C] border-border text-xs text-foreground font-semibold">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
@@ -1842,7 +1842,7 @@ function LayerConfiguration() {
                     type="number"
                     value={displayOrderField}
                     onChange={(e) => setDisplayOrderField(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="h-10 bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary"
+                    className="h-10 bg-background dark:bg-[#0E1726]/75 border-border/60 text-xs focus:ring-primary text-foreground font-bold"
                   />
                   <p className="text-[10px] text-muted-foreground/50 mt-1 leading-normal">
                     Lower numbers appear first in dropdowns.
@@ -1857,7 +1857,7 @@ function LayerConfiguration() {
                 <div className="text-[10px] font-extrabold text-muted-foreground/75 tracking-wider uppercase">
                   History
                 </div>
-                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-foreground/[0.01]">
+                <div className="border border-border/40 rounded-xl overflow-hidden text-xs bg-muted/5">
                   <div className="flex justify-between border-b border-border/20 px-3.5 py-2">
                     <span className="text-muted-foreground font-semibold">Created</span>
                     <span className="text-foreground font-medium font-mono">
@@ -1881,7 +1881,7 @@ function LayerConfiguration() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+                className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
                 onClick={() => setIsEditModalOpen(false)}
               >
                 Cancel
@@ -1901,7 +1901,7 @@ function LayerConfiguration() {
       {/* 5th IMAGE: DELETE CONFIRMATION MODAL           */}
       {/* ============================================== */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="max-w-[440px] border border-red-500/30 bg-[#0B1220] p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
+        <DialogContent className="max-w-[440px] border border-red-500/30 bg-card text-foreground p-0 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-xl">
           {/* Subtle top red alert border line */}
           <div className="h-1 bg-red-500 w-full" />
           
@@ -1929,11 +1929,11 @@ function LayerConfiguration() {
             </button>
           </div>
 
-          <div className="flex justify-end gap-2.5 p-4 bg-[#0E1624] border-t border-border/20">
+          <div className="flex justify-end gap-2.5 p-4 bg-muted/40 dark:bg-[#0E1624] border-t border-border/20">
             <Button
               variant="outline"
               onClick={() => setIsDeleteModalOpen(false)}
-              className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
+              className="h-9 px-4 font-bold text-xs bg-transparent border-border/80 hover:bg-muted dark:hover:bg-[#131C2E] hover:text-foreground cursor-pointer text-muted-foreground rounded-lg transition-colors"
             >
               Cancel
             </Button>

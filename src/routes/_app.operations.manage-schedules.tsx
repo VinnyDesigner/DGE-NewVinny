@@ -25,7 +25,8 @@ import {
   Layers,
   Wrench,
   GitFork,
-  X
+  X,
+  RefreshCw
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";

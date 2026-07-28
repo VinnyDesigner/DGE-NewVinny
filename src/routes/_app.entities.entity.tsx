@@ -519,7 +519,7 @@ function EntitiesPage() {
     return (
       <div className="space-y-6">
         {/* Banner header container matching design */}
-        <div className="bg-[#142033]/60 dark:bg-surface border border-border p-6 rounded-2xl shadow-soft">
+        <div className="bg-card dark:bg-surface border border-border p-6 rounded-2xl shadow-soft">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary-foreground">
@@ -1397,12 +1397,7 @@ function EntitiesPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors p-1 self-start"
-            >
-              <X className="h-4 w-4" />
-            </button>
+
           </div>
 
           <div className="flex justify-end gap-2.5 p-4 bg-muted/40 dark:bg-[#0E1624] border-t border-border/20">

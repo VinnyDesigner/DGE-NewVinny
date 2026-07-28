@@ -1472,12 +1472,7 @@ function LayerConfiguration() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsAddModalOpen(false)}
-              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
+
           </div>
 
           <form onSubmit={handleAddConfiguration} className="p-6 space-y-5">
@@ -1613,12 +1608,7 @@ function LayerConfiguration() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsViewModalOpen(false)}
-              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
+
           </div>
 
           {selectedItem && (
@@ -1756,12 +1746,7 @@ function LayerConfiguration() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsEditModalOpen(false)}
-              className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
+
           </div>
 
           <form onSubmit={handleEditConfiguration} className="p-6 space-y-5">
@@ -1920,13 +1905,6 @@ function LayerConfiguration() {
                 This action cannot be undone.
               </p>
             </div>
-
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors p-1 self-start"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
           <div className="flex justify-end gap-2.5 p-4 bg-muted/40 dark:bg-[#0E1624] border-t border-border/20">

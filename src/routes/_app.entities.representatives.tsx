@@ -78,11 +78,11 @@ const STORAGE_KEY_REPS = "dge_representatives_data_v4";
 
 const initialRows: RepresentativeItem[] = [
   {
-    name: "Tarun EAD",
+    name: "Tareq Al-Suwaidi",
     username: "EAD-TEad",
     entity: "EAD",
     role: "Technical",
-    email: "visvanadulatarun@gmail.com",
+    email: "tareq.alsuwaidi@ead.gov.ae",
     phone: "+971 501368321",
     dept: "Network Data",
     status: "Active",
@@ -126,7 +126,7 @@ const DIRECTORY_GROUPS = [
     category: "DATA PLATFORM",
     items: [
       { id: "DATA-USERS", name: "DATA-USERS", desc: "General data platform read access" },
-      { id: "DATA-MANAGERS", name: "DATA-MANAGERS", desc: "Data management & curation tasks" },
+      { id: "DATA-MANAGERS", name: "DATA-MANAGERS", desc: "Data management & curation team" },
       { id: "DATA-ADMINS", name: "DATA-ADMINS", desc: "Full data administration rights" },
     ],
   },
@@ -267,8 +267,8 @@ function RepsPage() {
   const [formRemarks, setFormRemarks] = useState("");
 
   const [formUsername, setFormUsername] = useState("");
-  const [formActiveFrom, setFormActiveFrom] = useState("");
-  const [formActiveUntil, setFormActiveUntil] = useState("");
+  const [formActiveFrom, setFormActiveFrom] = useState("2026-04-26");
+  const [formActiveUntil, setFormActiveUntil] = useState("2026-05-26");
   const [noDurationSet, setNoDurationSet] = useState(false);
 
   const [formPassword, setFormPassword] = useState("");
@@ -351,8 +351,8 @@ function RepsPage() {
     setFormStatus("Active");
     setFormRemarks("");
     setFormUsername("");
-    setFormActiveFrom("");
-    setFormActiveUntil("");
+    setFormActiveFrom("2026-04-26");
+    setFormActiveUntil("2026-05-26");
     setNoDurationSet(false);
     setFormPassword("");
     setFormConfirmPassword("");
@@ -517,7 +517,7 @@ function RepsPage() {
     return (
       <div className="space-y-6">
         {/* Top header details card */}
-        <div className="bg-[#142033]/60 dark:bg-surface border border-border p-6 rounded-2xl shadow-soft">
+        <div className="bg-card dark:bg-surface border border-border p-6 rounded-2xl shadow-soft">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-lg shadow-inner ring-4 ring-emerald-500/10">
@@ -756,7 +756,7 @@ function RepsPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-foreground">
-                {isEditing ? `Edit — ${formName || "Tarun EAD"}` : "Add Representative"}
+                {isEditing ? `Edit — ${formName || "Tareq Al-Suwaidi"}` : "Add Representative"}
               </h1>
               <p className="text-xs text-muted-foreground font-semibold mt-0.5">
                 {isEditing ? `@${formUsername || "EAD-TEad"}` : "Assign a contact to an entity and configure access"}
@@ -1037,9 +1037,300 @@ function RepsPage() {
                 </div>
               )}
 
-              {activeTab !== "profile" && (
-                <div className="text-center py-10 text-muted-foreground font-bold text-xs">
-                  Access & Security details can be updated after profile creation.
+              {/* 2nd Image content: Account tab editable form */}
+              {activeTab === "account" && (
+                <div className="space-y-6">
+                  {/* Username & Credentials Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <IdCard className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Username & Credentials</h3>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Platform login identity</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6 space-y-4">
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/85 block">Username</label>
+                          <button
+                            type="button"
+                            onClick={() => setFormUsername(generateUsername(formName, formEntity))}
+                            className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <Sparkles className="h-3.5 w-3.5" /> Auto-generate
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono font-bold text-xs">@</span>
+                          <Input
+                            placeholder="EAD-TSuwaidi"
+                            value={formUsername}
+                            onChange={(e) => setFormUsername(e.target.value)}
+                            className="h-10 pl-7 bg-background border-border text-xs text-foreground font-bold font-mono"
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground font-semibold">Format: ENTITYCODE-InitialLastName (auto-generated)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Active Duration Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <Calendar className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Active Duration</h3>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">When this representative is valid</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/85 block">Active From *</label>
+                          <Input
+                            type="text"
+                            placeholder="26-04-2026"
+                            value={formActiveFrom || "26-04-2026"}
+                            onChange={(e) => setFormActiveFrom(e.target.value)}
+                            className="h-10 bg-background border-border text-xs text-foreground font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/85 block">Active Until *</label>
+                          <Input
+                            type="text"
+                            placeholder="26-05-2026"
+                            value={formActiveUntil || "26-05-2026"}
+                            onChange={(e) => setFormActiveUntil(e.target.value)}
+                            className="h-10 bg-background border-border text-xs text-foreground font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Expired alert block */}
+                      <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-2.5 flex items-center justify-between text-xs font-bold shadow-soft">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+                          <span>Expired</span>
+                        </div>
+                        <span className="font-mono">{formActiveFrom || "2026-04-26"} → {formActiveUntil || "2026-05-26"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* bottom footer text */}
+                  <div className="text-[10px] text-muted-foreground font-bold mt-2">
+                    Last updated: 2026-04-26 - Created: 2026-04-26
+                  </div>
+                </div>
+              )}
+
+              {/* 3rd Image content: Security tab editable form */}
+              {activeTab === "security" && (
+                <div className="space-y-6">
+                  {/* Set Password Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <LockKeyhole className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Set Password</h3>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Define the login password for this representative</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/85 block">New Password</label>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="At least 8 characters..."
+                              value={formPassword}
+                              onChange={(e) => setFormPassword(e.target.value)}
+                              className="h-10 bg-background border-border text-xs text-foreground font-bold pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                            >
+                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/85 block">Confirm Password</label>
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Re-enter password"
+                            value={formConfirmPassword}
+                            onChange={(e) => setFormConfirmPassword(e.target.value)}
+                            className="h-10 bg-background border-border text-xs text-foreground font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        onClick={handleSetPassword}
+                        className="bg-red-600 hover:bg-red-500 text-white font-bold h-9 text-xs rounded-lg px-4 flex items-center gap-1.5 shadow-soft cursor-pointer transition-colors"
+                      >
+                        Set Password
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Security Status Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <Shield className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Security Status</h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <div className="rounded-lg border border-border/50 bg-muted/30 dark:bg-foreground/[0.03] p-4 flex items-center gap-2.5 text-muted-foreground text-xs font-semibold leading-relaxed">
+                        <AlertCircle className="h-4.5 w-4.5 text-muted-foreground shrink-0" />
+                        <div>No password set — user cannot log in</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-muted-foreground font-bold mt-2">
+                    Last updated: 2026-04-26 - Created: 2026-04-26
+                  </div>
+                </div>
+              )}
+
+              {/* 4th Image content: Access tab editable form */}
+              {activeTab === "access" && (
+                <div className="space-y-6">
+                  {/* ArcGIS Portal Access Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <Globe className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">ArcGIS Portal Access</h3>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Grant access to an ArcGIS Online or Enterprise portal</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground">ArcGIS Portal Access</span>
+                        <button
+                          type="button"
+                          onClick={() => setGisAccessEnabled(!gisAccessEnabled)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${gisAccessEnabled ? "bg-success" : "bg-foreground/20"}`}
+                        >
+                          <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${gisAccessEnabled ? "translate-x-4" : "translate-x-0"}`} />
+                        </button>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-semibold">
+                        Toggle the switch to enable access configuration
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LDAP / Directory Groups Card */}
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/30 shadow-soft">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-accent">
+                          <Users className="h-4 w-4 text-emerald-400" />
+                        </span>
+                        <div>
+                          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">LDAP / Directory Groups</h3>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Manage group memberships</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      {/* memberships label */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">Current Memberships ({selectedGroups.length})</span>
+                        <p className="text-[11px] text-muted-foreground font-semibold">No group memberships assigned</p>
+                      </div>
+
+                      {/* search box */}
+                      <div className="flex items-center justify-between gap-3 border-t border-border/20 pt-4">
+                        <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                          <Users className="h-3.5 w-3.5" /> Available Groups
+                        </span>
+                        <div className="relative w-[200px]">
+                          <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            placeholder="Filter..."
+                            value={groupFilter}
+                            onChange={(e) => setGroupFilter(e.target.value)}
+                            className="h-8 pl-7 text-[11px] font-bold bg-background border-border text-foreground"
+                          />
+                        </div>
+                      </div>
+
+                      {/* groups list checkboxes */}
+                      <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
+                        {filteredDirectoryGroups.map((cat) => (
+                          <div key={cat.category} className="space-y-2">
+                            <span className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase block">{cat.category}</span>
+                            <div className="border border-border/50 rounded-xl overflow-hidden bg-card/25 divide-y divide-border/40 text-xs font-semibold">
+                              {cat.items.map((item) => {
+                                const checked = selectedGroups.includes(item.id);
+                                return (
+                                  <label
+                                    key={item.id}
+                                    className="flex items-start gap-3 p-3 hover:bg-foreground/[0.015] cursor-pointer transition-colors"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => toggleGroupMembership(item.id)}
+                                      className="h-4 w-4 rounded border-border bg-card/85 text-primary mt-0.5 cursor-pointer"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-bold text-foreground">{item.name}</div>
+                                      <div className="text-[10px] text-muted-foreground mt-0.5 leading-normal">{item.desc}</div>
+                                    </div>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-muted-foreground font-bold mt-2">
+                    Last updated: 2026-04-26 - Created: 2026-04-26
+                  </div>
                 </div>
               )}
             </div>
@@ -1256,13 +1547,6 @@ function RepsPage() {
                 This action cannot be undone.
               </p>
             </div>
-
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors p-1 self-start"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
           <div className="flex justify-end gap-2.5 p-4 bg-muted/40 dark:bg-[#0E1624] border-t border-border/20">

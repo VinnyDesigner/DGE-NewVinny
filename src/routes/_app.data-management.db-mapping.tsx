@@ -20,6 +20,8 @@ import {
   Server,
   User,
   Users,
+  RefreshCw,
+  XCircle,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -362,6 +364,12 @@ function DatabaseMapping() {
         )}
       </div>
 
+      {/* Global alert banner */}
+      <div className="flex items-center gap-2.5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl font-semibold">
+        <XCircle className="h-4.5 w-4.5 shrink-0 text-red-400" />
+        <span>Failed to fetch</span>
+      </div>
+
       {/* Tabs config (DB Instances, Databases & Schemas, Data Mapping) */}
       <div className="flex gap-6 border-b border-border/30 pb-0 mb-4">
         <button
@@ -401,6 +409,14 @@ function DatabaseMapping() {
           </span>
         </button>
       </div>
+
+      {/* Tab-specific alert banner */}
+      {activeTab === "mapping" && (
+        <div className="flex items-center gap-2.5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl font-semibold">
+          <XCircle className="h-4.5 w-4.5 shrink-0 text-red-400" />
+          <span>Failed to load lookups: Failed to fetch</span>
+        </div>
+      )}
 
       {/* ========================================== */}
       {/* TAB 1: DB INSTANCES                        */}

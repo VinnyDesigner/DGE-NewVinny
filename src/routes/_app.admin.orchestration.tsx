@@ -235,81 +235,91 @@ function NodeOrchestrationComponent() {
         topology === "standalone" ? "md:grid-cols-3" : "md:grid-cols-4"
       )}>
         {/* Card 1: Topology */}
-        <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 flex items-center justify-between h-[110px] shadow-sm">
-          <div className="space-y-1.5 min-w-0">
-            <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Topology</span>
-            <div className="text-[22px] font-black leading-none text-foreground capitalize">
-              {topology === "standalone" ? "Standalone" : topology === "standard" ? "Standard" : "High Availability"}
+        <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 h-[110px] shadow-sm">
+          <div className="flex items-center justify-between h-full w-full">
+            <div className="space-y-1.5 min-w-0">
+              <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Topology</span>
+              <div className="text-[22px] font-black leading-none text-foreground capitalize">
+                {topology === "standalone" ? "Standalone" : topology === "standard" ? "Standard" : "High Availability"}
+              </div>
+              <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
+                {topology === "standalone"
+                  ? "One node runs all agents"
+                  : "Management + execution tiers"}
+              </p>
             </div>
-            <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-              {topology === "standalone"
-                ? "One node runs all agents"
-                : "Management + execution tiers"}
-            </p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0 border border-purple-500/15">
-            <Network className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0 border border-purple-500/15">
+              <Network className="h-5 w-5" />
+            </div>
           </div>
         </Surface>
 
         {/* Card 2: Standalone or Management Nodes */}
         {topology === "standalone" ? (
-          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 flex items-center justify-between h-[110px] shadow-sm">
-            <div className="space-y-1.5 min-w-0">
-              <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Standalone Node</span>
-              <div className="text-[22px] font-black leading-none text-foreground">0 of 1</div>
-              <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-                Scheduler + Dispatcher + Execution
-              </p>
-            </div>
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/15">
-              <Server className="h-5 w-5" />
+          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 h-[110px] shadow-sm">
+            <div className="flex items-center justify-between h-full w-full">
+              <div className="space-y-1.5 min-w-0">
+                <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Standalone Node</span>
+                <div className="text-[22px] font-black leading-none text-foreground">0 of 1</div>
+                <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
+                  Scheduler + Dispatcher + Execution
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/15">
+                <Server className="h-5 w-5" />
+              </div>
             </div>
           </Surface>
         ) : (
-          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 flex items-center justify-between h-[110px] shadow-sm">
-            <div className="space-y-1.5 min-w-0">
-              <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Management Nodes</span>
-              <div className="text-[22px] font-black leading-none text-foreground">
-                {mgmtNodes.length} of {topology === "ha" ? 2 : 1}
+          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 h-[110px] shadow-sm">
+            <div className="flex items-center justify-between h-full w-full">
+              <div className="space-y-1.5 min-w-0">
+                <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Management Nodes</span>
+                <div className="text-[22px] font-black leading-none text-foreground">
+                  {mgmtNodes.length} of {topology === "ha" ? 2 : 1}
+                </div>
+                <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
+                  Scheduler + Dispatcher tier
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-                Scheduler + Dispatcher tier
-              </p>
-            </div>
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 border border-blue-500/15">
-              <Server className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 border border-blue-500/15">
+                <Server className="h-5 w-5" />
+              </div>
             </div>
           </Surface>
         )}
 
         {/* Card 3: Execution Nodes (standard/ha) or Active Jobs */}
         {topology !== "standalone" && (
-          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 flex items-center justify-between h-[110px] shadow-sm">
-            <div className="space-y-1.5 min-w-0">
-              <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Execution Nodes</span>
-              <div className="text-[22px] font-black leading-none text-foreground">{execNodes.length} of 5</div>
-              <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-                Job-running tier
-              </p>
-            </div>
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/15">
-              <Cpu className="h-5 w-5" />
+          <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 h-[110px] shadow-sm">
+            <div className="flex items-center justify-between h-full w-full">
+              <div className="space-y-1.5 min-w-0">
+                <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Execution Nodes</span>
+                <div className="text-[22px] font-black leading-none text-foreground">{execNodes.length} of 5</div>
+                <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
+                  Job-running tier
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/15">
+                <Cpu className="h-5 w-5" />
+              </div>
             </div>
           </Surface>
         )}
 
         {/* Card 4: Active Jobs */}
-        <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 flex items-center justify-between h-[110px] shadow-sm">
-          <div className="space-y-1.5 min-w-0">
-            <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Active Jobs</span>
-            <div className="text-[22px] font-black leading-none text-foreground">0</div>
-            <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-              Currently running across nodes
-            </p>
-          </div>
-          <div className="h-10 w-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0 border border-sky-500/15">
-            <Play className="h-5 w-5" />
+        <Surface className="!p-5 relative overflow-hidden group hover:border-primary/25 transition duration-300 h-[110px] shadow-sm">
+          <div className="flex items-center justify-between h-full w-full">
+            <div className="space-y-1.5 min-w-0">
+              <span className="text-[10px] font-bold text-muted-foreground/80 leading-none uppercase tracking-wider">Active Jobs</span>
+              <div className="text-[22px] font-black leading-none text-foreground">0</div>
+              <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
+                Currently running across nodes
+              </p>
+            </div>
+            <div className="h-10 w-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0 border border-sky-500/15">
+              <Play className="h-5 w-5" />
+            </div>
           </div>
         </Surface>
       </div>

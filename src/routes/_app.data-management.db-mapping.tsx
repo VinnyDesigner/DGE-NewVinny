@@ -22,6 +22,7 @@ import {
   Users,
   RefreshCw,
   XCircle,
+  Save,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -99,6 +100,13 @@ interface MappingItem {
   tableName: string;
   mappedColumnsCount: number;
   active: boolean;
+}
+
+interface UnsavedMappingItem {
+  tempId: string;
+  entityName: string;
+  schemaName: string;
+  remarks: string;
 }
 
 // Initial seed data
@@ -322,6 +330,8 @@ function DatabaseMapping() {
   const [mapEntity, setMapEntity] = useState("");
   const [mapTable, setMapTable] = useState("");
   const [mapCols, setMapCols] = useState("8");
+
+  const [unsavedRows, setUnsavedRows] = useState<UnsavedMappingItem[]>([]);
 
   // Selected parent DB for schema add
   const [targetDbId, setTargetDbId] = useState<string>("");
@@ -934,7 +944,7 @@ function DatabaseMapping() {
                                   </button>
                                   <button
                                     onClick={() => handleDeleteDb(db.id, db.name)}
-                                    className="p-1.5 text-red-500 hover:bg-red-500/10 border border-red-500/30 rounded cursor-pointer transition-colors"
+                                    className="p-1.5 text-red-650 dark:text-red-450 hover:bg-red-100 dark:hover:bg-red-500/20 bg-red-50 dark:bg-red-500/10 border border-red-200/50 dark:border-red-500/20 rounded-lg cursor-pointer transition-colors"
                                     title="Delete Database"
                                   >
                                     <Trash className="h-3.5 w-3.5" />
@@ -997,10 +1007,10 @@ function DatabaseMapping() {
 
                                           <button
                                             onClick={() => handleDeleteSchema(sch.id, sch.name)}
-                                            className="p-1 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded cursor-pointer transition-colors"
+                                            className="p-1.5 text-red-650 dark:text-red-450 hover:bg-red-100 dark:hover:bg-red-500/20 bg-red-50 dark:bg-red-500/10 border border-red-200/50 dark:border-red-500/20 rounded-lg cursor-pointer transition-colors"
                                             title="Delete Schema"
                                           >
-                                            <X className="h-3.5 w-3.5" />
+                                            <Trash className="h-3.5 w-3.5" />
                                           </button>
                                         </div>
 
@@ -1231,7 +1241,13 @@ function DatabaseMapping() {
                         toast.error("Please select a DB instance and database first");
                         return;
                       }
-                      setIsMappingModalOpen(true);
+                      const newRow: UnsavedMappingItem = {
+                        tempId: "temp_" + Math.random().toString(),
+                        entityName: "",
+                        schemaName: "",
+                        remarks: "",
+                      };
+                      setUnsavedRows([...unsavedRows, newRow]);
                     }}
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Entity
@@ -1249,79 +1265,210 @@ function DatabaseMapping() {
                     Select a DB instance and database on the left to start mapping entities.
                   </p>
                 </div>
-              ) : activeMappingsList.length === 0 ? (
+              ) : (activeMappingsList.length === 0 && unsavedRows.length === 0) ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                   <p className="text-xs font-semibold">No mappings registered under this database database schema.</p>
                   <Button
-                    onClick={() => setIsMappingModalOpen(true)}
+                    onClick={() => {
+                      const newRow: UnsavedMappingItem = {
+                        tempId: "temp_" + Math.random().toString(),
+                        entityName: "",
+                        schemaName: "",
+                        remarks: "",
+                      };
+                      setUnsavedRows([...unsavedRows, newRow]);
+                    }}
                     className="h-8.5 px-3 bg-foreground/[0.04] border border-border hover:bg-foreground/[0.07] text-foreground font-semibold text-xs mt-3.5 flex items-center gap-1"
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Entity Mapping
                   </Button>
                 </div>
               ) : (
-                <div className="w-full overflow-x-auto rounded-xl border border-border/40">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
-                        <TableHead className="px-4 font-semibold text-muted-foreground text-xs">ENTITY</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground text-xs">CODE</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground text-xs">SCHEMA</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
-                        <TableHead className="font-semibold text-muted-foreground text-xs">UPDATED</TableHead>
-                        <TableHead className="px-4 font-semibold text-muted-foreground text-xs text-center">ACTIONS</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {activeMappingsList.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-foreground/[0.01] whitespace-nowrap">
-                          <TableCell className="px-4 py-3 text-xs text-foreground">
-                            <div className="flex items-center gap-2 select-none">
-                              <Users className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0" />
-                              <span className="font-bold text-foreground">{item.entityName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <span className="px-2 py-0.5 rounded bg-muted border border-border/60 text-[10px] font-extrabold font-mono text-muted-foreground uppercase select-none">
-                              {item.entityName === "Abu Dhabi Digital Authority" ? "ADDA" : item.entityName === "Dept of Government Enablement" ? "DGE" : item.entityName === "Abu Dhabi Distribution Company" ? "ADDC" : "ADHA"}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <div className="flex items-center gap-1.5 select-none">
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9.5px] font-extrabold text-emerald-500">
-                                <Database className="h-3 w-3" /> DMT
-                              </span>
-                              <span className="text-[9px] text-muted-foreground font-semibold">owner: DMT</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3 text-xs text-muted-foreground select-none font-semibold">
-                            {item.entityName === "Abu Dhabi Digital Authority" ? "—" : "Auto-bound by Save Mapping"}
-                          </TableCell>
-                          <TableCell className="py-3 text-xs text-muted-foreground select-none font-semibold font-mono">
-                            {item.entityName === "Abu Dhabi Digital Authority" ? "21/05/2026" : item.entityName === "Dept of Government Enablement" ? "24/05/2026" : item.entityName === "Abu Dhabi Distribution Company" ? "24/05/2026" : "04/06/2026"}
-                          </TableCell>
-                          <TableCell className="px-4 py-3 text-center">
-                            <div className="flex justify-center items-center select-none">
-                              <button
-                                onClick={() => toast.success(`Edit action for "${item.entityName}"`)}
-                                className="p-1 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors mr-2"
-                                title="Edit Mapping"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteMapping(item.id, item.entityName)}
-                                className="p-1 text-red-500 hover:bg-red-500/10 border border-red-500/30 rounded cursor-pointer transition-colors"
-                                title="Delete Mapping"
-                              >
-                                <Trash className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </TableCell>
+                <div className="space-y-4">
+                  <div className="w-full overflow-x-auto rounded-xl border border-border/40">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
+                          <TableHead className="px-4 font-semibold text-muted-foreground text-xs">ENTITY</TableHead>
+                          <TableHead className="font-semibold text-muted-foreground text-xs">CODE</TableHead>
+                          <TableHead className="font-semibold text-muted-foreground text-xs">SCHEMA</TableHead>
+                          <TableHead className="font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
+                          <TableHead className="font-semibold text-muted-foreground text-xs">UPDATED</TableHead>
+                          <TableHead className="px-4 font-semibold text-muted-foreground text-xs text-center">ACTIONS</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {activeMappingsList.map((item) => (
+                          <TableRow key={item.id} className="hover:bg-foreground/[0.01] whitespace-nowrap">
+                            <TableCell className="px-4 py-3 text-xs text-foreground">
+                              <div className="flex items-center gap-2 select-none">
+                                <Users className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0" />
+                                <span className="font-bold text-foreground">{item.entityName}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <span className="px-2 py-0.5 rounded bg-muted border border-border/60 text-[10px] font-extrabold font-mono text-muted-foreground uppercase select-none">
+                                {item.entityName === "Abu Dhabi Digital Authority" ? "ADDA" : item.entityName === "Dept of Government Enablement" ? "DGE" : item.entityName === "Abu Dhabi Distribution Company" ? "ADDC" : "ADHA"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <div className="flex items-center gap-1.5 select-none">
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9.5px] font-extrabold text-emerald-500">
+                                  <Database className="h-3 w-3" /> DMT
+                                </span>
+                                <span className="text-[9px] text-muted-foreground font-semibold">owner: DMT</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3 text-xs text-muted-foreground select-none font-semibold">
+                              {item.entityName === "Abu Dhabi Digital Authority" ? "—" : "Auto-bound by Save Mapping"}
+                            </TableCell>
+                            <TableCell className="py-3 text-xs text-muted-foreground select-none font-semibold font-mono">
+                              {item.entityName === "Abu Dhabi Digital Authority" ? "21/05/2026" : item.entityName === "Dept of Government Enablement" ? "24/05/2026" : item.entityName === "Abu Dhabi Distribution Company" ? "24/05/2026" : "04/06/2026"}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-center">
+                              <div className="flex justify-center items-center select-none">
+                                <button
+                                  onClick={() => toast.success(`Edit action for "${item.entityName}"`)}
+                                  className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors mr-2"
+                                  title="Edit Mapping"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMapping(item.id, item.entityName)}
+                                  className="p-1.5 text-red-650 dark:text-red-450 hover:bg-red-100 dark:hover:bg-red-500/20 bg-red-50 dark:bg-red-500/10 border border-red-200/50 dark:border-red-500/20 rounded-lg cursor-pointer transition-colors"
+                                  title="Delete Mapping"
+                                >
+                                  <Trash className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+
+                        {/* Unsaved rows list */}
+                        {unsavedRows.map((row, index) => (
+                          <TableRow key={row.tempId} className="hover:bg-foreground/[0.01] whitespace-nowrap bg-pink-500/[0.01]">
+                            <TableCell className="px-4 py-3 text-xs text-foreground">
+                              <div className="flex items-center gap-2 select-none">
+                                <Users className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0" />
+                                <select
+                                  value={row.entityName}
+                                  onChange={(e) => {
+                                    const updated = [...unsavedRows];
+                                    updated[index].entityName = e.target.value;
+                                    setUnsavedRows(updated);
+                                  }}
+                                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-xs text-foreground font-semibold cursor-pointer outline-hidden focus:ring-1 focus:ring-pink-500"
+                                >
+                                  <option value="">— Select Entity —</option>
+                                  <option value="ADDA — Abu Dhabi Digital Authority (already mapped)" disabled>ADDA — Abu Dhabi Digital Authority (already mapped)</option>
+                                  <option value="ADDC — Abu Dhabi Distribution Company (already mapped)" disabled>ADDC — Abu Dhabi Distribution Company (already mapped)</option>
+                                  <option value="ADHA — Abu Dhabi Housing Authority (already mapped)" disabled>ADHA — Abu Dhabi Housing Authority (already mapped)</option>
+                                  <option value="DGE — Dept of Government Enablement (already mapped)" disabled>DGE — Dept of Government Enablement (already mapped)</option>
+                                  <option value="EAD — Environment Agency Abu Dhabi">EAD — Environment Agency Abu Dhabi</option>
+                                </select>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              {row.entityName ? (
+                                <span className="px-2 py-0.5 rounded bg-pink-500/10 border border-pink-500/20 text-[10px] font-extrabold font-mono text-pink-500 uppercase select-none">
+                                  {row.entityName.includes("EAD") ? "EAD" : "—"}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 dark:text-slate-600 font-bold text-[10px] font-mono select-none">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <div className="flex items-center gap-1.5 select-none">
+                                <select
+                                  value={row.schemaName}
+                                  onChange={(e) => {
+                                    const updated = [...unsavedRows];
+                                    updated[index].schemaName = e.target.value;
+                                    setUnsavedRows(updated);
+                                  }}
+                                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-xs text-foreground font-semibold cursor-pointer outline-hidden focus:ring-1 focus:ring-pink-500"
+                                >
+                                  <option value="">— Select Schema —</option>
+                                  <option value="DMT">DMT</option>
+                                </select>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3 text-xs text-muted-foreground font-semibold">
+                              <Input
+                                placeholder="Optional"
+                                value={row.remarks}
+                                onChange={(e) => {
+                                  const updated = [...unsavedRows];
+                                  updated[index].remarks = e.target.value;
+                                  setUnsavedRows(updated);
+                                }}
+                                className="h-8 w-44 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-[11px] rounded-lg"
+                              />
+                            </TableCell>
+                            <TableCell className="py-3 text-xs text-slate-400 dark:text-slate-600 select-none font-semibold font-mono">
+                              unsaved
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-center">
+                              <div className="flex justify-center items-center select-none">
+                                <button
+                                  onClick={() => {
+                                    setUnsavedRows(unsavedRows.filter(r => r.tempId !== row.tempId));
+                                  }}
+                                  className="p-1.5 text-red-650 dark:text-red-455 hover:bg-red-100 dark:hover:bg-red-500/20 bg-red-50 dark:bg-red-500/10 border border-red-200/50 dark:border-red-500/20 rounded-lg cursor-pointer transition-colors"
+                                  title="Remove Row"
+                                >
+                                  <Trash className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {unsavedRows.length > 0 && (
+                    <div className="flex items-center justify-between mt-3 px-1 select-none">
+                      <span className="text-[11px] text-slate-500 font-bold">
+                        {unsavedRows.length} unsaved row{unsavedRows.length > 1 ? "s" : ""}.
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setUnsavedRows([])}
+                          className="h-8.5 px-4 font-bold text-xs text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg"
+                        >
+                          Reset Unsaved
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            const hasEmpty = unsavedRows.some(row => !row.entityName || !row.schemaName);
+                            if (hasEmpty) {
+                              toast.error("Please select an Entity and Schema for all unsaved rows.");
+                              return;
+                            }
+                            const newEntries: MappingItem[] = unsavedRows.map(row => ({
+                              id: "map_" + Math.random().toString(),
+                              instanceId: mappingInstanceId,
+                              dbId: mappingDbId,
+                              entityName: row.entityName.includes("EAD") ? "Environment Agency - Abu Dhabi" : row.entityName,
+                              tableName: row.schemaName,
+                              mappedColumnsCount: 8,
+                              active: true,
+                            }));
+                            saveMappings([...mappings, ...newEntries]);
+                            setUnsavedRows([]);
+                            toast.success(`Successfully saved ${newEntries.length} entity mapping(s)`);
+                          }}
+                          className="h-8.5 px-4 bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
+                        >
+                          <Save className="h-3.5 w-3.5" /> Save All ({unsavedRows.length})
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </Surface>
@@ -1349,12 +1496,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsInstanceModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleCreateInstance} className="space-y-4">
@@ -1560,12 +1701,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsEditModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleUpdateInstance} className="space-y-4">
@@ -1771,12 +1906,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsDbModalOpen(false)}
-              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleAddDatabase} className="space-y-4">
@@ -1857,12 +1986,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsEditDbModalOpen(false)}
-              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleUpdateDatabase} className="space-y-4">
@@ -1943,12 +2066,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsDeleteDbModalOpen(false)}
-              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           {/* Footer buttons matching 5th screenshot */}
@@ -1987,12 +2104,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsSchemaModalOpen(false)}
-              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleAddSchema} className="space-y-4">
@@ -2055,12 +2166,6 @@ function DatabaseMapping() {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsMappingModalOpen(false)}
-              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           <form onSubmit={handleAddMapping} className="space-y-4">

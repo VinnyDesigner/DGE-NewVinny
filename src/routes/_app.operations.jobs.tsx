@@ -127,9 +127,17 @@ function JobsPage() {
 
   const handleSaveChanges = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API request failure (HTTP 500) as requested in the 1st image
-    setShowErrorBanner(true);
-    toast.error("Failed to save changes. Request failed (HTTP 500).");
+    if (selectedJob) {
+      setJobsList(
+        jobsList.map((j) =>
+          j.delivery === selectedJob.delivery
+            ? { ...j, status: editStatus }
+            : j
+        )
+      );
+      toast.success("Job changes saved successfully.");
+    }
+    setIsEditModalOpen(false);
   };
 
   const handleOpenDelete = (job: JobItem) => {

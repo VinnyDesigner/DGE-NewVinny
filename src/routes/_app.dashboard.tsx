@@ -118,15 +118,15 @@ const recent = [
 ];
 
 const quickNav = [
-  { l: "Data Sources", to: "/data-sources/index", i: Server },
+  { l: "Data Sources", to: "/data-sources", i: Server },
   { l: "Data Layers", to: "/data-management/layers", i: Layers },
-  { l: "Deliveries", to: "/operations/deliveries", i: Send },
+  { l: "Deliveries", to: "/operations/jobs", i: Send },
   { l: "Workflow Monitor", to: "/operations/workflow", i: Activity },
-  { l: "Data Quality", to: "/quality/rules", i: ShieldCheck },
+  { l: "Data Quality", to: "/quality/monitor", i: ShieldCheck },
   { l: "Automation Tools", to: "/tools/automation", i: Wand2 },
-  { l: "Schedules", to: "/operations/schedules", i: Clock },
+  { l: "Schedules", to: "/operations/manage-schedules", i: Clock },
   { l: "Metadata", to: "/metadata", i: FileText },
-  { l: "Data Insights", to: "/insights/analytics", i: Braces },
+  { l: "Data Insights", to: "/insights/reports", i: Braces },
   { l: "Entity", to: "/entities/entity", i: Users },
   { l: "Layer Config", to: "/data-management/layer-config", i: Layers },
   { l: "Database Mapping", to: "/data-management/db-mapping", i: GitBranch },

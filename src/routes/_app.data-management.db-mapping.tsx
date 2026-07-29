@@ -69,6 +69,9 @@ interface DBInstance {
   hostname: string;
   ipAddress: string;
   remarks: string;
+  dataLoaderSde?: string;
+  adminSde?: string;
+  onboardingEnabled?: boolean;
 }
 
 interface DatabaseItem {
@@ -248,17 +251,33 @@ function DatabaseMapping() {
 
   // Modals state
   const [isInstanceModalOpen, setIsInstanceModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDbModalOpen, setIsDbModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
 
-  // Form states
+  // Form states (Create DB Instance)
   const [instName, setInstName] = useState("");
   const [instType, setInstType] = useState("PostgreSQL");
   const [instEnv, setInstEnv] = useState("Production");
   const [instHost, setInstHost] = useState("");
   const [instIp, setInstIp] = useState("");
   const [instRemarks, setInstRemarks] = useState("");
+  const [instDataLoaderSde, setInstDataLoaderSde] = useState("\\\\server\\connections\\loader.sde");
+  const [instAdminSde, setInstAdminSde] = useState("\\\\server\\connections\\loader.sde");
+  const [instOnboarding, setInstOnboarding] = useState(true);
+
+  // Form states (Edit DB Instance)
+  const [editingInstId, setEditingInstId] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editType, setEditType] = useState("SQL Server");
+  const [editEnv, setEditEnv] = useState("Production");
+  const [editHost, setEditHost] = useState("");
+  const [editIp, setEditIp] = useState("");
+  const [editRemarks, setEditRemarks] = useState("");
+  const [editDataLoaderSde, setEditDataLoaderSde] = useState("\\\\server\\connections\\loader.sde");
+  const [editAdminSde, setEditAdminSde] = useState("\\\\server\\connections\\loader.sde");
+  const [editOnboarding, setEditOnboarding] = useState(true);
 
   const [dbName, setDbName] = useState("");
   const [dbRemarks, setDbRemarks] = useState("");
@@ -326,6 +345,9 @@ function DatabaseMapping() {
       hostname: instHost.toLowerCase(),
       ipAddress: instIp || "127.0.0.1",
       remarks: instRemarks,
+      dataLoaderSde: instDataLoaderSde,
+      adminSde: instAdminSde,
+      onboardingEnabled: instOnboarding,
     };
     saveInstances([...instances, newInst]);
     setIsInstanceModalOpen(false);
@@ -334,7 +356,38 @@ function DatabaseMapping() {
     setInstHost("");
     setInstIp("");
     setInstRemarks("");
+    setInstDataLoaderSde("\\\\server\\connections\\loader.sde");
+    setInstAdminSde("\\\\server\\connections\\loader.sde");
+    setInstOnboarding(true);
     toast.success(`Database Instance "${newInst.name}" created successfully`);
+  };
+
+  const handleUpdateInstance = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim() || !editHost.trim()) {
+      toast.error("Instance Name and Hostname are required");
+      return;
+    }
+    const updatedList = instances.map((inst) => {
+      if (inst.id === editingInstId) {
+        return {
+          ...inst,
+          name: editName,
+          type: editType,
+          environment: editEnv,
+          hostname: editHost,
+          ipAddress: editIp,
+          remarks: editRemarks,
+          dataLoaderSde: editDataLoaderSde,
+          adminSde: editAdminSde,
+          onboardingEnabled: editOnboarding,
+        };
+      }
+      return inst;
+    });
+    saveInstances(updatedList);
+    setIsEditModalOpen(false);
+    toast.success(`Database Instance "${editName}" updated successfully`);
   };
 
   const handleAddDatabase = (e: React.FormEvent) => {
@@ -440,7 +493,7 @@ function DatabaseMapping() {
   return (
     <div className="space-y-6 p-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between select-none">
         <PageHeader
           title="Database Mapping"
           description="Register database instances, the databases that live under them, and the schemas inside each database. Logical mapping only — no credentials are collected."
@@ -448,7 +501,18 @@ function DatabaseMapping() {
         />
         {activeTab === "instances" && (
           <Button
-            onClick={() => setIsInstanceModalOpen(true)}
+            onClick={() => {
+              setInstName("");
+              setInstType("PostgreSQL");
+              setInstEnv("Production");
+              setInstHost("");
+              setInstIp("");
+              setInstRemarks("");
+              setInstDataLoaderSde("\\\\server\\connections\\loader.sde");
+              setInstAdminSde("\\\\server\\connections\\loader.sde");
+              setInstOnboarding(true);
+              setIsInstanceModalOpen(true);
+            }}
             className="h-9.5 bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 font-bold text-xs shrink-0 self-start sm:self-center rounded-lg shadow-sm"
           >
             <Plus className="h-4 w-4" /> Create DB Instance
@@ -456,416 +520,425 @@ function DatabaseMapping() {
         )}
       </div>
 
-      {/* Tabs config (DB Instances, Databases & Schemas, Data Mapping) */}
-      <div className="flex gap-6 border-b border-border/30 pb-0 mb-4">
-        <button
-          onClick={() => setActiveTab("instances")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "instances"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <Database className="h-4 w-4" /> DB Instances
-            <span className="ml-1 px-1.5 py-0.5 rounded bg-muted text-[10px] text-muted-foreground font-mono">2</span>
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("schemas")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "schemas"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <SlidersHorizontal className="h-4 w-4" /> Databases & Schemas
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("mapping")}
-          className={`pb-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === "mapping"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <LinkIcon className="h-4 w-4" /> Data Mapping
-          </span>
-        </button>
-      </div>
-
-      {/* ========================================== */}
-      {/* TAB 1: DB INSTANCES                        */}
-      {/* ========================================== */}
-      {activeTab === "instances" && (
-        <Surface className="p-4 flex flex-col justify-start">
-          {/* Header context */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3 mb-4">
-            <span className="text-xs font-semibold text-muted-foreground leading-normal">
-              Register database instances. Active connections allow mapping entities to target schemas.
+      {/* Unified Tabbed Container (3rd image) */}
+      <Surface className="p-0 border border-border/80 shadow-sm overflow-hidden bg-card rounded-xl">
+        {/* Tabs navigation row */}
+        <div className="flex gap-6 border-b border-border/30 bg-slate-50/50 dark:bg-slate-900/30 px-5 pt-3 select-none">
+          <button
+            onClick={() => setActiveTab("instances")}
+            className={`pb-2.5 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
+              activeTab === "instances"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400 font-black"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <Database className="h-4 w-4" /> DB Instances
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] text-muted-foreground font-mono">
+                {instances.length}
+              </span>
             </span>
-            <span className="text-[11px] bg-foreground/[0.04] border border-border px-2 py-0.5 rounded-full text-muted-foreground font-semibold">
-              {filteredInstances.length} of {instances.length} instances
+          </button>
+          <button
+            onClick={() => setActiveTab("schemas")}
+            className={`pb-2.5 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
+              activeTab === "schemas"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400 font-black"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <SlidersHorizontal className="h-4 w-4" /> Databases & Schemas
             </span>
-          </div>
+          </button>
+          <button
+            onClick={() => setActiveTab("mapping")}
+            className={`pb-2.5 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
+              activeTab === "mapping"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400 font-black"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <LinkIcon className="h-4 w-4" /> Data Mapping
+            </span>
+          </button>
+        </div>
 
-          {/* Search & Filter Bar */}
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <div className="relative w-full max-w-xs sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, hostname, or IP..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9.5 pl-9 text-xs"
-              />
-            </div>
+        {/* Tab content area */}
+        <div className="p-5">
+          {/* TAB 1: DB INSTANCES */}
+          {activeTab === "instances" && (
+            <div className="space-y-4">
+              {/* Header context */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3 mb-4">
+                <span className="text-xs font-semibold text-muted-foreground leading-normal">
+                  Register database instances. Active connections allow mapping entities to target schemas.
+                </span>
+                <span className="text-[11px] bg-foreground/[0.04] border border-border px-2 py-0.5 rounded-full text-muted-foreground font-semibold">
+                  {filteredInstances.length} of {instances.length} instances
+                </span>
+              </div>
 
-            <Select value={dbTypeFilter} onValueChange={setDbTypeFilter}>
-              <SelectTrigger className="w-[140px] h-9.5">
-                <SelectValue placeholder="All DB Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All DB Types</SelectItem>
-                <SelectItem value="SQL Server">SQL Server</SelectItem>
-                <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
-                <SelectItem value="Oracle">Oracle</SelectItem>
-                <SelectItem value="MySQL">MySQL</SelectItem>
-                <SelectItem value="PostGIS">PostGIS</SelectItem>
-              </SelectContent>
-            </Select>
+              {/* Search & Filter Bar */}
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="relative w-full max-w-xs sm:w-64">
+                  <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name, hostname, or IP..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-9.5 pl-9 text-xs"
+                  />
+                </div>
 
-            <Select value={envFilter} onValueChange={setEnvFilter}>
-              <SelectTrigger className="w-[140px] h-9.5">
-                <SelectValue placeholder="All Environments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Environments</SelectItem>
-                <SelectItem value="Production">Production</SelectItem>
-                <SelectItem value="Staging">Staging</SelectItem>
-                <SelectItem value="Development">Development</SelectItem>
-                <SelectItem value="UAT">UAT</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                <Select value={dbTypeFilter} onValueChange={setDbTypeFilter}>
+                  <SelectTrigger className="w-[140px] h-9.5">
+                    <SelectValue placeholder="All DB Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All DB Types</SelectItem>
+                    <SelectItem value="SQL Server">SQL Server</SelectItem>
+                    <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
+                    <SelectItem value="Oracle">Oracle</SelectItem>
+                    <SelectItem value="MySQL">MySQL</SelectItem>
+                    <SelectItem value="PostGIS">PostGIS</SelectItem>
+                  </SelectContent>
+                </Select>
 
-          {/* Instances Table */}
-          <div className="w-full overflow-x-auto rounded-xl border border-border/40">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
-                  <TableHead className="px-4 font-semibold text-muted-foreground text-xs">INSTANCE NAME</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs">DB TYPE</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs">ENVIRONMENT</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs">HOSTNAME</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs">IP ADDRESS</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground text-xs text-center">DBS</TableHead>
-                  <TableHead className="px-4 font-semibold text-muted-foreground text-xs text-center">ACTIONS</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredInstances.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
-                          <Database className="h-5 w-5" />
-                        </div>
-                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-                          No DB instances yet — click Create DB Instance.
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredInstances.map((item) => {
-                    const dbCount = databases.filter((d) => d.instanceId === item.id).length;
-                    return (
-                      <TableRow key={item.id} className="hover:bg-foreground/[0.01] whitespace-nowrap">
-                        <TableCell className="px-4 py-3 text-xs text-foreground">
-                          <div className="flex items-center gap-3 select-none">
-                            <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-indigo-600 text-white shrink-0">
-                              <Database className="h-4.5 w-4.5" />
+                <Select value={envFilter} onValueChange={setEnvFilter}>
+                  <SelectTrigger className="w-[140px] h-9.5">
+                    <SelectValue placeholder="All Environments" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Environments</SelectItem>
+                    <SelectItem value="Production">Production</SelectItem>
+                    <SelectItem value="Staging">Staging</SelectItem>
+                    <SelectItem value="Development">Development</SelectItem>
+                    <SelectItem value="UAT">UAT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Instances Table */}
+              <div className="w-full overflow-x-auto rounded-xl border border-border/40">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-foreground/[0.01] whitespace-nowrap">
+                      <TableHead className="px-4 font-semibold text-muted-foreground text-xs">INSTANCE NAME</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs">DB TYPE</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs">ENVIRONMENT</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs">HOSTNAME</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs">IP ADDRESS</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
+                      <TableHead className="font-semibold text-muted-foreground text-xs text-center">DBS</TableHead>
+                      <TableHead className="px-4 font-semibold text-muted-foreground text-xs text-center">ACTIONS</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInstances.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-16 text-muted-foreground text-xs hover:bg-transparent">
+                          <div className="flex flex-col items-center justify-center space-y-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.03] border border-border/40 text-muted-foreground/75">
+                              <Database className="h-5 w-5" />
                             </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-extrabold text-foreground leading-normal block">{item.name}</span>
-                              <span className="text-[9.5px] text-muted-foreground font-mono leading-none tracking-wide uppercase mt-0.5">{item.name.replace(/\s+/g, "_").toUpperCase()}</span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/80 bg-foreground/[0.02] text-[10px] font-extrabold text-foreground tracking-wide select-none">
-                            <Server className="h-3 w-3 text-muted-foreground" />
-                            {item.type}
-                          </span>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full border border-blue-500/25 bg-blue-500/10 text-[10px] font-extrabold text-blue-500 uppercase tracking-wider select-none">
-                            {item.environment}
-                          </span>
-                        </TableCell>
-                        <TableCell className="py-3 font-mono text-[11px] text-muted-foreground">{item.hostname}</TableCell>
-                        <TableCell className="py-3 font-mono text-[11px] text-muted-foreground">{item.ipAddress}</TableCell>
-                        <TableCell className="py-3 text-xs text-muted-foreground max-w-[200px] truncate" title={item.remarks}>
-                          {item.remarks || "—"}
-                        </TableCell>
-                        <TableCell className="py-3 text-center">
-                          <span className="inline-flex h-5.5 w-5.5 items-center justify-center rounded-full bg-slate-900 text-white dark:bg-slate-800 text-[10.5px] font-extrabold font-mono select-none">
-                            {dbCount}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-center">
-                          <div className="flex justify-center items-center gap-2 select-none">
-                            <button
-                              onClick={() => {
-                                setSelectedInstanceId(item.id);
-                                setActiveTab("schemas");
-                              }}
-                              className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors"
-                              title="Manage Databases & Schemas"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteInstance(item.id, item.name)}
-                              className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 border border-border rounded cursor-pointer transition-colors"
-                              title="Delete Instance"
-                            >
-                              <Trash className="h-3.5 w-3.5" />
-                            </button>
+                            <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                              No DB instances yet — click Create DB Instance.
+                            </p>
                           </div>
                         </TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </Surface>
-      )}
-
-      {/* ========================================== */}
-      {/* TAB 2: DATABASES & SCHEMAS                  */}
-      {/* ========================================== */}
-      {activeTab === "schemas" && (
-        <div className="space-y-4">
-          {/* Top Selector Card */}
-          <Surface className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold text-muted-foreground">Instance:</span>
-              <Select value={selectedInstanceId} onValueChange={setSelectedInstanceId}>
-                <SelectTrigger className="w-[320px] h-9">
-                  <SelectValue placeholder="— Select a DB instance —" />
-                </SelectTrigger>
-                <SelectContent>
-                  {instances.map((i) => (
-                    <SelectItem key={i.id} value={i.id}>
-                      {i.name} • {i.type} • {i.environment}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                onClick={() => toast.success("Refreshed databases successfully")}
-                className="h-9 px-3 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Refresh
-              </Button>
+                    ) : (
+                      filteredInstances.map((item) => {
+                        const dbCount = databases.filter((d) => d.instanceId === item.id).length;
+                        return (
+                          <TableRow key={item.id} className="hover:bg-foreground/[0.01] whitespace-nowrap">
+                            <TableCell className="px-4 py-3 text-xs text-foreground">
+                              <div className="flex items-center gap-3 select-none">
+                                <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-indigo-600 text-white shrink-0">
+                                  <Database className="h-4.5 w-4.5" />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-extrabold text-foreground leading-normal block">{item.name}</span>
+                                  <span className="text-[9.5px] text-muted-foreground font-mono leading-none tracking-wide uppercase mt-0.5">{item.name.replace(/\s+/g, "_").toUpperCase()}</span>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/80 bg-foreground/[0.02] text-[10px] font-extrabold text-foreground tracking-wide select-none">
+                                <Server className="h-3 w-3 text-muted-foreground" />
+                                {item.type}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full border border-blue-500/25 bg-blue-500/10 text-[10px] font-extrabold text-blue-500 uppercase tracking-wider select-none">
+                                {item.environment}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-3 font-mono text-[11px] text-muted-foreground">{item.hostname}</TableCell>
+                            <TableCell className="py-3 font-mono text-[11px] text-muted-foreground">{item.ipAddress}</TableCell>
+                            <TableCell className="py-3 text-xs text-muted-foreground max-w-[200px] truncate" title={item.remarks}>
+                              {item.remarks || "—"}
+                            </TableCell>
+                            <TableCell className="py-3 text-center">
+                              <span className="inline-flex h-5.5 w-5.5 items-center justify-center rounded-full bg-slate-900 text-white dark:bg-slate-800 text-[10.5px] font-extrabold font-mono select-none">
+                                {dbCount}
+                              </span>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-center">
+                              <div className="flex justify-center items-center gap-2 select-none">
+                                <button
+                                  onClick={() => {
+                                    setEditingInstId(item.id);
+                                    setEditName(item.name);
+                                    setEditType(item.type);
+                                    setEditEnv(item.environment);
+                                    setEditHost(item.hostname);
+                                    setEditIp(item.ipAddress);
+                                    setEditRemarks(item.remarks || "");
+                                    setEditDataLoaderSde(item.dataLoaderSde || "\\\\server\\connections\\loader.sde");
+                                    setEditAdminSde(item.adminSde || "\\\\server\\connections\\loader.sde");
+                                    setEditOnboarding(item.onboardingEnabled !== false);
+                                    setIsEditModalOpen(true);
+                                  }}
+                                  className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors"
+                                  title="Edit DB Instance"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  disabled={true}
+                                  className="p-1.5 text-muted-foreground/30 border border-border/40 rounded cursor-not-allowed opacity-50 select-none"
+                                  title="Delete Instance (Disabled)"
+                                >
+                                  <Trash className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-          </Surface>
-
-          {/* Selected Instance Summary Header (2nd screenshot) */}
-          {selectedInstanceId && (
-            (() => {
-              const instObj = instances.find(i => i.id === selectedInstanceId);
-              const dbCount = databases.filter((d) => d.instanceId === selectedInstanceId).length;
-              if (!instObj) return null;
-              return (
-                <Surface className="p-4 flex items-center justify-between border border-border shadow-sm">
-                  {/* Left block info */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white shrink-0 shadow-sm">
-                      <Database className="h-5.5 w-5.5" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-extrabold text-foreground leading-none">{instObj.name}</h3>
-                        <span className="inline-flex px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/25 text-[8.5px] font-black text-blue-500 uppercase tracking-wide">
-                          {instObj.type}
-                        </span>
-                        <span className="inline-flex px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 text-[8.5px] font-black text-emerald-500 uppercase tracking-wide">
-                          {instObj.environment}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground font-semibold flex items-center gap-3">
-                        <span>Hostname: <strong className="text-foreground">{instObj.hostname}</strong></span>
-                        <span>IP: <strong className="text-foreground">{instObj.ipAddress}</strong></span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground/80 font-medium">
-                        {instObj.remarks}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right block count & Add button */}
-                  <div className="flex items-center gap-3">
-                    <div className="bg-slate-950 dark:bg-slate-800 text-white border border-slate-800 rounded-xl px-4 py-2 flex flex-col items-center justify-center shrink-0 min-w-[90px] shadow-sm select-none">
-                      <span className="text-[8px] font-black tracking-wider uppercase text-slate-400">DATABASES</span>
-                      <span className="text-xl font-black text-white leading-none mt-1">{dbCount}</span>
-                    </div>
-                    <Button
-                      onClick={() => setIsDbModalOpen(true)}
-                      className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 rounded-lg shadow-sm"
-                    >
-                      <Plus className="h-4 w-4" /> Add Database
-                    </Button>
-                  </div>
-                </Surface>
-              );
-            })()
           )}
 
-          {/* Databases Accordion List */}
-          {!selectedInstanceId ? (
-            <Surface className="py-12 text-center text-muted-foreground text-xs">
-              Select a database instance from the dropdown above to manage its databases and table schemas.
-            </Surface>
-          ) : (
+          {/* TAB 2: DATABASES & SCHEMAS */}
+          {activeTab === "schemas" && (
             <div className="space-y-4">
-              {databases.filter((d) => d.instanceId === selectedInstanceId).length === 0 ? (
-                <Surface className="py-12 text-center text-muted-foreground text-xs">
-                  No databases registered under this instance. Click "Add Database" above to create one.
-                </Surface>
-              ) : (
-                databases
-                  .filter((d) => d.instanceId === selectedInstanceId)
-                  .map((db) => {
-                    const dbSchemas = schemas.filter((s) => s.dbId === db.id);
-                    const isExpanded = expandedDbIds[db.id];
-                    return (
-                      <Surface key={db.id} className="p-4 space-y-4">
-                        {/* Database Row Header */}
-                        <div className="flex items-center justify-between">
-                          <div 
-                            className="flex items-center gap-3.5 cursor-pointer select-none"
-                            onClick={() => setExpandedDbIds(prev => ({ ...prev, [db.id]: !prev[db.id] }))}
-                          >
-                            <span className="text-muted-foreground font-black text-xs">
-                              {isExpanded ? "▼" : "▶"}
-                            </span>
-                            <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400">
-                              <Database className="h-4.5 w-4.5" />
-                            </div>
-                            <div>
-                              <div className="flex items-center">
-                                <h4 className="text-xs font-bold text-foreground">{db.name}</h4>
-                                <span className="inline-flex px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-extrabold text-blue-500 uppercase ml-2 select-none">
-                                  owner: {db.name}
-                                </span>
-                              </div>
-                              <p className="text-[10px] text-muted-foreground/80 leading-normal font-semibold mt-0.5">
-                                {db.remarks || "No remarks provided"}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-semibold text-muted-foreground select-none">
-                              {dbSchemas.length} schemas
-                            </span>
-                            <div className="flex items-center gap-1.5 select-none">
-                              <Button
-                                onClick={() => {
-                                  setTargetDbId(db.id);
-                                  setIsSchemaModalOpen(true);
-                                }}
-                                className="h-8 px-2.5 bg-foreground/[0.04] border border-border hover:bg-foreground/[0.07] text-foreground font-semibold text-xs flex items-center gap-1 cursor-pointer"
-                              >
-                                <Plus className="h-3.5 w-3.5" /> Add Schema
-                              </Button>
-                              <button
-                                onClick={() => toast.success(`Edit action for DB "${db.name}"`)}
-                                className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors"
-                                title="Edit Database"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteDb(db.id, db.name)}
-                                className="p-1.5 text-red-500 hover:bg-red-500/10 border border-red-500/30 rounded cursor-pointer transition-colors"
-                                title="Delete Database"
-                              >
-                                <Trash className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+              {/* Top Selector Card */}
+              <div className="p-4 flex items-center justify-between border border-border/60 rounded-xl bg-card">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-muted-foreground">Instance:</span>
+                  <Select value={selectedInstanceId} onValueChange={setSelectedInstanceId}>
+                    <SelectTrigger className="w-[320px] h-9">
+                      <SelectValue placeholder="— Select a DB instance —" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {instances.map((i) => (
+                        <SelectItem key={i.id} value={i.id}>
+                          {i.name} • {i.type} • {i.environment}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    onClick={() => toast.success("Refreshed databases successfully")}
+                    className="h-9 px-3 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                  </Button>
+                </div>
+              </div>
 
-                        {/* Collapsible Schema list table */}
-                        {isExpanded && (
-                          <div className="w-full rounded-xl border border-border/30 overflow-hidden pt-2">
-                            <Table>
-                              <TableHeader>
-                                <TableRow className="bg-foreground/[0.01]">
-                                  <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs w-[250px]">SCHEMA</TableHead>
-                                  <TableHead className="py-2 font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
-                                  <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs text-center w-[100px]">ACTIONS</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {dbSchemas.length === 0 ? (
-                                  <TableRow>
-                                    <TableCell colSpan={3} className="text-center py-6 text-muted-foreground/80 text-[11px]">
-                                      No schemas registered. Map a schema table logic under this database.
-                                    </TableCell>
-                                  </TableRow>
-                                ) : (
-                                  dbSchemas.map((sch) => (
-                                    <TableRow key={sch.id} className="hover:bg-foreground/[0.01]">
-                                      <TableCell className="px-4 py-2 font-bold text-xs text-foreground">
-                                        <div className="flex items-center gap-1.5">
-                                          <TableProperties className="h-3.5 w-3.5 text-muted-foreground/75" />
-                                          {sch.name}
-                                        </div>
-                                      </TableCell>
-                                      <TableCell className="py-2 text-[11px] text-muted-foreground">
-                                        {sch.remarks || "—"}
-                                      </TableCell>
-                                      <TableCell className="px-4 py-2 text-center">
-                                        <button
-                                          onClick={() => handleDeleteSchema(sch.id, sch.name)}
-                                          className="p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded cursor-pointer transition-colors"
-                                          title="Delete Schema"
-                                        >
-                                          <Trash className="h-3.5 w-3.5" />
-                                        </button>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))
-                                )}
-                              </TableBody>
-                            </Table>
+              {/* Selected Instance Summary Header (2nd screenshot) */}
+              {selectedInstanceId && (
+                (() => {
+                  const instObj = instances.find(i => i.id === selectedInstanceId);
+                  const dbCount = databases.filter((d) => d.instanceId === selectedInstanceId).length;
+                  if (!instObj) return null;
+                  return (
+                    <div className="p-4 flex items-center justify-between border border-border shadow-sm rounded-xl bg-card">
+                      {/* Left block info */}
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white shrink-0 shadow-sm">
+                          <Database className="h-5.5 w-5.5" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-extrabold text-foreground leading-none">{instObj.name}</h3>
+                            <span className="inline-flex px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/25 text-[8.5px] font-black text-blue-500 uppercase tracking-wide">
+                              {instObj.type}
+                            </span>
+                            <span className="inline-flex px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 text-[8.5px] font-black text-emerald-500 uppercase tracking-wide">
+                              {instObj.environment}
+                            </span>
                           </div>
-                        )}
-                      </Surface>
-                    );
-                  })
+                          <div className="text-[10px] text-muted-foreground font-semibold flex items-center gap-3">
+                            <span>Hostname: <strong className="text-foreground">{instObj.hostname}</strong></span>
+                            <span>IP: <strong className="text-foreground">{instObj.ipAddress}</strong></span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/80 font-medium">
+                            {instObj.remarks}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right block count & Add button */}
+                      <div className="flex items-center gap-3">
+                        <div className="bg-slate-950 dark:bg-slate-800 text-white border border-slate-800 rounded-xl px-4 py-2 flex flex-col items-center justify-center shrink-0 min-w-[90px] shadow-sm select-none">
+                          <span className="text-[8px] font-black tracking-wider uppercase text-slate-400">DATABASES</span>
+                          <span className="text-xl font-black text-white leading-none mt-1">{dbCount}</span>
+                        </div>
+                        <Button
+                          onClick={() => setIsDbModalOpen(true)}
+                          className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 rounded-lg shadow-sm"
+                        >
+                          <Plus className="h-4 w-4" /> Add Database
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+
+              {/* Databases Accordion List */}
+              {!selectedInstanceId ? (
+                <div className="py-12 text-center text-muted-foreground text-xs border border-border border-dashed rounded-xl">
+                  Select a database instance from the dropdown above to manage its databases and table schemas.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {databases.filter((d) => d.instanceId === selectedInstanceId).length === 0 ? (
+                    <div className="py-12 text-center text-muted-foreground text-xs border border-border border-dashed rounded-xl">
+                      No databases registered under this instance. Click "Add Database" above to create one.
+                    </div>
+                  ) : (
+                    databases
+                      .filter((d) => d.instanceId === selectedInstanceId)
+                      .map((db) => {
+                        const dbSchemas = schemas.filter((s) => s.dbId === db.id);
+                        const isExpanded = expandedDbIds[db.id];
+                        return (
+                          <div key={db.id} className="p-4 border border-border rounded-xl bg-card space-y-4 shadow-xs">
+                            {/* Database Row Header */}
+                            <div className="flex items-center justify-between">
+                              <div 
+                                className="flex items-center gap-3.5 cursor-pointer select-none"
+                                onClick={() => setExpandedDbIds(prev => ({ ...prev, [db.id]: !prev[db.id] }))}
+                              >
+                                <span className="text-muted-foreground font-black text-xs">
+                                  {isExpanded ? "▼" : "▶"}
+                                </span>
+                                <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400">
+                                  <Database className="h-4.5 w-4.5" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center">
+                                    <h4 className="text-xs font-bold text-foreground">{db.name}</h4>
+                                    <span className="inline-flex px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-extrabold text-blue-500 uppercase ml-2 select-none">
+                                      owner: {db.name}
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground/80 leading-normal font-semibold mt-0.5">
+                                    {db.remarks || "No remarks provided"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-[10px] font-semibold text-muted-foreground select-none">
+                                  {dbSchemas.length} schemas
+                                </span>
+                                <div className="flex items-center gap-1.5 select-none">
+                                  <Button
+                                    onClick={() => {
+                                      setTargetDbId(db.id);
+                                      setIsSchemaModalOpen(true);
+                                    }}
+                                    className="h-8 px-2.5 bg-foreground/[0.04] border border-border hover:bg-foreground/[0.07] text-foreground font-semibold text-xs flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <Plus className="h-3.5 w-3.5" /> Add Schema
+                                  </Button>
+                                  <button
+                                    onClick={() => toast.success(`Edit action for DB "${db.name}"`)}
+                                    className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors"
+                                    title="Edit Database"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteDb(db.id, db.name)}
+                                    className="p-1.5 text-red-500 hover:bg-red-500/10 border border-red-500/30 rounded cursor-pointer transition-colors"
+                                    title="Delete Database"
+                                  >
+                                    <Trash className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Collapsible Schema list table */}
+                            {isExpanded && (
+                              <div className="w-full rounded-xl border border-border/30 overflow-hidden pt-2">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-foreground/[0.01]">
+                                      <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs w-[250px]">SCHEMA</TableHead>
+                                      <TableHead className="py-2 font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
+                                      <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs text-center w-[100px]">ACTIONS</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {dbSchemas.length === 0 ? (
+                                      <TableRow>
+                                        <TableCell colSpan={3} className="text-center py-6 text-muted-foreground/80 text-[11px]">
+                                          No schemas registered. Map a schema table logic under this database.
+                                        </TableCell>
+                                      </TableRow>
+                                    ) : (
+                                      dbSchemas.map((sch) => (
+                                        <TableRow key={sch.id} className="hover:bg-foreground/[0.01]">
+                                          <TableCell className="px-4 py-2 font-bold text-xs text-foreground">
+                                            <div className="flex items-center gap-1.5">
+                                              <TableProperties className="h-3.5 w-3.5 text-muted-foreground/75" />
+                                              {sch.name}
+                                            </div>
+                                          </TableCell>
+                                          <TableCell className="py-2 text-[11px] text-muted-foreground">
+                                            {sch.remarks || "—"}
+                                          </TableCell>
+                                          <TableCell className="px-4 py-2 text-center">
+                                            <button
+                                              onClick={() => handleDeleteSchema(sch.id, sch.name)}
+                                              className="p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded cursor-pointer transition-colors"
+                                              title="Delete Schema"
+                                            >
+                                              <Trash className="h-3.5 w-3.5" />
+                                            </button>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                  )}
+                </div>
               )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* ========================================== */}
-      {/* TAB 3: DATA MAPPING                         */}
-      {/* ========================================== */}
-      {activeTab === "mapping" && (
-        <div className="space-y-6">
+          {/* TAB 3: DATA MAPPING */}
+          {activeTab === "mapping" && (
+            <div className="space-y-6">
           {/* Premium Metric Cards Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Surface className="p-4 flex items-center justify-between border border-border/40">
@@ -1156,41 +1229,62 @@ function DatabaseMapping() {
           </div>
         </div>
       )}
+        </div>
+      </Surface>
 
       {/* ========================================== */}
       {/* MODAL: CREATE INSTANCE                     */}
       {/* ========================================== */}
       <Dialog open={isInstanceModalOpen} onOpenChange={setIsInstanceModalOpen}>
-        <DialogContent className="max-w-[480px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Server className="h-4.5 w-4.5 text-blue-400" />
-              Create Database Instance
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[550px] border border-slate-800 bg-[#0B0F19] p-6 shadow-glow select-none">
+          {/* Custom Dialog Header matching 1st screenshot */}
+          <div className="flex items-start justify-between border-b border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-400">
+                <Database className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-white tracking-wide">Create DB Instance</h3>
+                <p className="text-[10.5px] text-slate-400 font-semibold mt-0.5">
+                  Database Mapping registry · no credentials collected
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsInstanceModalOpen(false)}
+              className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleCreateInstance} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">
-                Instance Name <span className="text-red-400">*</span>
+          <form onSubmit={handleCreateInstance} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Instance Name <span className="text-red-500">*</span>
               </label>
               <Input
-                placeholder="e.g. DGE-PROD-POSTGRES"
                 value={instName}
                 onChange={(e) => setInstName(e.target.value)}
                 required
-                className="h-9.5 uppercase"
+                placeholder="ADGE Main SQL"
+                className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
               />
+              <div className="text-[10px] text-slate-400 font-semibold tracking-wide">
+                Instance code (auto-generated): <span className="text-slate-200 font-bold font-mono">{instName ? instName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">DB Type</label>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Database Type <span className="text-red-500">*</span>
+                </label>
                 <Select value={instType} onValueChange={setInstType}>
-                  <SelectTrigger className="h-9.5">
+                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
                     <SelectValue placeholder="PostgreSQL" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
                     <SelectItem value="SQL Server">SQL Server</SelectItem>
                     <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                     <SelectItem value="Oracle">Oracle</SelectItem>
@@ -1200,13 +1294,15 @@ function DatabaseMapping() {
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Environment</label>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Environment <span className="text-red-500">*</span>
+                </label>
                 <Select value={instEnv} onValueChange={setInstEnv}>
-                  <SelectTrigger className="h-9.5">
+                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
                     <SelectValue placeholder="Production" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
                     <SelectItem value="Production">Production</SelectItem>
                     <SelectItem value="Staging">Staging</SelectItem>
                     <SelectItem value="Development">Development</SelectItem>
@@ -1216,56 +1312,343 @@ function DatabaseMapping() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Hostname <span className="text-red-400">*</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Hostname <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="e.g. prod-pg.dge.gov.ae"
                   value={instHost}
                   onChange={(e) => setInstHost(e.target.value)}
                   required
-                  className="h-9.5"
+                  placeholder="adge-sql-01"
+                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">IP Address</label>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                  IP Address (optional)
+                </label>
                 <Input
-                  placeholder="e.g. 10.200.45.12"
                   value={instIp}
                   onChange={(e) => setInstIp(e.target.value)}
-                  className="h-9.5"
+                  placeholder="10.0.0.5"
+                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Remarks</label>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Remarks</label>
               <textarea
-                placeholder="Database instance description..."
                 value={instRemarks}
                 onChange={(e) => setInstRemarks(e.target.value)}
-                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[70px] resize-none"
+                placeholder="Free-form notes about this instance..."
+                className="flex w-full rounded-lg border border-slate-800 bg-[#121824] px-3 py-2 text-xs text-white shadow-xs transition-colors placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
-              <Button
+            {/* Connection files (.sde) panel */}
+            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-4 space-y-3.5">
+              <span className="text-[10px] text-slate-400 font-semibold block leading-relaxed">
+                Connection files (.sde) — server-side paths only; no credentials are stored (the .sde holds those).
+              </span>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Data Loading Connection (.sde path)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={instDataLoaderSde}
+                    onChange={(e) => setInstDataLoaderSde(e.target.value)}
+                    placeholder="\\\\server\\connections\\loader.sde"
+                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => toast.info("Browse connection files (.sde)")}
+                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                  >
+                    Browse...
+                  </button>
+                </div>
+                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                  Used by the load process to WRITE delivered data into this database (Data Load).
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Admin Connection (.sde path)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={instAdminSde}
+                    onChange={(e) => setInstAdminSde(e.target.value)}
+                    placeholder="\\\\server\\connections\\loader.sde"
+                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => toast.info("Browse admin connection files (.sde)")}
+                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                  >
+                    Browse...
+                  </button>
+                </div>
+                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                  Used for database maintenance — Compress / Analyze (Maintenance).
+                </span>
+              </div>
+            </div>
+
+            {/* Onboarding checkbox panel */}
+            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="onboardingCheckbox"
+                checked={instOnboarding}
+                onChange={(e) => setInstOnboarding(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-800 bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-[#0B0F19] cursor-pointer"
+              />
+              <div className="space-y-0.5">
+                <label htmlFor="onboardingCheckbox" className="text-xs font-bold text-slate-200 cursor-pointer">
+                  Enable for Data Source Onboarding
+                </label>
+                <span className="text-[10px] text-slate-400 leading-normal font-semibold block">
+                  When enabled, this instance appears in the Data Source Onboarding wizard's instance picker. Uncheck to hide it from onboarding without removing it from the registry.
+                </span>
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800/80">
+              <button
                 type="button"
-                variant="outline"
-                className="h-9 px-4 font-semibold text-xs"
                 onClick={() => setIsInstanceModalOpen(false)}
+                className="h-9 px-4 border border-slate-800 hover:bg-slate-900 text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
               >
-                <Plus className="h-3.5 w-3.5" /> Create
-              </Button>
+                <Database className="h-3.5 w-3.5" /> Create Instance
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========================================== */}
+      {/* MODAL: EDIT INSTANCE                       */}
+      {/* ========================================== */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-[550px] border border-slate-800 bg-[#0B0F19] p-6 shadow-glow select-none">
+          {/* Custom Dialog Header matching 2nd screenshot */}
+          <div className="flex items-start justify-between border-b border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-400">
+                <Database className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-white tracking-wide">Edit DB Instance</h3>
+                <p className="text-[10.5px] text-slate-400 font-semibold mt-0.5">
+                  Database Mapping registry · no credentials collected
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsEditModalOpen(false)}
+              className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleUpdateInstance} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Instance Name <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+                placeholder="Internal Database"
+                className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
+              />
+              <div className="text-[10px] text-slate-400 font-semibold tracking-wide">
+                Instance code (auto-generated): <span className="text-slate-200 font-bold font-mono">{editName ? editName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Database Type <span className="text-red-500">*</span>
+                </label>
+                <Select value={editType} onValueChange={setEditType}>
+                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                    <SelectValue placeholder="SQL Server" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                    <SelectItem value="SQL Server">SQL Server</SelectItem>
+                    <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
+                    <SelectItem value="Oracle">Oracle</SelectItem>
+                    <SelectItem value="MySQL">MySQL</SelectItem>
+                    <SelectItem value="PostGIS">PostGIS</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Environment <span className="text-red-500">*</span>
+                </label>
+                <Select value={editEnv} onValueChange={setEditEnv}>
+                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                    <SelectValue placeholder="Production" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                    <SelectItem value="Production">Production</SelectItem>
+                    <SelectItem value="Staging">Staging</SelectItem>
+                    <SelectItem value="Development">Development</SelectItem>
+                    <SelectItem value="UAT">UAT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                  Hostname <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  value={editHost}
+                  onChange={(e) => setEditHost(e.target.value)}
+                  required
+                  placeholder="Test"
+                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                  IP Address (optional)
+                </label>
+                <Input
+                  value={editIp}
+                  onChange={(e) => setEditIp(e.target.value)}
+                  placeholder="10.10.10.10"
+                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Remarks</label>
+              <textarea
+                value={editRemarks}
+                onChange={(e) => setEditRemarks(e.target.value)}
+                placeholder="Database instance description..."
+                className="flex w-full rounded-lg border border-slate-800 bg-[#121824] px-3 py-2 text-xs text-white shadow-xs transition-colors placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
+              />
+            </div>
+
+            {/* Connection files (.sde) panel */}
+            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-4 space-y-3.5">
+              <span className="text-[10px] text-slate-400 font-semibold block leading-relaxed">
+                Connection files (.sde) — server-side paths only; no credentials are stored (the .sde holds those).
+              </span>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Data Loading Connection (.sde path)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editDataLoaderSde}
+                    onChange={(e) => setEditDataLoaderSde(e.target.value)}
+                    placeholder="\\\\server\\connections\\loader.sde"
+                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => toast.info("Browse connection files (.sde)")}
+                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                  >
+                    Browse...
+                  </button>
+                </div>
+                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                  Used by the load process to WRITE delivered data into this database (Data Load).
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Admin Connection (.sde path)
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editAdminSde}
+                    onChange={(e) => setEditAdminSde(e.target.value)}
+                    placeholder="\\\\server\\connections\\loader.sde"
+                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => toast.info("Browse admin connection files (.sde)")}
+                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                  >
+                    Browse...
+                  </button>
+                </div>
+                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                  Used for database maintenance — Compress / Analyze (Maintenance).
+                </span>
+              </div>
+            </div>
+
+            {/* Onboarding checkbox panel */}
+            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="editOnboardingCheckbox"
+                checked={editOnboarding}
+                onChange={(e) => setEditOnboarding(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-800 bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-[#0B0F19] cursor-pointer"
+              />
+              <div className="space-y-0.5">
+                <label htmlFor="editOnboardingCheckbox" className="text-xs font-bold text-slate-200 cursor-pointer">
+                  Enable for Data Source Onboarding
+                </label>
+                <span className="text-[10px] text-slate-400 leading-normal font-semibold block">
+                  When enabled, this instance appears in the Data Source Onboarding wizard's instance picker. Uncheck to hide it from onboarding without removing it from the registry.
+                </span>
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="h-9 px-4 border border-slate-800 hover:bg-slate-900 text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+              >
+                <Check className="h-3.5 w-3.5" /> Update Instance
+              </button>
             </div>
           </form>
         </DialogContent>

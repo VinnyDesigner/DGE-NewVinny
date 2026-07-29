@@ -900,7 +900,7 @@ function NodeOrchestrationComponent() {
               Pool-wide dispatch policy + execution-tier defaults. Per-node overrides live in Node Registry; management active/standby + HA heartbeat live in the Management tier.
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
               {/* Left Column: Distribution Strategy */}
               <div className="lg:col-span-7 space-y-5">
                 {/* 1. Distribution Strategy Card */}
@@ -910,7 +910,7 @@ function NodeOrchestrationComponent() {
                       <Sliders className="h-4 w-4 text-primary" />
                       Distribution strategy
                     </h3>
-                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 leading-none">
                       Execution tier
                     </span>
                   </div>
@@ -989,7 +989,7 @@ function NodeOrchestrationComponent() {
                         <SlidersHorizontal className="h-4 w-4 text-primary" />
                         Dedicated assignments
                       </h3>
-                      <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                      <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 leading-none">
                         Execution tier
                       </span>
                     </div>
@@ -1006,7 +1006,7 @@ function NodeOrchestrationComponent() {
                       <Sliders className="h-4 w-4 text-primary" />
                       Concurrency
                     </h4>
-                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 leading-none">
                       Execution tier
                     </span>
                   </div>
@@ -1022,7 +1022,7 @@ function NodeOrchestrationComponent() {
                 <Surface className="!p-5 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
                     <h3 className="text-xs font-extrabold text-foreground">Heartbeat (defaults)</h3>
-                    <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-500 uppercase leading-none">
+                    <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-500 leading-none">
                       Pool-wide
                     </span>
                   </div>
@@ -1062,7 +1062,7 @@ function NodeOrchestrationComponent() {
                 <Surface className="!p-5 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
                     <h3 className="text-xs font-extrabold text-foreground">Hard block thresholds (defaults)</h3>
-                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 leading-none">
                       Execution tier
                     </span>
                   </div>

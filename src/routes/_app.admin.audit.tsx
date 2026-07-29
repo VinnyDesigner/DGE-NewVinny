@@ -543,75 +543,91 @@ function AuditLogsComponent() {
       {/* Summary Statistics Row (8 boxes matching images) */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 select-none text-xs font-semibold">
         {/* Total Events */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Total Events</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">4925</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Total Events</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">4925</span>
+            </div>
+            <FileText className="h-4.5 w-4.5 text-primary shrink-0" />
           </div>
-          <FileText className="h-4.5 w-4.5 text-primary shrink-0" />
         </Surface>
 
         {/* Today */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Today</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">17</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Today</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">17</span>
+            </div>
+            <Calendar className="h-4.5 w-4.5 text-purple-400 shrink-0" />
           </div>
-          <Calendar className="h-4.5 w-4.5 text-purple-400 shrink-0" />
         </Surface>
 
         {/* Critical */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Critical</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">0</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Critical</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">0</span>
+            </div>
+            <AlertTriangle className="h-4.5 w-4.5 text-red-500 shrink-0" />
           </div>
-          <AlertTriangle className="h-4.5 w-4.5 text-red-500 shrink-0" />
         </Surface>
 
         {/* Failed */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Failed</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">171</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Failed</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">171</span>
+            </div>
+            <AlertCircle className="h-4.5 w-4.5 text-rose-500 shrink-0" />
           </div>
-          <AlertCircle className="h-4.5 w-4.5 text-rose-500 shrink-0" />
         </Surface>
 
         {/* Success Rate */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Success Rate</span>
-            <span className="text-xs font-extrabold text-emerald-400 mt-1.5 block leading-none">94%</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Success Rate</span>
+              <span className="text-xs font-extrabold text-emerald-400 mt-1.5 block leading-none">94%</span>
+            </div>
+            <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
           </div>
-          <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
         </Surface>
 
         {/* Data Changes */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Data Changes</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">14</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Data Changes</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">14</span>
+            </div>
+            <RefreshCw className="h-4.5 w-4.5 text-violet-400 shrink-0" />
           </div>
-          <RefreshCw className="h-4.5 w-4.5 text-violet-400 shrink-0" />
         </Surface>
 
         {/* Active Users */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Active Users</span>
-            <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">1</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Active Users</span>
+              <span className="text-xs font-extrabold text-foreground mt-1.5 block leading-none">1</span>
+            </div>
+            <User className="h-4.5 w-4.5 text-primary shrink-0" />
           </div>
-          <User className="h-4.5 w-4.5 text-primary shrink-0" />
         </Surface>
 
         {/* Avg Response */}
-        <Surface className="p-3 bg-card text-foreground rounded-full border border-border flex items-center justify-between gap-3.5 px-5 h-[60px] shadow-sm shrink-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Avg Response</span>
-            <span className="text-xs font-extrabold text-teal-400 mt-1.5 block leading-none">288ms</span>
+        <Surface className="bg-card text-foreground !rounded-xl border border-border shadow-sm shrink-0" padded={false}>
+          <div className="flex items-center justify-between gap-2.5 px-4 h-[62px] w-full">
+            <div className="flex flex-col justify-center min-w-0">
+              <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wide block leading-none truncate">Avg Response</span>
+              <span className="text-xs font-extrabold text-teal-400 mt-1.5 block leading-none">288ms</span>
+            </div>
+            <Clock className="h-4.5 w-4.5 text-teal-400 shrink-0" />
           </div>
-          <Clock className="h-4.5 w-4.5 text-teal-400 shrink-0" />
         </Surface>
       </div>
 

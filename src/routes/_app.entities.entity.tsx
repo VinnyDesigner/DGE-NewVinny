@@ -176,6 +176,7 @@ function EntitiesPage() {
   // View state: 'list' | 'view' | 'edit' | 'add'
   const [viewMode, setViewMode] = useState<"list" | "view" | "edit" | "add">("list");
   const [selectedEntity, setSelectedEntity] = useState<EntityItem | null>(null);
+  const [selectedRowCodes, setSelectedRowCodes] = useState<string[]>([]);
 
   // Entities List State
   const [entitiesList, setEntitiesList] = useState<EntityItem[]>(() => {
@@ -1258,6 +1259,30 @@ function EntitiesPage() {
         }
       />
       <Surface padded={false}>
+        {selectedRowCodes.length > 0 && (
+          <div className="mx-4 mt-4 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg flex items-center justify-between text-xs font-bold border border-blue-200/50 dark:border-blue-900/30">
+            <span>{selectedRowCodes.length} {selectedRowCodes.length === 1 ? "entity" : "entities"} selected</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const updated = entitiesList.filter((ent) => !selectedRowCodes.includes(ent.code));
+                  saveEntities(updated);
+                  setSelectedRowCodes([]);
+                  toast.success("Selected entities deleted successfully.");
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                Delete selected
+              </button>
+              <button
+                onClick={() => setSelectedRowCodes([])}
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-center">
           <div className="relative w-full sm:w-[300px] shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1298,7 +1323,25 @@ function EntitiesPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-foreground/[0.03] text-[10px] font-extrabold tracking-wider text-muted-foreground uppercase border-b border-border/60">
-                <th className="py-3.5 pl-4 text-left table-sticky-col-1"><input type="checkbox" className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer" /></th>
+                <th className="py-3.5 pl-4 text-left table-sticky-col-1">
+                  <input
+                    type="checkbox"
+                    checked={paginatedRows.length > 0 && paginatedRows.every((r) => selectedRowCodes.includes(r.code))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newSelected = [...selectedRowCodes];
+                        paginatedRows.forEach((r) => {
+                          if (!newSelected.includes(r.code)) newSelected.push(r.code);
+                        });
+                        setSelectedRowCodes(newSelected);
+                      } else {
+                        const pageCodes = paginatedRows.map((r) => r.code);
+                        setSelectedRowCodes((prev) => prev.filter((code) => !pageCodes.includes(code)));
+                      }
+                    }}
+                    className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 pr-4 text-left table-sticky-col-2">Entity Name</th>
                 <th className="py-3.5 pr-4 text-left">Entity Code</th>
                 <th className="py-3.5 pr-4 text-left">Entity Type</th>
@@ -1309,8 +1352,19 @@ function EntitiesPage() {
             </thead>
             <tbody className="divide-y divide-border/40">
               {paginatedRows.map((r) => (
-                <tr key={r.code} className="group transition-colors hover:bg-foreground/[0.015]">
-                  <td className="py-3.5 pl-4 table-sticky-col-1"><input type="checkbox" className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer" /></td>
+                <tr key={r.code} className={`group transition-colors hover:bg-foreground/[0.015] ${selectedRowCodes.includes(r.code) ? "bg-slate-500/5 dark:bg-slate-500/10" : ""}`}>
+                  <td className="py-3.5 pl-4 table-sticky-col-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedRowCodes.includes(r.code)}
+                      onChange={() => {
+                        setSelectedRowCodes((prev) =>
+                          prev.includes(r.code) ? prev.filter((c) => c !== r.code) : [...prev, r.code]
+                        );
+                      }}
+                      className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer"
+                    />
+                  </td>
                   <td className="py-3.5 pr-4 table-sticky-col-2">
                     <div className="flex items-center gap-2.5">
                       <div className="h-7 w-7 rounded overflow-hidden shrink-0 bg-primary/5 flex items-center justify-center border border-border">

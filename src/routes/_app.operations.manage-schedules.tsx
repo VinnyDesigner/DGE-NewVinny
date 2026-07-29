@@ -168,6 +168,7 @@ function ManageSchedulesPage() {
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deletingSchedule, setDeletingSchedule] = useState<ScheduleItem | null>(null);
+  const [selectedScheduleNames, setSelectedScheduleNames] = useState<string[]>([]);
 
   const [tab, setTab] = useState("All");
   const [view, setView] = useState<"grid" | "list">("list");
@@ -1406,6 +1407,28 @@ function ManageSchedulesPage() {
       </div>
 
       <Surface className="!p-0">
+        {selectedScheduleNames.length > 0 && (
+          <div className="mx-4 mt-4 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg flex items-center justify-between text-xs font-bold border border-blue-200/50 dark:border-blue-900/30">
+            <span>{selectedScheduleNames.length} {selectedScheduleNames.length === 1 ? "schedule" : "schedules"} selected</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  toast.success("Selected schedules deleted successfully.");
+                  setSelectedScheduleNames([]);
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                Delete selected
+              </button>
+              <button
+                onClick={() => setSelectedScheduleNames([])}
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-4">
           <div className="relative w-full sm:w-[300px] shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1456,7 +1479,25 @@ function ManageSchedulesPage() {
           <table className="w-full text-left text-[13.5px]">
             <thead>
               <tr className="border-b border-border/60 bg-foreground/[0.04] text-[12px] font-bold tracking-wide text-muted-foreground/70 uppercase">
-                <th className="px-5 py-3 table-sticky-col-1-wide"><input type="checkbox" className="rounded border-border/60 bg-card/60 accent-accent" /></th>
+                <th className="px-5 py-3 table-sticky-col-1-wide">
+                  <input
+                    type="checkbox"
+                    checked={paginatedSchedules.length > 0 && paginatedSchedules.every((s) => selectedScheduleNames.includes(s.name))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newSelected = [...selectedScheduleNames];
+                        paginatedSchedules.forEach((s) => {
+                          if (!newSelected.includes(s.name)) newSelected.push(s.name);
+                        });
+                        setSelectedScheduleNames(newSelected);
+                      } else {
+                        const pageNames = paginatedSchedules.map((s) => s.name);
+                        setSelectedScheduleNames((prev) => prev.filter((name) => !pageNames.includes(name)));
+                      }
+                    }}
+                    className="rounded border-border/60 bg-card/60 accent-accent cursor-pointer"
+                  />
+                </th>
                 <SortTh className="table-sticky-col-2-wide w-full">Scheduler Name</SortTh>
                 <SortTh>Entity</SortTh>
                 <SortTh>Data Source</SortTh>
@@ -1471,9 +1512,20 @@ function ManageSchedulesPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedSchedules.map((s) => (
-                <tr key={s.name} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02] transition">
-                  <td className="px-5 py-4 table-sticky-col-1-wide"><input type="checkbox" className="rounded border-border/60 bg-card/60 accent-accent" /></td>
+               {paginatedSchedules.map((s) => (
+                <tr key={s.name} className={`border-b border-border/40 last:border-0 hover:bg-foreground/[0.02] transition ${selectedScheduleNames.includes(s.name) ? "bg-slate-500/5 dark:bg-slate-500/10" : ""}`}>
+                  <td className="px-5 py-4 table-sticky-col-1-wide">
+                    <input
+                      type="checkbox"
+                      checked={selectedScheduleNames.includes(s.name)}
+                      onChange={() => {
+                        setSelectedScheduleNames((prev) =>
+                          prev.includes(s.name) ? prev.filter((n) => n !== s.name) : [...prev, s.name]
+                        );
+                      }}
+                      className="rounded border-border/60 bg-card/60 accent-accent cursor-pointer"
+                    />
+                  </td>
                   <td className="px-5 py-4 table-sticky-col-2-wide">
                     <div className="font-extrabold text-foreground">{s.name}</div>
                     <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-500">{s.priority}</span>

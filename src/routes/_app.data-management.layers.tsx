@@ -117,6 +117,7 @@ function LayersPage() {
 
   // Navigation state
   const [isRegistering, setIsRegistering] = useState(false);
+  const [selectedLayerNames, setSelectedLayerNames] = useState<string[]>([]);
 
   // Dynamic layers list state
   const [layersList, setLayersList] = useState<DataLayerItem[]>(() => {
@@ -726,12 +727,52 @@ function LayersPage() {
         </div>
 
         {/* Data Table */}
+        {selectedLayerNames.length > 0 && (
+          <div className="mx-4 mb-4 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg flex items-center justify-between text-xs font-bold border border-blue-200/50 dark:border-blue-900/30">
+            <span>{selectedLayerNames.length} {selectedLayerNames.length === 1 ? "layer" : "layers"} selected</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const updated = layersList.filter((layer) => !selectedLayerNames.includes(layer.alias));
+                  saveLayers(updated);
+                  setSelectedLayerNames([]);
+                  toast.success("Selected layers deleted successfully.");
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                Delete selected
+              </button>
+              <button
+                onClick={() => setSelectedLayerNames([])}
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
         <div className="table-container-scrollable scrollbar-thin">
           <table className="w-full text-left text-[14px]">
             <thead>
               <tr className="border-b border-border/60 bg-foreground/[0.04] text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground/80">
                 <th className="py-3 px-4 w-12 text-center">
-                  <input type="checkbox" className="rounded border-border/65 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    checked={paginatedLayers.length > 0 && paginatedLayers.every((l) => selectedLayerNames.includes(l.alias))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newSelected = [...selectedLayerNames];
+                        paginatedLayers.forEach((l) => {
+                          if (!newSelected.includes(l.alias)) newSelected.push(l.alias);
+                        });
+                        setSelectedLayerNames(newSelected);
+                      } else {
+                        const pageAliases = paginatedLayers.map((l) => l.alias);
+                        setSelectedLayerNames((prev) => prev.filter((alias) => !pageAliases.includes(alias)));
+                      }
+                    }}
+                    className="rounded border-border/65 cursor-pointer"
+                  />
                 </th>
                 {columns.map((c) => (
                   <th
@@ -774,9 +815,18 @@ function LayersPage() {
                 </tr>
               ) : (
                 paginatedLayers.map((layer) => (
-                  <tr key={layer.dbName} className="group transition-colors hover:bg-foreground/[0.02] border-b border-border/40">
+                  <tr key={layer.dbName} className={`group transition-colors hover:bg-foreground/[0.02] border-b border-border/40 ${selectedLayerNames.includes(layer.alias) ? "bg-slate-500/5 dark:bg-slate-500/10" : ""}`}>
                     <td className="py-3 px-4 w-12 text-center">
-                      <input type="checkbox" className="rounded border-border/65 cursor-pointer" />
+                      <input
+                        type="checkbox"
+                        checked={selectedLayerNames.includes(layer.alias)}
+                        onChange={() => {
+                          setSelectedLayerNames((prev) =>
+                            prev.includes(layer.alias) ? prev.filter((a) => a !== layer.alias) : [...prev, layer.alias]
+                          );
+                        }}
+                        className="rounded border-border/65 cursor-pointer"
+                      />
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap table-sticky-single-left bg-card group-hover:bg-foreground/[0.02] transition-colors">
                       <div className="flex items-center gap-2">

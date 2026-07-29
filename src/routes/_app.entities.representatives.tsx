@@ -190,6 +190,7 @@ function RepsPage() {
   // Navigation & View mode: 'list' | 'view' | 'edit' | 'add'
   const [viewMode, setViewMode] = useState<"list" | "view" | "edit" | "add">("list");
   const [selectedRep, setSelectedRep] = useState<RepresentativeItem | null>(null);
+  const [selectedRowUsernames, setSelectedRowUsernames] = useState<string[]>([]);
   
   // Dialog confirmation states
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -1431,6 +1432,30 @@ function RepsPage() {
         }
       />
       <Surface padded={false}>
+        {selectedRowUsernames.length > 0 && (
+          <div className="mx-4 mt-4 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg flex items-center justify-between text-xs font-bold border border-blue-200/50 dark:border-blue-900/30">
+            <span>{selectedRowUsernames.length} {selectedRowUsernames.length === 1 ? "representative" : "representatives"} selected</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const updated = repsList.filter((rep) => !selectedRowUsernames.includes(rep.username));
+                  saveReps(updated);
+                  setSelectedRowUsernames([]);
+                  toast.success("Selected representatives deleted successfully.");
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                Delete selected
+              </button>
+              <button
+                onClick={() => setSelectedRowUsernames([])}
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-center">
           <div className="relative w-full sm:w-[300px] shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1458,7 +1483,25 @@ function RepsPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-foreground/[0.03] text-[10px] font-extrabold tracking-wider text-muted-foreground uppercase border-b border-border/60">
-                <th className="py-3.5 pl-4 table-sticky-col-1"><input type="checkbox" className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer" /></th>
+                <th className="py-3.5 pl-4 table-sticky-col-1">
+                  <input
+                    type="checkbox"
+                    checked={paginatedRows.length > 0 && paginatedRows.every((r) => selectedRowUsernames.includes(r.username))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newSelected = [...selectedRowUsernames];
+                        paginatedRows.forEach((r) => {
+                          if (!newSelected.includes(r.username)) newSelected.push(r.username);
+                        });
+                        setSelectedRowUsernames(newSelected);
+                      } else {
+                        const pageUsernames = paginatedRows.map((r) => r.username);
+                        setSelectedRowUsernames((prev) => prev.filter((u) => !pageUsernames.includes(u)));
+                      }
+                    }}
+                    className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 pr-4 text-left table-sticky-col-2">Full Name</th>
                 <th className="py-3.5 pr-4 text-left">Username</th>
                 <th className="py-3.5 pr-4 text-left">Entity</th>
@@ -1473,8 +1516,19 @@ function RepsPage() {
               {paginatedRows.map((r) => {
                 const initials = r.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
                 return (
-                  <tr key={r.username} className="group transition-colors hover:bg-foreground/[0.015]">
-                    <td className="py-3.5 pl-4 table-sticky-col-1"><input type="checkbox" className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer" /></td>
+                  <tr key={r.username} className={`group transition-colors hover:bg-foreground/[0.015] ${selectedRowUsernames.includes(r.username) ? "bg-slate-500/5 dark:bg-slate-500/10" : ""}`}>
+                    <td className="py-3.5 pl-4 table-sticky-col-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedRowUsernames.includes(r.username)}
+                        onChange={() => {
+                          setSelectedRowUsernames((prev) =>
+                            prev.includes(r.username) ? prev.filter((u) => u !== r.username) : [...prev, r.username]
+                          );
+                        }}
+                        className="h-3.5 w-3.5 rounded border-foreground/20 bg-foreground/5 cursor-pointer"
+                      />
+                    </td>
                     <td className="py-3.5 pr-4 table-sticky-col-2">
                       <div className="flex items-center gap-2.5">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-soft">

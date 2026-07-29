@@ -236,6 +236,7 @@ function QualityRulesPage() {
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
+  const [selectedRuleIds, setSelectedRuleIds] = useState<string[]>([]);
   const [isEditingParam, setIsEditingParam] = useState(false);
   const [editingParamValue, setEditingParamValue] = useState("");
 
@@ -382,6 +383,35 @@ function QualityRulesPage() {
       </div>
 
       <Surface className="!p-0">
+        {selectedRuleIds.length > 0 && (
+          <div className="mx-4 mt-4 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 py-2 px-4 rounded-lg flex items-center justify-between text-xs font-bold border border-blue-200/50 dark:border-blue-900/30">
+            <span>{selectedRuleIds.length} {selectedRuleIds.length === 1 ? "rule" : "rules"} selected</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setRulesByTab((prev) => {
+                    const copy = { ...prev };
+                    Object.keys(copy).forEach((key) => {
+                      copy[key as TabKey] = copy[key as TabKey].filter((r) => !selectedRuleIds.includes(r.id));
+                    });
+                    return copy;
+                  });
+                  setSelectedRuleIds([]);
+                  toast.success("Selected rules deleted successfully.");
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                Delete selected
+              </button>
+              <button
+                onClick={() => setSelectedRuleIds([])}
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </button>
+            </div>
+          </div>
+        )}
         {/* Search + filters row */}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-4">
           <div className="relative w-full sm:w-[300px] shrink-0">
@@ -464,7 +494,23 @@ function QualityRulesPage() {
             <thead>
               <tr className="border-b border-border/60 bg-foreground/[0.04] text-[12px] font-bold tracking-wide text-muted-foreground/80">
                 <Th className="w-10 table-sticky-col-1">
-                  <input type="checkbox" className="rounded border-border/60 bg-transparent" />
+                  <input
+                    type="checkbox"
+                    checked={paginatedRules.length > 0 && paginatedRules.every((r) => selectedRuleIds.includes(r.id))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newSelected = [...selectedRuleIds];
+                        paginatedRules.forEach((r) => {
+                          if (!newSelected.includes(r.id)) newSelected.push(r.id);
+                        });
+                        setSelectedRuleIds(newSelected);
+                      } else {
+                        const pageIds = paginatedRules.map((r) => r.id);
+                        setSelectedRuleIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+                      }
+                    }}
+                    className="rounded border-border/60 bg-transparent cursor-pointer"
+                  />
                 </Th>
                 <Th className="table-sticky-col-2">Rule Name</Th>
                 <Th>Description</Th>
@@ -478,10 +524,19 @@ function QualityRulesPage() {
               {paginatedRules.map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]"
+                  className={`border-b border-border/40 last:border-0 hover:bg-foreground/[0.02] ${selectedRuleIds.includes(r.id) ? "bg-slate-500/5 dark:bg-slate-500/10" : ""}`}
                 >
                   <Td className="table-sticky-col-1">
-                    <input type="checkbox" className="rounded border-border/60 bg-transparent" />
+                    <input
+                      type="checkbox"
+                      checked={selectedRuleIds.includes(r.id)}
+                      onChange={() => {
+                        setSelectedRuleIds((prev) =>
+                          prev.includes(r.id) ? prev.filter((id) => id !== r.id) : [...prev, r.id]
+                        );
+                      }}
+                      className="rounded border-border/60 bg-transparent cursor-pointer"
+                    />
                   </Td>
                   <Td className="table-sticky-col-2">
                     <div className="font-semibold text-foreground">{r.name}</div>

@@ -76,17 +76,21 @@ function NodeOrchestrationComponent() {
   // Management Tier State
   const [mgmtNodes, setMgmtNodes] = useState<ManagementNode[]>([]);
   const [showAddMgmtModal, setShowAddMgmtModal] = useState(false);
-  const [newMgmtName, setNewMgmtName] = useState("");
-  const [newMgmtHostname, setNewMgmtHostname] = useState("");
-  const [newMgmtIp, setNewMgmtIp] = useState("");
+  const [newMgmtName, setNewMgmtName] = useState("MGMT-01");
+  const [newMgmtHostname, setNewMgmtHostname] = useState("da-exec-01");
+  const [newMgmtIp, setNewMgmtIp] = useState("10.0.0.21");
+  const [newMgmtNotes, setNewMgmtNotes] = useState("");
 
   // Execution Tier State
   const [execNodes, setExecNodes] = useState<ExecutionNode[]>([]);
   const [showAddNodeModal, setShowAddNodeModal] = useState(false);
-  const [newNodeName, setNewNodeName] = useState("");
-  const [newNodeIp, setNewNodeIp] = useState("");
+  const [newNodeName, setNewNodeName] = useState("EXEC-01");
+  const [newNodeHostname, setNewNodeHostname] = useState("da-exec-01");
+  const [newNodeIp, setNewNodeIp] = useState("10.0.0.21");
   const [newNodeJobs, setNewNodeJobs] = useState("Pipeline, Delta Sync");
   const [newNodeCompat, setNewNodeCompat] = useState<"Compatible" | "Deprecated" | "Incompatible" | "Unknown">("Compatible");
+  const [newNodeMaxJobs, setNewNodeMaxJobs] = useState(3);
+  const [newNodeNotes, setNewNodeNotes] = useState("");
 
   // Filter States
   const [execSearchQuery, setExecSearchQuery] = useState("");
@@ -129,9 +133,10 @@ function NodeOrchestrationComponent() {
       },
     ]);
     setShowAddMgmtModal(false);
-    setNewMgmtName("");
-    setNewMgmtHostname("");
-    setNewMgmtIp("");
+    setNewMgmtName("MGMT-01");
+    setNewMgmtHostname("da-exec-01");
+    setNewMgmtIp("10.0.0.21");
+    setNewMgmtNotes("");
     toast.success("Management node registered successfully.");
   };
 
@@ -159,10 +164,13 @@ function NodeOrchestrationComponent() {
       },
     ]);
     setShowAddNodeModal(false);
-    setNewNodeName("");
-    setNewNodeIp("");
+    setNewNodeName("EXEC-01");
+    setNewNodeHostname("da-exec-01");
+    setNewNodeIp("10.0.0.21");
     setNewNodeJobs("Pipeline, Delta Sync");
     setNewNodeCompat("Compatible");
+    setNewNodeMaxJobs(3);
+    setNewNodeNotes("");
     toast.success("Execution node registered successfully.");
   };
 
@@ -516,7 +524,7 @@ function NodeOrchestrationComponent() {
                             <>
                               <div className="fixed inset-0 z-40" onClick={() => setStatusDropdownOpen(false)} />
                               <div className="absolute left-0 top-full mt-1.5 w-[140px] rounded-lg border border-border bg-popover py-1 shadow-soft z-50 text-xs font-semibold text-foreground">
-                                {["All statuses", "Online", "Offline"].map((item) => (
+                                {["All statuses", "Online", "Offline", "Disabled"].map((item) => (
                                   <button
                                     key={item}
                                     onClick={() => {
@@ -765,26 +773,171 @@ function NodeOrchestrationComponent() {
             </Surface>
           </div>
         )}
-
         {/* Distribution Tab Content (Standard/HA only) */}
         {activeTab === "distribution" && topology !== "standalone" && (
-          <Surface className="!p-5 space-y-4">
-            <div className="flex gap-3 pb-4 border-b border-border/40 select-none">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary border border-border">
-                <Sliders className="h-5 w-5 text-primary" />
-              </span>
-              <div>
-                <h3 className="text-xs font-extrabold text-foreground">Load distribution configurations</h3>
-                <p className="text-[11px] text-muted-foreground font-semibold leading-relaxed mt-0.5">
-                  Configure queue limits, prioritization, and failover behavior across execution nodes.
-                </p>
+          <div className="space-y-5">
+            {/* Top Subtitle banner */}
+            <div className="text-[11px] text-muted-foreground/80 font-bold leading-normal select-none">
+              Pool-wide dispatch policy + execution-tier defaults. Per-node overrides live in Node Registry; management active/standby + HA heartbeat live in the Management tier.
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+              {/* Left Column: Distribution Strategy */}
+              <div className="lg:col-span-7 space-y-5">
+                <Surface className="!p-5 space-y-5">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
+                    <h3 className="text-xs font-extrabold text-foreground flex items-center gap-2">
+                      <Sliders className="h-4 w-4 text-primary" />
+                      Distribution strategy
+                    </h3>
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                      Execution tier
+                    </span>
+                  </div>
+
+                  {/* Three Strategy selection option cards */}
+                  <div className="grid gap-3.5 sm:grid-cols-3">
+                    {/* Option 1: Load balanced */}
+                    <div className="border border-blue-500 ring-2 ring-blue-500/10 rounded-xl p-4 bg-card cursor-pointer relative shadow-soft">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-extrabold text-foreground">Load balanced</span>
+                        <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider leading-none">
+                          DEFAULT
+                        </span>
+                      </div>
+                      <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
+                        Spread jobs across the least-busy nodes
+                      </p>
+                    </div>
+
+                    {/* Option 2: Dedicated */}
+                    <div className="border border-border/60 rounded-xl p-4 bg-card hover:bg-foreground/[0.015] cursor-pointer">
+                      <span className="text-xs font-extrabold text-foreground">Dedicated</span>
+                      <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
+                        Pin job types to specific nodes
+                      </p>
+                    </div>
+
+                    {/* Option 3: Priority based */}
+                    <div className="border border-border/60 rounded-xl p-4 bg-card hover:bg-foreground/[0.015] cursor-pointer">
+                      <span className="text-xs font-extrabold text-foreground">Priority based</span>
+                      <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
+                        Honour per-node priority ordering
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Concurrency section */}
+                  <div className="pt-4 border-t border-border/40 space-y-2">
+                    <div className="flex items-center justify-between select-none">
+                      <h4 className="text-xs font-extrabold text-foreground">Concurrency</h4>
+                      <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                        Execution tier
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground font-semibold leading-relaxed">
+                      Max concurrent jobs is set per node in the Node Registry tab (Configure resources).
+                    </p>
+                  </div>
+                </Surface>
+              </div>
+
+              {/* Right Column: Heartbeat and thresholds */}
+              <div className="lg:col-span-5 space-y-5">
+                {/* Heartbeat Defaults Card */}
+                <Surface className="!p-5 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
+                    <h3 className="text-xs font-extrabold text-foreground">Heartbeat (defaults)</h3>
+                    <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-500 uppercase leading-none">
+                      Pool-wide
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-muted-foreground font-semibold leading-relaxed select-none">
+                    Interval is a default — override per execution node in Configure resources.
+                  </p>
+
+                  <div className="grid gap-3 sm:grid-cols-3 text-xs font-semibold">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground font-bold block leading-tight">Default interval (secs) (5-300)</label>
+                      <input
+                        type="number"
+                        defaultValue={30}
+                        className="h-9 w-full rounded-lg border border-border bg-card/60 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground font-bold block leading-tight">Missed — offline (1-10)</label>
+                      <input
+                        type="number"
+                        defaultValue={3}
+                        className="h-9 w-full rounded-lg border border-border bg-card/60 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground font-bold block leading-tight">Fixed node wait (mins) (1-30)</label>
+                      <input
+                        type="number"
+                        defaultValue={3}
+                        className="h-9 w-full rounded-lg border border-border bg-card/60 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+                </Surface>
+
+                {/* Hard block thresholds defaults Card */}
+                <Surface className="!p-5 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
+                    <h3 className="text-xs font-extrabold text-foreground">Hard block thresholds (defaults)</h3>
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                      Execution tier
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-muted-foreground font-semibold leading-relaxed select-none">
+                    Defaults — overridable per execution node in Configure resources.
+                  </p>
+
+                  <div className="grid gap-3.5 sm:grid-cols-2 text-xs font-semibold">
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground font-bold block leading-tight">Default disk block % (50-100)</label>
+                      <input
+                        type="number"
+                        defaultValue={95}
+                        className="h-9 w-full rounded-lg border border-border bg-card/60 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground font-bold block leading-tight">Default memory block % (50-100)</label>
+                      <input
+                        type="number"
+                        defaultValue={95}
+                        className="h-9 w-full rounded-lg border border-border bg-card/60 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+                </Surface>
               </div>
             </div>
 
-            <div className="py-10 text-center select-none">
-              <div className="text-xs font-bold text-muted-foreground">No active queues configured. Load balance metrics will appear once nodes receive work.</div>
+            {/* Action buttons row */}
+            <div className="flex items-center justify-between pt-4 border-t border-border/45 select-none">
+              <button
+                onClick={() => {
+                  toast.success("Defaults restored.");
+                }}
+                className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-card px-4 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition"
+              >
+                Reset to defaults
+              </button>
+              <button
+                onClick={() => {
+                  toast.success("Load distribution strategy and default parameters saved successfully.");
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 text-xs font-extrabold text-white shadow-soft transition cursor-pointer"
+              >
+                Save configuration
+              </button>
             </div>
-          </Surface>
+          </div>
         )}
       </div>
 
@@ -894,12 +1047,12 @@ function NodeOrchestrationComponent() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 cursor-pointer" onClick={() => setShowAddMgmtModal(false)} />
           
-          <div className="bg-card border border-border/80 rounded-xl max-w-md w-full p-6 shadow-2xl relative select-none animate-in fade-in zoom-in-95 duration-200 z-50">
+          <div className="bg-card border border-border/80 rounded-xl max-w-lg w-full p-6 shadow-2xl relative select-none animate-in fade-in zoom-in-95 duration-200 z-50">
             {/* Header */}
             <div className="flex items-start justify-between pb-4 mb-4 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <Server className="h-4.5 w-4.5 text-primary" />
-                <h3 className="text-sm font-extrabold text-foreground">Add Management Node</h3>
+                <h3 className="text-sm font-extrabold text-foreground">Register Node</h3>
               </div>
               <button
                 onClick={() => setShowAddMgmtModal(false)}
@@ -909,40 +1062,66 @@ function NodeOrchestrationComponent() {
               </button>
             </div>
 
+            <p className="text-xs font-semibold text-muted-foreground/90 mb-5 leading-normal">
+              Add an orchestration node. It appears as PENDING until the agent sends its first heartbeat.
+            </p>
+
             <form onSubmit={handleAddMgmtNode} className="space-y-4 text-xs font-semibold text-foreground/90">
               <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">Node Name</label>
+                <label className="text-muted-foreground block font-bold">Management node name</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. da-mgmt-01"
+                  placeholder="e.g. MGMT-01"
                   value={newMgmtName}
                   onChange={(e) => setNewMgmtName(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-bold"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">Host Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. da-host-mgt-01"
-                  value={newMgmtHostname}
-                  onChange={(e) => setNewMgmtHostname(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">Role</label>
+                  <input
+                    type="text"
+                    disabled
+                    value="Management"
+                    className="h-9.5 w-full rounded-lg border border-border bg-muted/65 px-3 text-xs text-muted-foreground/80 focus:outline-none cursor-not-allowed font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">Hostname</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. da-exec-01"
+                    value={newMgmtHostname}
+                    onChange={(e) => setNewMgmtHostname(e.target.value)}
+                    className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">IP Address</label>
+                <label className="text-muted-foreground block font-bold">IP address</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 10.0.0.12"
+                  placeholder="e.g. 10.0.0.21"
                   value={newMgmtIp}
                   onChange={(e) => setNewMgmtIp(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-muted-foreground block font-bold">Notes (optional)</label>
+                <textarea
+                  placeholder=""
+                  value={newMgmtNotes}
+                  onChange={(e) => setNewMgmtNotes(e.target.value)}
+                  className="min-h-[70px] w-full rounded-lg border border-border bg-card p-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
                 />
               </div>
 
@@ -958,7 +1137,7 @@ function NodeOrchestrationComponent() {
                   type="submit"
                   className="inline-flex h-9.5 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 text-xs font-extrabold text-white shadow-soft transition cursor-pointer"
                 >
-                  Add Node
+                  Register Node
                 </button>
               </div>
             </form>
@@ -971,12 +1150,12 @@ function NodeOrchestrationComponent() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 cursor-pointer" onClick={() => setShowAddNodeModal(false)} />
           
-          <div className="bg-card border border-border/80 rounded-xl max-w-md w-full p-6 shadow-2xl relative select-none animate-in fade-in zoom-in-95 duration-200 z-50">
+          <div className="bg-card border border-border/80 rounded-xl max-w-lg w-full p-6 shadow-2xl relative select-none animate-in fade-in zoom-in-95 duration-200 z-50">
             {/* Header */}
             <div className="flex items-start justify-between pb-4 mb-4 border-b border-border/40">
               <div className="flex items-center gap-2">
                 <Cpu className="h-4.5 w-4.5 text-primary" />
-                <h3 className="text-sm font-extrabold text-foreground">Add Execution Node</h3>
+                <h3 className="text-sm font-extrabold text-foreground">Register Node</h3>
               </div>
               <button
                 onClick={() => setShowAddNodeModal(false)}
@@ -986,54 +1165,80 @@ function NodeOrchestrationComponent() {
               </button>
             </div>
 
+            <p className="text-xs font-semibold text-muted-foreground/90 mb-5 leading-normal">
+              Add an orchestration node. It appears as PENDING until the agent sends its first heartbeat.
+            </p>
+
             <form onSubmit={handleAddExecNode} className="space-y-4 text-xs font-semibold text-foreground/90">
               <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">Node Name</label>
+                <label className="text-muted-foreground block font-bold">Node name</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. da-node-01"
+                  placeholder="e.g. EXEC-01"
                   value={newNodeName}
                   onChange={(e) => setNewNodeName(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-bold"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">IP Address</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 10.0.0.15"
-                  value={newNodeIp}
-                  onChange={(e) => setNewNodeIp(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">Role</label>
+                  <input
+                    type="text"
+                    disabled
+                    value="Execution"
+                    className="h-9.5 w-full rounded-lg border border-border bg-muted/65 px-3 text-xs text-muted-foreground/80 focus:outline-none cursor-not-allowed font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">Hostname</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. da-exec-01"
+                    value={newNodeHostname}
+                    onChange={(e) => setNewNodeHostname(e.target.value)}
+                    className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">IP address</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 10.0.0.21"
+                    value={newNodeIp}
+                    onChange={(e) => setNewNodeIp(e.target.value)}
+                    className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground block font-bold">Max concurrent jobs</label>
+                  <input
+                    type="number"
+                    required
+                    value={newNodeMaxJobs}
+                    onChange={(e) => setNewNodeMaxJobs(parseInt(e.target.value) || 0)}
+                    className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">Job Types</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Pipeline, Delta Sync, Metadata"
-                  value={newNodeJobs}
-                  onChange={(e) => setNewNodeJobs(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                <label className="text-muted-foreground block font-bold">Notes (optional)</label>
+                <textarea
+                  placeholder=""
+                  value={newNodeNotes}
+                  onChange={(e) => setNewNodeNotes(e.target.value)}
+                  className="min-h-[70px] w-full rounded-lg border border-border bg-card p-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
                 />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-muted-foreground block font-bold">Compatibility Status</label>
-                <select
-                  value={newNodeCompat}
-                  onChange={(e: any) => setNewNodeCompat(e.target.value)}
-                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-                >
-                  <option value="Compatible">Compatible</option>
-                  <option value="Deprecated">Deprecated</option>
-                  <option value="Incompatible">Incompatible</option>
-                  <option value="Unknown">Unknown</option>
-                </select>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border/30 mt-6">
@@ -1048,7 +1253,7 @@ function NodeOrchestrationComponent() {
                   type="submit"
                   className="inline-flex h-9.5 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 text-xs font-extrabold text-white shadow-soft transition cursor-pointer"
                 >
-                  Add Node
+                  Register Node
                 </button>
               </div>
             </form>

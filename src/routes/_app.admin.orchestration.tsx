@@ -19,6 +19,7 @@ import {
   Plus,
   Trash2,
   AlertCircle,
+  AlertTriangle,
   Cpu,
   ChevronDown,
   Building2,
@@ -91,6 +92,7 @@ function NodeOrchestrationComponent() {
   const [newNodeCompat, setNewNodeCompat] = useState<"Compatible" | "Deprecated" | "Incompatible" | "Unknown">("Compatible");
   const [newNodeMaxJobs, setNewNodeMaxJobs] = useState(3);
   const [newNodeNotes, setNewNodeNotes] = useState("");
+  const [distStrategy, setDistStrategy] = useState<"load_balanced" | "dedicated" | "priority_based">("load_balanced");
 
   // Filter States
   const [execSearchQuery, setExecSearchQuery] = useState("");
@@ -754,7 +756,7 @@ function NodeOrchestrationComponent() {
               </div>
 
               {/* Info alert box */}
-              <div className="flex items-start gap-3 p-4 rounded-xl border border-border/80 bg-foreground/[0.015] leading-normal text-muted-foreground text-xs font-semibold">
+              <div className="flex items-start gap-3 p-4 rounded-xl border border-border/80 bg-foreground/[0.015] leading-normal text-muted-foreground text-xs font-semibold mt-5 mb-5">
                 <AlertCircle className="h-4.5 w-4.5 text-primary mt-0.5 shrink-0" />
                 <span className="font-medium">
                   <strong>Standalone:</strong> penalty, same-node suppression, expiry and recovery are supported. <strong>Standard/HA:</strong> penalty also supports steering work toward another eligible node. Alternate-node steering is automated/integration tested. Live alternate-node steering requires Standard infrastructure.
@@ -784,6 +786,7 @@ function NodeOrchestrationComponent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
               {/* Left Column: Distribution Strategy */}
               <div className="lg:col-span-7 space-y-5">
+                {/* 1. Distribution Strategy Card */}
                 <Surface className="!p-5 space-y-5">
                   <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
                     <h3 className="text-xs font-extrabold text-foreground flex items-center gap-2">
@@ -798,7 +801,15 @@ function NodeOrchestrationComponent() {
                   {/* Three Strategy selection option cards */}
                   <div className="grid gap-3.5 sm:grid-cols-3">
                     {/* Option 1: Load balanced */}
-                    <div className="border border-blue-500 ring-2 ring-blue-500/10 rounded-xl p-4 bg-card cursor-pointer relative shadow-soft">
+                    <div
+                      onClick={() => setDistStrategy("load_balanced")}
+                      className={cn(
+                        "border rounded-xl p-4 bg-card cursor-pointer relative transition duration-250 flex flex-col justify-between min-h-[105px]",
+                        distStrategy === "load_balanced"
+                          ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
+                          : "border-border/60 hover:bg-foreground/[0.015]"
+                      )}
+                    >
                       <div className="flex justify-between items-start">
                         <span className="text-xs font-extrabold text-foreground">Load balanced</span>
                         <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider leading-none">
@@ -811,7 +822,15 @@ function NodeOrchestrationComponent() {
                     </div>
 
                     {/* Option 2: Dedicated */}
-                    <div className="border border-border/60 rounded-xl p-4 bg-card hover:bg-foreground/[0.015] cursor-pointer">
+                    <div
+                      onClick={() => setDistStrategy("dedicated")}
+                      className={cn(
+                        "border rounded-xl p-4 bg-card cursor-pointer relative transition duration-250 flex flex-col justify-between min-h-[105px]",
+                        distStrategy === "dedicated"
+                          ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
+                          : "border-border/60 hover:bg-foreground/[0.015]"
+                      )}
+                    >
                       <span className="text-xs font-extrabold text-foreground">Dedicated</span>
                       <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
                         Pin job types to specific nodes
@@ -819,26 +838,55 @@ function NodeOrchestrationComponent() {
                     </div>
 
                     {/* Option 3: Priority based */}
-                    <div className="border border-border/60 rounded-xl p-4 bg-card hover:bg-foreground/[0.015] cursor-pointer">
+                    <div
+                      onClick={() => setDistStrategy("priority_based")}
+                      className={cn(
+                        "border rounded-xl p-4 bg-card cursor-pointer relative transition duration-250 flex flex-col justify-between min-h-[105px]",
+                        distStrategy === "priority_based"
+                          ? "border-blue-500 ring-2 ring-blue-500/10 shadow-soft"
+                          : "border-border/60 hover:bg-foreground/[0.015]"
+                      )}
+                    >
                       <span className="text-xs font-extrabold text-foreground">Priority based</span>
                       <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
                         Honour per-node priority ordering
                       </p>
                     </div>
                   </div>
+                </Surface>
 
-                  {/* Concurrency section */}
-                  <div className="pt-4 border-t border-border/40 space-y-2">
-                    <div className="flex items-center justify-between select-none">
-                      <h4 className="text-xs font-extrabold text-foreground">Concurrency</h4>
+                {/* 2. Dedicated assignments Card (conditional based on 3rd Image) */}
+                {distStrategy === "dedicated" && (
+                  <Surface className="!p-5 space-y-4 animate-in fade-in slide-in-from-top-3 duration-250">
+                    <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
+                      <h3 className="text-xs font-extrabold text-foreground flex items-center gap-2">
+                        <SlidersHorizontal className="h-4 w-4 text-primary" />
+                        Dedicated assignments
+                      </h3>
                       <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
                         Execution tier
                       </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground font-semibold leading-relaxed">
-                      Max concurrent jobs is set per node in the Node Registry tab (Configure resources).
+                      Job-type &rarr; node assignments are managed per node &mdash; open an execution node's Assign job types action in the Node Registry tab. They persist per node and are honored by this strategy.
                     </p>
+                  </Surface>
+                )}
+
+                {/* 3. Concurrency Card (Separate Card to align properly and maintain height) */}
+                <Surface className="!p-5 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/40 select-none">
+                    <h4 className="text-xs font-extrabold text-foreground flex items-center gap-2">
+                      <Sliders className="h-4 w-4 text-primary" />
+                      Concurrency
+                    </h4>
+                    <span className="inline-flex items-center gap-1 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-purple-500 uppercase leading-none">
+                      Execution tier
+                    </span>
                   </div>
+                  <p className="text-[11px] text-muted-foreground font-semibold leading-relaxed">
+                    Max concurrent jobs is set per node in the Node Registry tab (Configure resources).
+                  </p>
                 </Surface>
               </div>
 
@@ -1023,6 +1071,15 @@ function NodeOrchestrationComponent() {
               })}
             </div>
 
+            {pendingTopology === "ha" && (
+              <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-800 dark:text-amber-200 leading-normal text-xs font-semibold mb-6">
+                <AlertTriangle className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <span className="font-medium">
+                  Switching <span className="font-extrabold">{topology.toUpperCase()}</span> &rarr; <span className="font-extrabold">HA</span> re-scopes the tiers. Any registered node that becomes invalid under HA is disabled and flagged (never deleted) &mdash; you'll see the list here.
+                </span>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t border-border/30">
               <button
@@ -1079,28 +1136,26 @@ function NodeOrchestrationComponent() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-muted-foreground block font-bold">Role</label>
-                  <input
-                    type="text"
-                    disabled
-                    value="Management"
-                    className="h-9.5 w-full rounded-lg border border-border bg-muted/65 px-3 text-xs text-muted-foreground/80 focus:outline-none cursor-not-allowed font-semibold"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-muted-foreground block font-bold">Role</label>
+                <input
+                  type="text"
+                  disabled
+                  value="Management"
+                  className="h-9.5 w-full rounded-lg border border-border bg-muted/65 px-3 text-xs text-muted-foreground/80 focus:outline-none cursor-not-allowed font-semibold"
+                />
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-muted-foreground block font-bold">Hostname</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. da-exec-01"
-                    value={newMgmtHostname}
-                    onChange={(e) => setNewMgmtHostname(e.target.value)}
-                    className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-muted-foreground block font-bold">Hostname</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. da-exec-01"
+                  value={newMgmtHostname}
+                  onChange={(e) => setNewMgmtHostname(e.target.value)}
+                  className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/60 font-semibold"
+                />
               </div>
 
               <div className="space-y-1.5">

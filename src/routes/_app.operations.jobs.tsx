@@ -187,7 +187,7 @@ function JobsPage() {
                   <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none">
                     Running
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-purple-500/10 text-purple-500 border border-purple-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none">
+                  <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none">
                     Primary
                   </span>
                 </div>
@@ -739,7 +739,7 @@ function JobsPage() {
                             <TooltipTrigger asChild>
                               <Link
                                 to="/operations/workflow"
-                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/15 cursor-pointer"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/15 cursor-pointer"
                               >
                                 <GitBranch className="h-3.5 w-3.5" />
                               </Link>

@@ -955,7 +955,7 @@ function ManageSchedulesPage() {
                     {/* Spatial Rules */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                        <span className="h-2 w-2 rounded-full bg-purple-500 ring-4 ring-purple-500/20" />
+                        <span className="h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-500/20" />
                         <span>
                           Spatial Rules <span className="text-muted-foreground font-semibold text-[11px]">— Data quality rules</span>
                         </span>
@@ -1155,7 +1155,7 @@ function ManageSchedulesPage() {
                         <Check className="h-3.5 w-3.5" /> Auto-retry ({editMaxAttempts}x)
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 text-purple-400">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-blue-400">
                       <GitFork className="h-3.5 w-3.5 animate-pulse" /> Full Load delivery
                     </span>
                   </div>
@@ -1184,7 +1184,7 @@ function ManageSchedulesPage() {
                     {/* Spatial Rules */}
                     <div className="rounded-xl border border-border bg-card p-4 space-y-1.5">
                       <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        <span className="h-1.5 w-1.5 rounded-full bg-purple-500" /> SPATIAL RULES
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> SPATIAL RULES
                       </div>
                       <div className="flex items-center gap-2 text-xs font-semibold text-foreground/90">
                         <span className="inline-flex items-center rounded bg-rose-500/10 text-rose-400 px-1.5 py-0.5 text-[10px] font-extrabold uppercase select-none leading-none">

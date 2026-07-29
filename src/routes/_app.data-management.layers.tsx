@@ -762,7 +762,7 @@ function LayersPage() {
               </button>
               <button
                 onClick={handleEditSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
               >
                 <Check className="h-3.5 w-3.5" /> Save Changes
               </button>
@@ -828,7 +828,7 @@ function LayersPage() {
             className={cn(
               "px-4 py-2.5 border-b-2 -mb-px transition-colors cursor-pointer",
               editTab === "info"
-                ? "border-purple-500 text-purple-500 font-extrabold"
+                ? "border-blue-500 text-blue-500 font-extrabold"
                 : "border-transparent text-muted-foreground/85 hover:text-foreground"
             )}
           >
@@ -839,7 +839,7 @@ function LayersPage() {
             className={cn(
               "px-4 py-2.5 border-b-2 -mb-px transition-colors cursor-pointer",
               editTab === "attributes"
-                ? "border-purple-500 text-purple-500 font-extrabold"
+                ? "border-blue-500 text-blue-500 font-extrabold"
                 : "border-transparent text-muted-foreground/85 hover:text-foreground"
             )}
           >
@@ -975,7 +975,7 @@ function LayersPage() {
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
                     Database Name
                   </label>
-                  <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold">
+                  <span className="inline-flex items-center rounded bg-blue-500/10 text-blue-500 border border-blue-500/15 px-1.5 py-0.5 text-[9px] font-bold">
                     from Data Mapping
                   </span>
                 </div>
@@ -993,7 +993,7 @@ function LayersPage() {
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
                     Schema Name
                   </label>
-                  <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold">
+                  <span className="inline-flex items-center rounded bg-blue-500/10 text-blue-500 border border-blue-500/15 px-1.5 py-0.5 text-[9px] font-bold">
                     from Data Mapping
                   </span>
                 </div>
@@ -1069,7 +1069,7 @@ function LayersPage() {
                   />
                   <div
                     onClick={() => setEditPublished(!editPublished)}
-                    className="w-9 h-5 bg-border/60 dark:bg-border/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 cursor-pointer"
+                    className="w-9 h-5 bg-border/60 dark:bg-border/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 cursor-pointer"
                   />
                 </div>
               </div>
@@ -1248,7 +1248,7 @@ function LayersPage() {
                   setEditTab("info");
                   setViewingLayerDbName(null);
                 }}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
               >
                 <Pencil className="h-3.5 w-3.5" /> Edit Layer
               </button>
@@ -1264,7 +1264,7 @@ function LayersPage() {
               className={cn(
                 "px-4 py-3 border-b-2 transition-colors cursor-pointer",
                 layerTab === "overview"
-                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  ? "border-blue-500 text-blue-500 font-extrabold"
                   : "border-transparent text-muted-foreground/85 hover:text-foreground"
               )}
             >
@@ -1275,7 +1275,7 @@ function LayersPage() {
               className={cn(
                 "px-4 py-3 border-b-2 transition-colors cursor-pointer",
                 layerTab === "attributes"
-                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  ? "border-blue-500 text-blue-500 font-extrabold"
                   : "border-transparent text-muted-foreground/85 hover:text-foreground"
               )}
             >
@@ -1286,7 +1286,7 @@ function LayersPage() {
               className={cn(
                 "px-4 py-3 border-b-2 transition-colors cursor-pointer",
                 layerTab === "metadata"
-                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  ? "border-blue-500 text-blue-500 font-extrabold"
                   : "border-transparent text-muted-foreground/85 hover:text-foreground"
               )}
             >
@@ -1297,7 +1297,7 @@ function LayersPage() {
               className={cn(
                 "px-4 py-3 border-b-2 transition-colors cursor-pointer",
                 layerTab === "status"
-                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  ? "border-blue-500 text-blue-500 font-extrabold"
                   : "border-transparent text-muted-foreground/85 hover:text-foreground"
               )}
             >
@@ -1369,7 +1369,7 @@ function LayersPage() {
                 <div className="space-y-1">
                   <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Schema Name</span>
                   <div>
-                    <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/25 px-2 py-0.5 text-[10.5px] font-mono font-bold">
+                    <span className="inline-flex items-center rounded bg-blue-500/10 text-blue-500 border border-blue-500/25 px-2 py-0.5 text-[10.5px] font-mono font-bold">
                       {selectedLayer?.schema}
                     </span>
                   </div>
@@ -1384,7 +1384,7 @@ function LayersPage() {
                 {/* REGISTERED DATA SOURCE */}
                 <div className="space-y-1">
                   <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Registered Data Source</span>
-                  <span className="text-xs font-bold text-purple-500 hover:underline cursor-pointer">FGDB1</span>
+                  <span className="text-xs font-bold text-blue-500 hover:underline cursor-pointer">FGDB1</span>
                 </div>
 
                 {/* DATA THEME */}
@@ -1499,7 +1499,7 @@ function LayersPage() {
               <div className="space-y-1.5">
                 <h4 className="text-[15px] font-bold text-foreground">No metadata records linked to this layer.</h4>
                 <p className="text-[12px] text-muted-foreground/85 leading-relaxed font-semibold">
-                  Metadata records live in <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-purple-400">daf__mk.metadata_record</code>; wire the metadata module to populate this tab.
+                  Metadata records live in <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-blue-400">daf__mk.metadata_record</code>; wire the metadata module to populate this tab.
                 </p>
               </div>
             </div>
@@ -1513,7 +1513,7 @@ function LayersPage() {
               <div className="space-y-1.5">
                 <h4 className="text-[15px] font-bold text-foreground">No processing-status entries yet.</h4>
                 <p className="text-[12px] text-muted-foreground/85 leading-relaxed font-semibold">
-                  Wire to <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-purple-400">daf__mk.layer_processing_status</code> when the workflow monitor module lands.
+                  Wire to <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-blue-400">daf__mk.layer_processing_status</code> when the workflow monitor module lands.
                 </p>
               </div>
               
@@ -1566,7 +1566,7 @@ function LayersPage() {
                 m.tone === "primary" && (isLight ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-blue-500/10 text-blue-400 border-blue-500/20"),
                 m.tone === "success" && (isLight ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"),
                 m.tone === "info" && (isLight ? "bg-info/10 text-info border-info/20" : "bg-info/10 text-info border-info/20"),
-                m.tone === "secondary" && (isLight ? "bg-purple-50 text-purple-700 border-purple-200" : "bg-purple-500/10 text-purple-400 border-purple-500/20")
+                m.tone === "secondary" && (isLight ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-blue-500/10 text-blue-400 border-blue-500/20")
               )}>
                 <m.icon className="h-4.5 w-4.5" />
               </span>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import {
   ArrowRight,
@@ -22,6 +22,10 @@ import {
   Shield,
   Server,
   Activity,
+  Users,
+  ArrowLeft,
+  CheckCircle2,
+  Info,
 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -384,6 +388,7 @@ function Login() {
   const [show, setShow] = useState(false);
   const [caps, setCaps] = useState(false);
   const [loading, setLoading] = useState<"idle" | "loading" | "success">("idle");
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -638,151 +643,159 @@ function Login() {
 
           {/* -------------------- RIGHT COLUMN / Auth card -------------------- */}
           <div className="flex flex-col items-center justify-center lg:items-end w-full login-card-wrapper my-auto self-center shrink-0">
-
-            <motion.form
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              onSubmit={handleSubmit}
-              className="relative w-full max-w-[clamp(380px,26vw,880px)] login-card-form"
-            >
-              {/* Card Container */}
-              <div
-                className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
-                style={{
-                  backgroundColor: "rgba(14, 24, 40, 0.55)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
-                }}
+            <div className="w-full max-w-[clamp(380px,26vw,880px)] flex flex-col items-center gap-1.5">
+              <motion.form
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                onSubmit={handleSubmit}
+                className="relative w-full login-card-form"
               >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
-                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-info/10 blur-3xl" />
+                {/* Card Container */}
+                <div
+                  className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
+                  style={{
+                    backgroundColor: "rgba(14, 24, 40, 0.55)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                  }}
+                >
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
+                  <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+                  <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-info/10 blur-3xl" />
 
-                <div className="relative">
-                  {/* Header */}
-                  <div className="flex items-center gap-3.5 2xl:gap-5">
-                    <AnimatedShield />
-                    <div>
-                      <div className="text-[clamp(15px,1.3vw,38px)] font-semibold tracking-tight text-foreground login-card-title">
-                        Secure Workspace
-                      </div>
-                      <div className="mt-0.5 text-[clamp(11.5px,0.9vw,24px)] text-muted-foreground login-card-subtitle">
-                        Access your enterprise automation platform
+                  <div className="relative">
+                    {/* Header */}
+                    <div className="flex items-center gap-3.5 2xl:gap-5">
+                      <AnimatedShield />
+                      <div>
+                        <div className="text-[clamp(15px,1.3vw,38px)] font-semibold tracking-tight text-foreground login-card-title">
+                          Secure Sign In
+                        </div>
+                        <div className="mt-0.5 text-[clamp(11.5px,0.9vw,24px)] text-muted-foreground login-card-subtitle">
+                          Enter your workspace credentials
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Inputs */}
-                  <div className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
-                    <FloatingField
-                      label="Username"
-                      icon={<User className="h-4 w-4" />}
-                      defaultValue="DAPortalAdmin"
-                      autoComplete="username"
-                    />
-                    <FloatingField
-                      label="Password"
-                      icon={<Lock className="h-4 w-4" />}
-                      type={show ? "text" : "password"}
-                      defaultValue="EnterpriseSecure2026"
-                      autoComplete="current-password"
-                      onKeyUp={(e) =>
-                        setCaps(e.getModifierState && e.getModifierState("CapsLock"))
-                      }
-                      trailing={
-                        <button
-                          type="button"
-                          aria-label={show ? "Hide password" : "Show password"}
-                          onClick={() => setShow((s) => !s)}
-                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                    {/* Inputs */}
+                    <div className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
+                      <FloatingField
+                        label="Username"
+                        icon={<User className="h-4 w-4" />}
+                        defaultValue="DAPortalAdmin"
+                        autoComplete="username"
+                      />
+                      <FloatingField
+                        label="Password"
+                        icon={<Lock className="h-4 w-4" />}
+                        type={show ? "text" : "password"}
+                        defaultValue="EnterpriseSecure2026"
+                        autoComplete="current-password"
+                        onKeyUp={(e) =>
+                          setCaps(e.getModifierState && e.getModifierState("CapsLock"))
+                        }
+                        trailing={
+                          <button
+                            type="button"
+                            aria-label={show ? "Hide password" : "Show password"}
+                            onClick={() => setShow((s) => !s)}
+                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                          >
+                            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        }
+                      />
+
+                      {caps && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-1.5 text-[11.5px] text-warning"
                         >
-                          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      }
-                    />
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Caps Lock is on
+                        </motion.div>
+                      )}
 
-                    {caps && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-1.5 text-[11.5px] text-warning"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Caps Lock is on
-                      </motion.div>
-                    )}
+                      <div className="flex items-center justify-between pt-0.5 text-[clamp(11.5px,0.85vw,13px)]">
+                        <label className="flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-foreground login-checkbox-label">
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                          />
+                          Remember me
+                        </label>
+                        <a
+                          href="#"
+                          className="font-medium text-accent transition-colors hover:text-foreground login-forgot-link"
+                        >
+                          Forgot password?
+                        </a>
+                      </div>
 
-                    <div className="flex items-center justify-between pt-0.5 text-[clamp(11.5px,0.85vw,13px)]">
-                      <label className="flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-foreground login-checkbox-label">
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
-                        />
-                        Remember me
-                      </label>
-                      <a
-                        href="#"
-                        className="font-medium text-accent transition-colors hover:text-foreground login-forgot-link"
+                      {/* CTA */}
+                      <motion.button
+                        type="submit"
+                        disabled={loading !== "idle"}
+                        whileHover={loading === "idle" ? { y: -1 } : undefined}
+                        whileTap={loading === "idle" ? { y: 0, scale: 0.99 } : undefined}
+                        className="group relative mt-2 sm:mt-3 2xl:mt-6 inline-flex h-[clamp(44px,3.3vw,100px)] w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-primary text-[clamp(14px,1.1vw,30px)] font-semibold tracking-tight text-primary-foreground shadow-[0_12px_40px_-12px_rgba(59,130,246,0.55)] transition-all disabled:opacity-95 login-cta-button"
                       >
-                        Forgot password?
-                      </a>
+                        <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-transparent" />
+                        <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
+                        <span className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+                        <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        {loading === "idle" && (
+                          <>
+                            Sign In to Workspace
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          </>
+                        )}
+                        {loading === "loading" && (
+                          <>
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                            Signing In...
+                          </>
+                        )}
+                        {loading === "success" && (
+                          <motion.span
+                            initial={{ scale: 0.6, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="flex items-center gap-2"
+                          >
+                            <Check className="h-4 w-4" />
+                            Welcome back
+                          </motion.span>
+                        )}
+                      </motion.button>
                     </div>
-
-                    {/* CTA */}
-                    <motion.button
-                      type="submit"
-                      disabled={loading !== "idle"}
-                      whileHover={loading === "idle" ? { y: -1 } : undefined}
-                      whileTap={loading === "idle" ? { y: 0, scale: 0.99 } : undefined}
-                      className="group relative mt-2 sm:mt-3 2xl:mt-6 inline-flex h-[clamp(44px,3.3vw,100px)] w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-primary text-[clamp(14px,1.1vw,30px)] font-semibold tracking-tight text-primary-foreground shadow-[0_12px_40px_-12px_rgba(59,130,246,0.55)] transition-all disabled:opacity-95 login-cta-button"
-                    >
-                      <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-transparent" />
-                      <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
-                      <span className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-                      <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                      {loading === "idle" && (
-                        <>
-                          Sign In to Workspace
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                        </>
-                      )}
-                      {loading === "loading" && (
-                        <>
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                          Signing In...
-                        </>
-                      )}
-                      {loading === "success" && (
-                        <motion.span
-                          initial={{ scale: 0.6, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className="flex items-center gap-2"
-                        >
-                          <Check className="h-4 w-4" />
-                          Welcome back
-                        </motion.span>
-                      )}
-                    </motion.button>
                   </div>
                 </div>
-              </div>
+              </motion.form>
 
-              {/* Under card meta - Always visible & part of natural card flow */}
-              <div className="mt-3 2xl:mt-4 flex items-center justify-between px-2 text-[clamp(11px,0.85vw,22px)] text-muted-foreground login-under-card-meta">
-                <span className="inline-flex items-center gap-1.5">
-                  <Fingerprint className="h-[clamp(14px,1vw,28px)] w-[clamp(14px,1vw,28px)] text-success shrink-0" />
-                  End-to-end encrypted session
-                </span>
-                <Link to="/" className="hover:text-foreground transition-colors">
-                  Need help?
-                </Link>
+              {/* Privacy Policy · Terms of Service · About Footer links under login box */}
+              <div className="mt-5 flex items-center justify-center gap-3 text-xs font-semibold text-muted-foreground/60 select-none">
+                <a href="#" className="hover:text-foreground/90 transition-colors">Privacy Policy</a>
+                <span className="text-muted-foreground/30">•</span>
+                <a href="#" className="hover:text-foreground/90 transition-colors">Terms of Service</a>
+                <span className="text-muted-foreground/30">•</span>
+                <button
+                  type="button"
+                  onClick={() => setIsAboutOpen(true)}
+                  className="inline-flex items-center gap-1 hover:text-foreground/90 transition-colors cursor-pointer text-xs font-semibold bg-transparent border-none p-0 outline-none"
+                >
+                  <Info className="h-3.5 w-3.5" /> About
+                </button>
               </div>
-            </motion.form>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* About Platform Overlay Info Section */}
+      <AboutOverlay isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </div>
   );
 }
@@ -1038,5 +1051,309 @@ function FloatingField({
         <span className="relative">{trailing}</span>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* About Platform Overlay Component                                   */
+/* ------------------------------------------------------------------ */
+
+function AboutOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const modulesList = [
+    { name: "Entity Register", Icon: Layers, desc: "Onboard schemas and validate parameters" },
+    { name: "Stakeholder Info", Icon: Users, desc: "Manage operational agencies & contacts" },
+    { name: "Delivery Tracker", Icon: ArrowLeftRight, desc: "Monitor pipelines in real-time" },
+    { name: "Workflow Monitor", Icon: Workflow, desc: "Trace status logs and automation alerts" },
+    { name: "Rules & Enforcement", Icon: ShieldCheck, desc: "Spatial & attribute checks on save" },
+    { name: "Data Layer Governance", Icon: Database, desc: "Control access level definitions" },
+    { name: "Admin Control Room", Icon: Server, desc: "Orchestrate system tasks & logs" },
+    { name: "Identity Management", Icon: User, desc: "SSO policies, roles & permissions" },
+  ];
+
+  const operationsCards = [
+    {
+      title: "Entity Onboarding",
+      desc: "Request and track mappings for new data pipelines with automated schema extraction and feedback at every step.",
+      Icon: Layers,
+      color: "text-blue-400 bg-blue-500/10 border-blue-500/20"
+    },
+    {
+      title: "Stakeholder Management",
+      desc: "Define department stakeholders, representatives, and their respective access controls to establish clear data ownership.",
+      Icon: Users,
+      color: "text-violet-400 bg-violet-500/10 border-violet-500/20"
+    },
+    {
+      title: "Delivery Workflow Monitoring",
+      desc: "Real-time dashboard tracking the progress of active deliveries — see status, identify bottlenecks, and resolve exceptions instantly.",
+      Icon: ArrowLeftRight,
+      color: "text-sky-400 bg-sky-500/10 border-sky-500/20"
+    },
+    {
+      title: "Data Quality Validation",
+      desc: "Configure rules to run validation checks on attributes, types, geometries, and topological integrity.",
+      Icon: ShieldCheck,
+      color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+    },
+    {
+      title: "Data Layer Governance",
+      desc: "Register, organize, and secure spatial layers. Control access levels, sensitivity parameters, and schema details.",
+      Icon: Database,
+      color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
+    },
+    {
+      title: "Identity & User Administration",
+      desc: "Audit logs, secure API keys, SSO authentication, and custom role assignments for absolute control over permissions.",
+      Icon: Fingerprint,
+      color: "text-rose-400 bg-rose-500/10 border-rose-500/20"
+    }
+  ];
+
+  const flowSteps = [
+    { step: 1, label: "Entity Onboarding", Icon: Database },
+    { step: 2, label: "Stakeholder Alignment", Icon: Users },
+    { step: 3, label: "Validation Enforcement", Icon: ShieldCheck },
+    { step: 4, label: "Quality Assurance", Icon: CheckCircle2 },
+    { step: 5, label: "Data Delivery", Icon: ArrowLeftRight },
+    { step: 6, label: "Workflow History", Icon: FileText },
+  ];
+
+  const leftComplianceItems = [
+    { title: "Role-based Access Control (RBAC)", desc: "Granular user-level permissions.", Icon: ShieldCheck },
+    { title: "SSL & MFA Integration", desc: "SAML, OAuth, and hardware key support.", Icon: Lock },
+    { title: "Audit Logging", desc: "Immutable event trailing across all actions.", Icon: FileText },
+    { title: "Notification & Alert Management", desc: "Real-time slack, email, and webhook alerts.", Icon: Activity },
+  ];
+
+  const rightBenefits = [
+    "Reduce manual data pipelines and handoffs by up to 85% through intelligent automation",
+    "Active end-to-end data lineage & visibility across operational layers",
+    "Enforce data quality at every stage — no more silent data corruption",
+    "Centralized governance with enterprise-grade RBAC and audit trails",
+    "Automated reports, metrics, and compliance checks",
+    "TLS encrypted connections with active vulnerability scanning"
+  ];
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 30 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="fixed inset-0 z-50 overflow-y-auto bg-[#030611] text-foreground scrollbar-thin select-none"
+        >
+          {/* Header Bar */}
+          <div className="sticky top-0 z-50 w-full bg-[#030611]/85 backdrop-blur-md border-b border-white/[0.06] h-[64px] px-6 flex items-center justify-between">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground/85 hover:text-foreground cursor-pointer transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to Sign In
+            </button>
+            <div className="flex items-center gap-2 font-bold text-sm tracking-wide text-foreground">
+              <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" /> Data Automation Studio
+            </div>
+            <button
+              onClick={onClose}
+              className="h-8.5 px-4 rounded-full bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white shadow-soft transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+          </div>
+
+          <div className="max-w-5xl mx-auto px-6 py-16 space-y-24 pb-32">
+            {/* Hero Section */}
+            <div className="flex flex-col items-center text-center space-y-6">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                // ENTERPRISE DATA PLATFORM
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-none">
+                Data Automation<br />
+                <span className="bg-gradient-to-r from-blue-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">Studio</span>
+              </h1>
+              <p className="max-w-2xl text-sm sm:text-[15px] leading-relaxed text-slate-300 font-medium">
+                A comprehensive enterprise platform to automate, monitor and govern your official data workflows — from entity onboarding through delivery, with full quality and compliance checks built-in.
+              </p>
+              <div className="flex flex-col items-center gap-4 pt-2">
+                <button
+                  onClick={onClose}
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 px-6 text-sm font-bold text-white shadow-[0_12px_36px_-12px_rgba(37,99,235,0.6)] transition-all hover:-translate-y-0.5 cursor-pointer animate-pulse"
+                >
+                  Access the Studio <ArrowRight className="h-4 w-4" />
+                </button>
+                <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground/80">
+                  <span>• SDE Connectors</span>
+                  <span>• GDPR Ready</span>
+                  <span>• 256-bit TLS</span>
+                </div>
+              </div>
+            </div>
+
+            {/* What is Data Automation Studio Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-12 items-start border-t border-white/[0.06] pt-16">
+              <div className="space-y-4">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-500">// PLATFORM OVERVIEW</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">What is Data Automation Studio?</h2>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-semibold">
+                  Data Automation Studio (DAS) is an enterprise-grade onboarding platform designed to eliminate manual office processes for spatial features — from initial entry, data mapping, to final delivery and validation.
+                </p>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-semibold">
+                  Built for data engineering, operations, and governance teams, DAS provides a unified control plane where data schemas are structured, quality rules are enforced, and historical deliveries are fully traceable. Whether you're managing hundreds of data feeds or thousands of delivery cycles, DAS is optimized to make operations fully secure, compliant, and observable.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {modulesList.map((m) => (
+                  <div
+                    key={m.name}
+                    className="group flex flex-col p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-blue-500/30 hover:bg-white/[0.04] transition-all duration-300 cursor-default"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white group-hover:border-transparent transition-all duration-300 shrink-0">
+                      <m.Icon className="h-4.5 w-4.5" />
+                    </div>
+                    <span className="text-xs font-bold text-white mt-3 block">{m.name}</span>
+                    <span className="text-[11px] text-muted-foreground font-semibold mt-1 leading-normal">{m.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Everything Your Data Operations Need */}
+            <div className="space-y-12 border-t border-white/[0.06] pt-16">
+              <div className="text-center space-y-3">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-500">// SYSTEM FEATURES</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Everything Your Data Operations Need</h2>
+                <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-400 font-semibold">
+                  From ingestion to delivery, DAS provides rigorous controls to safeguard your enterprise data lifecycle.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {operationsCards.map((c) => (
+                  <div
+                    key={c.title}
+                    className="group flex flex-col justify-between p-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-blue-500/20 hover:bg-white/[0.03] transition-all duration-300 relative overflow-hidden"
+                  >
+                    <div className="space-y-4">
+                      <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${c.color} shrink-0`}>
+                        <c.Icon className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{c.title}</h3>
+                        <p className="text-xs text-slate-400 font-semibold leading-relaxed">{c.desc}</p>
+                      </div>
+                    </div>
+                    <div className="pt-4 flex items-center gap-1 text-[11px] font-bold text-blue-400 group-hover:text-blue-300 cursor-pointer">
+                      Learn more <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* End-to-End Pipeline Orchestration */}
+            <div className="space-y-12 border-t border-white/[0.06] pt-16">
+              <div className="text-center space-y-3">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-500">// PIPELINE WORKFLOW</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">End-to-End Pipeline Orchestration</h2>
+                <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-400 font-semibold">
+                  Data workflows route automatically through logical staging, validation gates, and delivery receipts.
+                </p>
+              </div>
+
+              <div className="relative py-8">
+                {/* Horizontal progress track line */}
+                <div className="absolute top-[48px] left-[5%] right-[5%] h-0.5 bg-white/[0.08]" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-10 gap-x-4 relative">
+                  {flowSteps.map((s) => (
+                    <div key={s.step} className="flex flex-col items-center text-center space-y-3 group cursor-default">
+                      <div className="relative flex h-[36px] w-[36px] items-center justify-center rounded-full bg-slate-950 border border-white/[0.12] text-slate-400 font-mono text-[10px] font-extrabold group-hover:border-blue-500 group-hover:text-blue-400 transition-all duration-300 shadow-sm">
+                        {s.step}
+                      </div>
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] text-blue-400 group-hover:bg-blue-500 group-hover:text-white group-hover:border-transparent transition-all duration-300 shrink-0">
+                        <s.Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-bold text-white px-2 leading-tight">{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Enterprise Control at Every Level */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-start border-t border-white/[0.06] pt-16">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-500">// COMPLIANCE & SECURITY</span>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Enterprise Control at Every Level</h2>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {leftComplianceItems.map((item) => (
+                    <div key={item.title} className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.01] space-y-2 cursor-default">
+                      <div className="flex items-center gap-2">
+                        <item.Icon className="h-4 w-4 text-blue-400" />
+                        <span className="text-xs font-bold text-white">{item.title}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground font-semibold leading-normal">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] space-y-4">
+                <h3 className="text-xs font-extrabold text-blue-400 uppercase tracking-widest">// OPERATIONAL BENEFITS</h3>
+                <ul className="space-y-3 text-xs text-slate-300 font-semibold">
+                  {rightBenefits.map((benefit, i) => (
+                    <li key={i} className="flex items-start gap-2.5 leading-relaxed">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="relative rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-950/20 via-slate-950 to-indigo-950/20 p-8 sm:p-12 text-center overflow-hidden w-full">
+              <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl" />
+              
+              <div className="relative max-w-lg mx-auto space-y-6 flex flex-col items-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0 animate-pulse">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white">Ready to Get Started?</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-semibold leading-relaxed">
+                    Sign in to your Data Automation Studio workspace and take control of your enterprise data operations today.
+                  </p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="h-10 px-6 rounded-full bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white shadow-soft transition-all hover:-translate-y-0.5 cursor-pointer"
+                >
+                  Sign In Now
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

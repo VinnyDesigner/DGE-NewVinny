@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
 import { useTheme } from "@/lib/theme";
@@ -26,6 +26,9 @@ import {
   Workflow,
   HelpCircle,
   SlidersHorizontal,
+  Scale,
+  GitBranch,
+  ArrowUpDown,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/orchestration")({
@@ -93,6 +96,15 @@ function NodeOrchestrationComponent() {
   const [newNodeMaxJobs, setNewNodeMaxJobs] = useState(3);
   const [newNodeNotes, setNewNodeNotes] = useState("");
   const [distStrategy, setDistStrategy] = useState<"load_balanced" | "dedicated" | "priority_based">("load_balanced");
+  const [leaseCountdown, setLeaseCountdown] = useState(10);
+
+  // Lease renewal timer loop (HA mode)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLeaseCountdown((prev) => (prev <= 1 ? 30 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Filter States
   const [execSearchQuery, setExecSearchQuery] = useState("");
@@ -289,7 +301,7 @@ function NodeOrchestrationComponent() {
                   {mgmtNodes.length} of {topology === "ha" ? 2 : 1}
                 </div>
                 <p className="text-[11px] text-muted-foreground/75 font-semibold leading-none truncate font-medium">
-                  Scheduler + Dispatcher tier
+                  {topology === "ha" ? "Active + standby (failover)" : "Scheduler + Dispatcher tier"}
                 </p>
               </div>
               <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 border border-blue-500/15">
@@ -449,40 +461,141 @@ function NodeOrchestrationComponent() {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {mgmtNodes.map((n) => (
-                      <Surface key={n.name} className="!p-4 border border-border hover:border-primary/20 transition relative">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="text-xs font-extrabold text-foreground">{n.name}</div>
-                            <div className="text-[10.5px] text-muted-foreground font-semibold font-mono">{n.hostname} · {n.ip}</div>
+                  {topology === "ha" ? (
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 relative py-2 w-full">
+                      {/* Left Slot: Active Node or placeholder */}
+                      <div className="w-full md:w-[calc(50%-100px)]">
+                        {mgmtNodes[0] ? (
+                          <Surface className="!p-4 border border-border hover:border-primary/20 transition relative h-[108px] flex flex-col justify-between">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1">
+                                <div className="text-xs font-extrabold text-foreground flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                  {mgmtNodes[0].name}
+                                </div>
+                                <div className="text-[10.5px] text-muted-foreground font-semibold font-mono">{mgmtNodes[0].hostname} · {mgmtNodes[0].ip}</div>
+                              </div>
+                              <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-500 uppercase leading-none">
+                                ACTIVE
+                              </span>
+                            </div>
+                            <div className="flex justify-end pt-2 border-t border-border/30">
+                              <button
+                                onClick={() => handleRemoveMgmtNode(mgmtNodes[0].name)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-500/5 p-1 rounded-md transition cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </Surface>
+                        ) : (
+                          <div
+                            onClick={() => setShowAddMgmtModal(true)}
+                            className="border border-dashed border-border/85 rounded-xl hover:border-primary/40 hover:bg-card/45 transition cursor-pointer h-[108px] flex items-center justify-center select-none"
+                          >
+                            <span className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+                              <Plus className="h-4 w-4" /> Add management node
+                            </span>
                           </div>
-                          <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-500 uppercase leading-none">
-                            Online
+                        )}
+                      </div>
+
+                      {/* Middle Animated Lease Renew Tracker (in blue theme) */}
+                      <div className="w-[180px] shrink-0 flex flex-col items-center justify-center relative select-none">
+                        {/* Horizontal connector lines */}
+                        <div className="hidden md:block absolute left-0 right-[55%] top-[24px] border-t-2 border-dashed border-blue-500/30" />
+                        <div className="hidden md:block absolute left-[55%] right-0 top-[24px] border-t-2 border-dashed border-blue-500/30" />
+
+                        {/* Rotating blue icon circle */}
+                        <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_0_12px_rgba(37,99,235,0.4)] border border-blue-400/20 transition-transform duration-500 hover:scale-110">
+                          <RefreshCw className="h-5 w-5 animate-[spin_6s_linear_infinite]" />
+                        </div>
+
+                        {/* Countdown Box */}
+                        <div className="mt-3.5 bg-card border border-border/80 px-4 py-1.5 rounded-lg shadow-sm text-center min-w-[70px]">
+                          <span className="text-[12px] font-black text-foreground font-mono">{leaseCountdown} sec</span>
+                        </div>
+
+                        {/* Labels */}
+                        <div className="text-center mt-2.5">
+                          <div className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none">LEASE RENEW</div>
+                          <div className="text-[8.5px] font-extrabold text-muted-foreground mt-0.5">of 30s TTL</div>
+                        </div>
+                      </div>
+
+                      {/* Right Slot: Standby Node or placeholder */}
+                      <div className="w-full md:w-[calc(50%-100px)]">
+                        {mgmtNodes[1] ? (
+                          <Surface className="!p-4 border border-border hover:border-primary/20 transition relative h-[108px] flex flex-col justify-between">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1">
+                                <div className="text-xs font-extrabold text-foreground flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                  {mgmtNodes[1].name}
+                                </div>
+                                <div className="text-[10.5px] text-muted-foreground font-semibold font-mono">{mgmtNodes[1].hostname} · {mgmtNodes[1].ip}</div>
+                              </div>
+                              <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-blue-500 uppercase leading-none">
+                                STANDBY
+                              </span>
+                            </div>
+                            <div className="flex justify-end pt-2 border-t border-border/30">
+                              <button
+                                onClick={() => handleRemoveMgmtNode(mgmtNodes[1].name)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-500/5 p-1 rounded-md transition cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </Surface>
+                        ) : (
+                          <div
+                            onClick={() => setShowAddMgmtModal(true)}
+                            className="border border-dashed border-border/85 rounded-xl hover:border-primary/40 hover:bg-card/45 transition cursor-pointer h-[108px] flex items-center justify-center select-none"
+                          >
+                            <span className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+                              <Plus className="h-4 w-4" /> Add management node
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {mgmtNodes.map((n) => (
+                        <Surface key={n.name} className="!p-4 border border-border hover:border-primary/20 transition relative">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="text-xs font-extrabold text-foreground">{n.name}</div>
+                              <div className="text-[10.5px] text-muted-foreground font-semibold font-mono">{n.hostname} · {n.ip}</div>
+                            </div>
+                            <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-extrabold text-emerald-500 uppercase leading-none">
+                              Online
+                            </span>
+                          </div>
+                          <div className="flex justify-end mt-3 pt-3 border-t border-border/30">
+                            <button
+                              onClick={() => handleRemoveMgmtNode(n.name)}
+                              className="text-red-500 hover:text-red-600 hover:bg-red-500/5 p-1 rounded-md transition cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </Surface>
+                      ))}
+
+                      {mgmtNodes.length < (topology === "ha" ? 2 : 1) && (
+                        <div
+                          onClick={() => setShowAddMgmtModal(true)}
+                          className="border border-dashed border-border/85 rounded-xl hover:border-primary/40 hover:bg-card/45 transition cursor-pointer h-[108px] flex items-center justify-center select-none"
+                        >
+                          <span className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+                            <Plus className="h-4 w-4" /> Add management node
                           </span>
                         </div>
-                        <div className="flex justify-end mt-3 pt-3 border-t border-border/30">
-                          <button
-                            onClick={() => handleRemoveMgmtNode(n.name)}
-                            className="text-red-500 hover:text-red-600 hover:bg-red-500/5 p-1 rounded-md transition cursor-pointer"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </Surface>
-                    ))}
-
-                    {mgmtNodes.length < (topology === "ha" ? 2 : 1) && (
-                      <div
-                        onClick={() => setShowAddMgmtModal(true)}
-                        className="border border-dashed border-border/85 rounded-xl hover:border-primary/40 hover:bg-card/45 transition cursor-pointer h-[108px] flex items-center justify-center select-none"
-                      >
-                        <span className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5">
-                          <Plus className="h-4 w-4" /> Add management node
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* EXECUTION TIER BLOCK */}
@@ -534,8 +647,10 @@ function NodeOrchestrationComponent() {
                                       setStatusDropdownOpen(false);
                                     }}
                                     className={cn(
-                                      "w-full text-left px-3 py-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
-                                      execStatusFilter === item && "bg-primary/5 text-primary font-bold"
+                                      "w-full text-left px-3.5 py-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
+                                      execStatusFilter === item
+                                        ? "bg-blue-600 text-white font-extrabold"
+                                        : "text-foreground"
                                     )}
                                   >
                                     {item}
@@ -570,8 +685,10 @@ function NodeOrchestrationComponent() {
                                       setCompatDropdownOpen(false);
                                     }}
                                     className={cn(
-                                      "w-full text-left px-3 py-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
-                                      execCompatFilter === item && "bg-primary/5 text-primary font-bold"
+                                      "w-full text-left px-3.5 py-2 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer",
+                                      execCompatFilter === item
+                                        ? "bg-blue-600 text-white font-extrabold"
+                                        : "text-foreground"
                                     )}
                                   >
                                     {item}
@@ -750,7 +867,7 @@ function NodeOrchestrationComponent() {
                 <div className="space-y-1">
                   <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Topology</span>
                   <div className="text-[13px] font-extrabold text-foreground capitalize font-bold">
-                    {topology === "ha" ? "HA" : topology}
+                    {topology === "ha" ? "High Availability" : topology === "standard" ? "Standard" : "Standalone"}
                   </div>
                 </div>
               </div>
@@ -811,8 +928,11 @@ function NodeOrchestrationComponent() {
                       )}
                     >
                       <div className="flex justify-between items-start">
-                        <span className="text-xs font-extrabold text-foreground">Load balanced</span>
-                        <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider leading-none">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Scale className={cn("h-3.5 w-3.5 shrink-0", distStrategy === "load_balanced" ? "text-blue-500" : "text-muted-foreground/75")} />
+                          <span className="text-xs font-extrabold text-foreground truncate">Load balanced</span>
+                        </div>
+                        <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider leading-none shrink-0">
                           DEFAULT
                         </span>
                       </div>
@@ -831,7 +951,10 @@ function NodeOrchestrationComponent() {
                           : "border-border/60 hover:bg-foreground/[0.015]"
                       )}
                     >
-                      <span className="text-xs font-extrabold text-foreground">Dedicated</span>
+                      <div className="flex items-center gap-1.5">
+                        <GitBranch className={cn("h-3.5 w-3.5 shrink-0", distStrategy === "dedicated" ? "text-blue-500" : "text-muted-foreground/75")} />
+                        <span className="text-xs font-extrabold text-foreground truncate">Dedicated</span>
+                      </div>
                       <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
                         Pin job types to specific nodes
                       </p>
@@ -847,7 +970,10 @@ function NodeOrchestrationComponent() {
                           : "border-border/60 hover:bg-foreground/[0.015]"
                       )}
                     >
-                      <span className="text-xs font-extrabold text-foreground">Priority based</span>
+                      <div className="flex items-center gap-1.5">
+                        <ArrowUpDown className={cn("h-3.5 w-3.5 shrink-0", distStrategy === "priority_based" ? "text-blue-500" : "text-muted-foreground/75")} />
+                        <span className="text-xs font-extrabold text-foreground truncate">Priority based</span>
+                      </div>
                       <p className="text-[10.5px] font-semibold text-muted-foreground mt-2 leading-relaxed">
                         Honour per-node priority ordering
                       </p>

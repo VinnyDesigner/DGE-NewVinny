@@ -788,12 +788,17 @@ function LayersPage() {
               <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
                 Entity <span className="text-danger ml-0.5">*</span>
               </label>
-              <Select value={selectedLayer?.entity} disabled>
-                <SelectTrigger className="h-9 w-full border-border/60 bg-muted/30 dark:bg-muted/10 text-[13px] text-muted-foreground cursor-not-allowed">
+              <Select value={selectedLayer?.entity || "ADDA"} disabled>
+                <SelectTrigger className="h-9 w-full border-border/60 bg-muted/30 dark:bg-muted/10 text-[13px] text-foreground font-semibold cursor-not-allowed">
                   <SelectValue placeholder="ADDA — Abu Dhabi Digital Authority" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border/60">
-                  <SelectItem value="adda">ADDA — Abu Dhabi Digital Authority</SelectItem>
+                  <SelectItem value="ADDA">ADDA — Abu Dhabi Digital Authority</SelectItem>
+                  <SelectItem value="ADDC">ADDC — Abu Dhabi Distribution Company</SelectItem>
+                  <SelectItem value="ADHA">ADHA — Abu Dhabi Housing Authority</SelectItem>
+                  <SelectItem value="DGE">DGE — Dept of Government Enablement</SelectItem>
+                  <SelectItem value="DMT">DMT — Department of Municipalities</SelectItem>
+                  <SelectItem value="EAD">EAD — Environment Agency Abu Dhabi</SelectItem>
                 </SelectContent>
               </Select>
             </div>

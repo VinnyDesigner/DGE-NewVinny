@@ -1454,7 +1454,8 @@ function CreateSchedulePage() {
         </div>
 
         {/* Right Side: Schedule Preview Sidebar */}
-        <Surface className="!p-5 h-fit lg:sticky lg:top-[68px] border border-border">
+        <div className="lg:sticky lg:top-[68px] h-fit">
+          <Surface className="!p-5 border border-border">
           <div className="flex items-start justify-between pb-3 border-b border-border/30 mb-4 select-none">
             <div>
               <div className="text-[13px] font-bold text-foreground">Schedule Preview</div>
@@ -1575,7 +1576,8 @@ function CreateSchedulePage() {
           <div className="mt-5 flex items-center gap-2 rounded-lg bg-blue-500/10 border border-blue-500/20 px-3.5 py-2.5 text-xs font-bold text-blue-400 select-none shadow-soft">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" /> Will be active on save
           </div>
-        </Surface>
+          </Surface>
+        </div>
 
       </div>
     </div>

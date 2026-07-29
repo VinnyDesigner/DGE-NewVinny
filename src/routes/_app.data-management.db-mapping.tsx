@@ -566,34 +566,32 @@ function DatabaseMapping() {
   const totalSchemas = useMemo(() => schemas.length, [schemas]);
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between select-none">
-        <PageHeader
-          title="Database Mapping"
-          description="Register database instances, the databases that live under them, and the schemas inside each database. Logical mapping only — no credentials are collected."
-          className="mb-0!"
-        />
-        {activeTab === "instances" && (
-          <Button
-            onClick={() => {
-              setInstName("");
-              setInstType("PostgreSQL");
-              setInstEnv("Production");
-              setInstHost("");
-              setInstIp("");
-              setInstRemarks("");
-              setInstDataLoaderSde("\\\\server\\connections\\loader.sde");
-              setInstAdminSde("\\\\server\\connections\\loader.sde");
-              setInstOnboarding(true);
-              setIsInstanceModalOpen(true);
-            }}
-            className="h-9.5 bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 font-bold text-xs shrink-0 self-start sm:self-center rounded-lg shadow-sm"
-          >
-            <Plus className="h-4 w-4" /> Create DB Instance
-          </Button>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Database Mapping"
+        description="Register database instances, the databases that live under them, and the schemas inside each database. Logical mapping only — no credentials are collected."
+        actions={
+          activeTab === "instances" && (
+            <Button
+              onClick={() => {
+                setInstName("");
+                setInstType("PostgreSQL");
+                setInstEnv("Production");
+                setInstHost("");
+                setInstIp("");
+                setInstRemarks("");
+                setInstDataLoaderSde("\\\\server\\connections\\loader.sde");
+                setInstAdminSde("\\\\server\\connections\\loader.sde");
+                setInstOnboarding(true);
+                setIsInstanceModalOpen(true);
+              }}
+              className="h-9.5 bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 font-bold text-xs shrink-0 rounded-lg shadow-sm cursor-pointer"
+            >
+              <Plus className="h-4 w-4" /> Create DB Instance
+            </Button>
+          )
+        }
+      />
 
       {/* Unified Tabbed Container (3rd image) */}
       <Surface className="p-0 border border-border/80 shadow-sm overflow-hidden bg-card rounded-xl">

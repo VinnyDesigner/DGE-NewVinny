@@ -267,15 +267,11 @@ function SecurityAuthentication() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 border-b border-border/40 pb-2 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader
-          title="Security & Authentication"
-          description="Authentication policies, system security, the identity provider, and the outbound mail (SMTP) server"
-          className="mb-0!"
-        />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Security & Authentication"
+        description="Authentication policies, system security, the identity provider, and the outbound mail (SMTP) server"
+      />
 
       {/* Tabs Headings */}
       <div className="flex items-center gap-1 border-b border-border/40 pb-px">

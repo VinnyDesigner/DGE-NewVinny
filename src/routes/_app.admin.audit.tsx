@@ -511,34 +511,31 @@ function AuditLogsComponent() {
   const paginatedEvents = filteredEvents.slice(startIndex, startIndex + pageSize);
 
   return (
-    <div className="space-y-5 p-6 animate-fade-in">
-      {/* Top Header Block */}
-      <div className="flex items-center justify-between select-none">
-        <PageHeader
-          eyebrow="Administration"
-          title="Audit Logs"
-          description="Complete immutable audit trail of all system actions across every module"
-        />
+    <div className="space-y-6">
+      <PageHeader
+        title="Audit Logs"
+        description="Complete immutable audit trail of all system actions across every module"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              className="h-9 w-9 bg-card cursor-pointer"
+              title="Refresh logs"
+            >
+              <RefreshCw className={cn("h-4 w-4 text-muted-foreground", isRefreshing && "animate-spin")} />
+            </Button>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleRefresh}
-            className="h-9 w-9 bg-card cursor-pointer"
-            title="Refresh logs"
-          >
-            <RefreshCw className={cn("h-4 w-4 text-muted-foreground", isRefreshing && "animate-spin")} />
-          </Button>
-
-          <Button
-            onClick={handleExport}
-            className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-soft"
-          >
-            <Download className="h-4 w-4" /> Export CSV
-          </Button>
-        </div>
-      </div>
+            <Button
+              onClick={handleExport}
+              className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-soft"
+            >
+              <Download className="h-4 w-4" /> Export CSV
+            </Button>
+          </div>
+        }
+      />
 
       {/* Summary Statistics Row (8 boxes matching images) */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 select-none text-xs font-semibold">

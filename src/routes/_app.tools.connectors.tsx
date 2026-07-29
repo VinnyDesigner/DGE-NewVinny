@@ -421,23 +421,22 @@ function DataConnectors() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* 1. LIST VIEW */}
       {currentView === "list" && (
         <div className="space-y-6">
-          <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <PageHeader
-              title="Data Source Connectors"
-              description="Control available onboarding connector types"
-              className="mb-0!"
-            />
-            <Button
-              onClick={handleOpenAddModal}
-              className="h-9.5 bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-1.5 font-semibold text-xs shrink-0 self-start sm:self-center"
-            >
-              <Plus className="h-4 w-4" /> Add connector
-            </Button>
-          </div>
+          <PageHeader
+            title="Data Source Connectors"
+            description="Control available onboarding connector types"
+            actions={
+              <Button
+                onClick={handleOpenAddModal}
+                className="h-9.5 bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-1.5 font-semibold text-xs shrink-0 rounded-lg shadow-sm cursor-pointer"
+              >
+                <Plus className="h-4 w-4" /> Add connector
+              </Button>
+            }
+          />
 
           <Surface className="p-4 flex flex-col justify-start">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3 mb-2.5">
@@ -564,28 +563,28 @@ function DataConnectors() {
       {/* 2. VIEW VIEW (2nd Image) */}
       {currentView === "view" && selectedConnector && (
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-foreground">{selectedConnector.name}</h2>
-              <p className="text-xs text-muted-foreground mt-1">Data Source Connector — details & subtypes</p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentView("list")}
-                className="h-8.5 px-3.5 font-semibold text-xs flex items-center gap-1.5"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> Back
-              </Button>
-              <Button
-                onClick={() => handleEditConnectorTrigger(selectedConnector)}
-                className="h-8.5 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
-              >
-                <Pencil className="h-3.5 w-3.5" /> Edit
-              </Button>
-            </div>
-          </div>
+          <PageHeader
+            title={selectedConnector.name}
+            description="Data Source Connector — details & subtypes"
+            actions={
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentView("list")}
+                  className="h-9 w-9 bg-card cursor-pointer"
+                  title="Back"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => handleEditConnectorTrigger(selectedConnector)}
+                  className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-soft"
+                >
+                  <Pencil className="h-4 w-4" /> Edit
+                </Button>
+              </div>
+            }
+          />
 
           {/* Details Metadata Card */}
           <Surface className="p-5 space-y-4">
@@ -722,31 +721,28 @@ function DataConnectors() {
       {/* 3. EDIT VIEW (3rd Image) */}
       {currentView === "edit" && selectedConnector && (
         <form onSubmit={handleEditSubmit} className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-foreground">Edit: {selectedConnector.name}</h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                Edit the connector and enable/disable its subtypes — drives onboarding pickers live.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setCurrentView("view")}
-                className="h-8.5 px-3.5 font-semibold text-xs"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="h-8.5 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs"
-              >
-                Save changes
-              </Button>
-            </div>
-          </div>
+          <PageHeader
+            title={`Edit: ${selectedConnector.name}`}
+            description="Edit the connector and enable/disable its subtypes — drives onboarding pickers live."
+            actions={
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCurrentView("view")}
+                  className="h-9 px-4 bg-card hover:bg-muted text-foreground border border-border/60 font-bold text-xs cursor-pointer rounded-lg shadow-sm"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-bold text-xs cursor-pointer rounded-lg shadow-sm"
+                >
+                  Save changes
+                </Button>
+              </div>
+            }
+          />
 
           {/* Form fields */}
           <Surface className="p-5 space-y-4">

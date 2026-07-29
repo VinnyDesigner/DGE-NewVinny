@@ -771,15 +771,11 @@ function LayerConfiguration() {
   ]);
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 pb-1">
-        <PageHeader
-          title="Layer Configuration"
-          description="Manage configurable reference data for Data Layers — Coverage Areas, Geometry Types, Data Types, and Sensitivity Levels"
-          className="mb-0!"
-        />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Layer Configuration"
+        description="Manage configurable reference data for Data Layers — Coverage Areas, Geometry Types, Data Types, and Sensitivity Levels"
+      />
 
       {/* Main Container Surface wrapping Tabs, Instruction & Table */}
       <Surface className="p-0 border border-border/40 bg-card overflow-hidden rounded-2xl shadow-glow">

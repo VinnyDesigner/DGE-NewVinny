@@ -176,7 +176,7 @@ function JobNotificationsPage() {
       />
 
       {/* SMTP Managed Information ribbon */}
-      <div className="rounded-xl bg-[#0F172A] border border-slate-800 p-4 text-xs text-slate-400 font-semibold select-none flex items-center leading-normal gap-2 shadow-soft">
+      <div className="rounded-xl bg-slate-50 dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 p-4 text-xs text-slate-650 dark:text-slate-400 font-semibold select-none flex items-center leading-normal gap-2 shadow-soft">
         <Mail className="h-4.5 w-4.5 text-primary shrink-0" />
         <span>
           Email transport (SMTP) is managed under{" "}
@@ -327,11 +327,11 @@ function JobNotificationsPage() {
                     ) : (
                       <tr>
                         <td colSpan={8}>
-                          <div className="py-12 bg-[#0F172A] flex flex-col items-center justify-center text-center select-none rounded-b-xl">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1E293B] border border-slate-800 text-slate-400 mb-3 shadow-soft">
+                          <div className="py-12 bg-slate-50 dark:bg-[#0B0F19] flex flex-col items-center justify-center text-center select-none rounded-b-xl">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 mb-3 shadow-soft">
                               <Users className="h-6 w-6" />
                             </div>
-                            <div className="text-xs font-bold text-slate-300">No groups match the filters.</div>
+                            <div className="text-xs font-bold text-slate-750 dark:text-slate-300">No groups match the filters.</div>
                           </div>
                         </td>
                       </tr>
@@ -485,8 +485,8 @@ function JobNotificationsPage() {
                 </div>
               ) : (
                 /* Empty state matching 2nd screenshot */
-                <div className="py-12 bg-[#0F172A] border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center select-none shadow-soft">
-                  <div className="text-xs font-bold text-slate-400 max-w-md px-6 leading-relaxed">
+                <div className="py-12 bg-slate-50 dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center select-none shadow-soft">
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-400 max-w-md px-6 leading-relaxed">
                     No templates yet. Click "Add new template" to create one.
                   </div>
                 </div>
@@ -568,7 +568,7 @@ function JobNotificationsPage() {
 
                     {/* Absolute options list matching 4th screenshot */}
                     {isSeverityDropdownOpen && (
-                      <div className="absolute right-0 left-0 top-[62px] z-50 rounded-lg border border-border bg-[#0B0F19] py-1 shadow-lg text-xs font-semibold overflow-hidden">
+                      <div className="absolute right-0 left-0 top-[62px] z-50 rounded-lg border border-border bg-white dark:bg-[#0B0F19] py-1 shadow-lg text-xs font-semibold overflow-hidden">
                         {(["Success", "Failure", "Warning", "Info"] as const).map((sev) => {
                           const isSelected = templateSeverity === sev;
                           return (

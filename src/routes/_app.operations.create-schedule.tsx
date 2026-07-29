@@ -142,60 +142,57 @@ function CreateSchedulePage() {
 
   return (
     <div className="space-y-6">
-      {/* Sticky Top Header & Step Progress Bar */}
-      <div className="sticky top-[68px] z-20 bg-background/95 backdrop-blur-md pb-4 pt-1 space-y-4 border-b border-border/20">
-        {/* Page Header */}
-        <PageHeader
-          title="Create Schedule"
-          description="Build automated data pipeline jobs using the guided wizard"
-          actions={
-            <Link
-              to="/operations/manage-schedules"
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-4 text-[14px] font-bold text-foreground/80 hover:text-foreground cursor-pointer transition-colors"
-            >
-              Manage Schedules <ChevronRight className="h-4 w-4" />
-            </Link>
-          }
-        />
+      {/* Page Header */}
+      <PageHeader
+        title="Create Schedule"
+        description="Build automated data pipeline jobs using the guided wizard"
+        actions={
+          <Link
+            to="/operations/manage-schedules"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-4 text-[14px] font-bold text-foreground/80 hover:text-foreground cursor-pointer transition-colors"
+          >
+            Manage Schedules <ChevronRight className="h-4 w-4" />
+          </Link>
+        }
+      />
 
-        {/* Stepper progress indicator */}
-        <Surface className="!p-4 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-1 min-w-[800px] select-none">
-            {steps.map((s, i) => {
-              const active = s.id === current;
-              const done = s.id < current;
-              return (
-                <div key={s.id} className="flex flex-1 items-center gap-2">
-                  <button
-                    onClick={() => {
-                      if (s.id <= current || selected) {
-                        setCurrent(s.id);
-                      }
-                    }}
-                    className={cn(
-                      "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-bold transition-all cursor-pointer",
-                      active && "bg-primary/20 text-accent border border-primary/20 shadow-soft",
-                      done && "text-blue-500",
-                      !active && !done && "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <span className={cn(
-                      "flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-extrabold border transition-all duration-300",
-                      active && "bg-primary text-white border-primary/40 shadow-glow",
-                      done && "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                      !active && !done && "bg-muted text-muted-foreground border-border",
-                    )}>
-                      {done ? <Check className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
-                    </span>
-                    {s.label}
-                  </button>
-                  {i < steps.length - 1 && <span className="h-px flex-1 bg-border/60" />}
-                </div>
-              );
-            })}
-          </div>
-        </Surface>
-      </div>
+      {/* Stepper progress indicator */}
+      <Surface className="!p-4 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1 min-w-[800px] select-none">
+          {steps.map((s, i) => {
+            const active = s.id === current;
+            const done = s.id < current;
+            return (
+              <div key={s.id} className="flex flex-1 items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (s.id <= current || selected) {
+                      setCurrent(s.id);
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-bold transition-all cursor-pointer",
+                    active && "bg-primary/20 text-accent border border-primary/20 shadow-soft",
+                    done && "text-blue-500",
+                    !active && !done && "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <span className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-extrabold border transition-all duration-300",
+                    active && "bg-primary text-white border-primary/40 shadow-glow",
+                    done && "bg-blue-500/10 text-blue-500 border-blue-500/20",
+                    !active && !done && "bg-muted text-muted-foreground border-border",
+                  )}>
+                    {done ? <Check className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
+                  </span>
+                  {s.label}
+                </button>
+                {i < steps.length - 1 && <span className="h-px flex-1 bg-border/60" />}
+              </div>
+            );
+          })}
+        </div>
+      </Surface>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px] items-start">
         
@@ -205,11 +202,6 @@ function CreateSchedulePage() {
           {/* STEP 1: Entity selection */}
           {current === 1 && (
             <>
-              <div>
-                <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Select Entity</h2>
-                <p className="mt-1 text-xs text-muted-foreground font-semibold">Choose the organisation that owns this data pipeline.</p>
-              </div>
-
               <Surface className="!p-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative w-full sm:w-[300px] shrink-0">
@@ -1462,7 +1454,7 @@ function CreateSchedulePage() {
         </div>
 
         {/* Right Side: Schedule Preview Sidebar */}
-        <Surface className="!p-5 h-fit lg:sticky lg:top-[250px] shadow-soft border border-border">
+        <Surface className="!p-5 h-fit lg:sticky lg:top-[90px] border border-border">
           <div className="flex items-start justify-between pb-3 border-b border-border/30 mb-4 select-none">
             <div>
               <div className="text-[13px] font-bold text-foreground">Schedule Preview</div>

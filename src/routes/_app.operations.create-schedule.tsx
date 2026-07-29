@@ -1454,7 +1454,7 @@ function CreateSchedulePage() {
         </div>
 
         {/* Right Side: Schedule Preview Sidebar */}
-        <Surface className="!p-5 h-fit lg:sticky lg:top-[90px] border border-border">
+        <Surface className="!p-5 h-fit lg:sticky lg:top-[68px] border border-border">
           <div className="flex items-start justify-between pb-3 border-b border-border/30 mb-4 select-none">
             <div>
               <div className="text-[13px] font-bold text-foreground">Schedule Preview</div>

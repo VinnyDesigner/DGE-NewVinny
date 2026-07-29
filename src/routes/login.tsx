@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Check,
@@ -26,6 +27,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Info,
+  Key,
 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -389,6 +391,8 @@ function Login() {
   const [caps, setCaps] = useState(false);
   const [loading, setLoading] = useState<"idle" | "loading" | "success">("idle");
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [mode, setMode] = useState<"signin" | "reset">("signin");
+  const [policyType, setPolicyType] = useState<"privacy" | "terms" | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -409,6 +413,12 @@ function Login() {
       setLoading("success");
       setTimeout(() => navigate({ to: "/dashboard" }), 500);
     }, 900);
+  };
+
+  const handleResetSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Password reset request submitted successfully!");
+    setMode("signin");
   };
 
   return (
@@ -644,142 +654,259 @@ function Login() {
           {/* -------------------- RIGHT COLUMN / Auth card -------------------- */}
           <div className="flex flex-col items-center justify-center lg:items-end w-full login-card-wrapper my-auto self-center shrink-0">
             <div className="w-full max-w-[clamp(380px,26vw,880px)] flex flex-col items-center gap-1.5">
-              <motion.form
-                initial={{ opacity: 0, y: 16, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                onSubmit={handleSubmit}
-                className="relative w-full login-card-form"
-              >
-                {/* Card Container */}
-                <div
-                  className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
-                  style={{
-                    backgroundColor: "rgba(14, 24, 40, 0.55)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
-                  <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-                  <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-info/10 blur-3xl" />
+              <AnimatePresence mode="wait">
+                {mode === "signin" ? (
+                  <motion.form
+                    key="signin"
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -16, scale: 0.98 }}
+                    transition={{ duration: 0.3 }}
+                    onSubmit={handleSubmit}
+                    className="relative w-full login-card-form"
+                  >
+                    {/* Card Container */}
+                    <div
+                      className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
+                      style={{
+                        backgroundColor: "rgba(14, 24, 40, 0.55)",
+                        backdropFilter: "blur(24px)",
+                        WebkitBackdropFilter: "blur(24px)",
+                        boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                      }}
+                    >
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
+                      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+                      <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-info/10 blur-3xl" />
 
-                  <div className="relative">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5 2xl:gap-5">
-                      <AnimatedShield />
-                      <div>
-                        <div className="text-[clamp(15px,1.3vw,38px)] font-semibold tracking-tight text-foreground login-card-title">
-                          Secure Sign In
+                      <div className="relative">
+                        {/* Header */}
+                        <div className="flex items-center gap-3.5 2xl:gap-5">
+                          <AnimatedShield />
+                          <div>
+                            <div className="text-[clamp(15px,1.3vw,38px)] font-semibold tracking-tight text-foreground login-card-title">
+                              Secure Sign In
+                            </div>
+                            <div className="mt-0.5 text-[clamp(11.5px,0.9vw,24px)] text-muted-foreground login-card-subtitle">
+                              Enter your workspace credentials
+                            </div>
+                          </div>
                         </div>
-                        <div className="mt-0.5 text-[clamp(11.5px,0.9vw,24px)] text-muted-foreground login-card-subtitle">
-                          Enter your workspace credentials
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Inputs */}
-                    <div className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
-                      <FloatingField
-                        label="Username"
-                        icon={<User className="h-4 w-4" />}
-                        defaultValue="DAPortalAdmin"
-                        autoComplete="username"
-                      />
-                      <FloatingField
-                        label="Password"
-                        icon={<Lock className="h-4 w-4" />}
-                        type={show ? "text" : "password"}
-                        defaultValue="EnterpriseSecure2026"
-                        autoComplete="current-password"
-                        onKeyUp={(e) =>
-                          setCaps(e.getModifierState && e.getModifierState("CapsLock"))
-                        }
-                        trailing={
-                          <button
-                            type="button"
-                            aria-label={show ? "Hide password" : "Show password"}
-                            onClick={() => setShow((s) => !s)}
-                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                          >
-                            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        }
-                      />
-
-                      {caps && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-1.5 text-[11.5px] text-warning"
-                        >
-                          <Sparkles className="h-3.5 w-3.5" />
-                          Caps Lock is on
-                        </motion.div>
-                      )}
-
-                      <div className="flex items-center justify-between pt-0.5 text-[clamp(11.5px,0.85vw,13px)]">
-                        <label className="flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-foreground login-checkbox-label">
-                          <input
-                            type="checkbox"
-                            className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                        {/* Inputs */}
+                        <div className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
+                          <FloatingField
+                            label="Username"
+                            icon={<User className="h-4 w-4" />}
+                            defaultValue="DAPortalAdmin"
+                            autoComplete="username"
                           />
-                          Remember me
-                        </label>
-                        <a
-                          href="#"
-                          className="font-medium text-accent transition-colors hover:text-foreground login-forgot-link"
-                        >
-                          Forgot password?
-                        </a>
-                      </div>
+                          <FloatingField
+                            label="Password"
+                            icon={<Lock className="h-4 w-4" />}
+                            type={show ? "text" : "password"}
+                            defaultValue="EnterpriseSecure2026"
+                            autoComplete="current-password"
+                            onKeyUp={(e) =>
+                              setCaps(e.getModifierState && e.getModifierState("CapsLock"))
+                            }
+                            trailing={
+                              <button
+                                type="button"
+                                aria-label={show ? "Hide password" : "Show password"}
+                                onClick={() => setShow((s) => !s)}
+                                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                              >
+                                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            }
+                          />
 
-                      {/* CTA */}
-                      <motion.button
-                        type="submit"
-                        disabled={loading !== "idle"}
-                        whileHover={loading === "idle" ? { y: -1 } : undefined}
-                        whileTap={loading === "idle" ? { y: 0, scale: 0.99 } : undefined}
-                        className="group relative mt-2 sm:mt-3 2xl:mt-6 inline-flex h-[clamp(44px,3.3vw,100px)] w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-primary text-[clamp(14px,1.1vw,30px)] font-semibold tracking-tight text-primary-foreground shadow-[0_12px_40px_-12px_rgba(59,130,246,0.55)] transition-all disabled:opacity-95 login-cta-button"
-                      >
-                        <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-transparent" />
-                        <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
-                        <span className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-                        <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                        {loading === "idle" && (
-                          <>
-                            Sign In to Workspace
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                          </>
-                        )}
-                        {loading === "loading" && (
-                          <>
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                            Signing In...
-                          </>
-                        )}
-                        {loading === "success" && (
-                          <motion.span
-                            initial={{ scale: 0.6, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-center gap-2"
+                          {caps && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-1.5 text-[11.5px] text-warning"
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                              Caps Lock is on
+                            </motion.div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-0.5 text-[clamp(11.5px,0.85vw,13px)]">
+                            <label className="flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-foreground login-checkbox-label">
+                              <input
+                                type="checkbox"
+                                className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-primary"
+                              />
+                              Remember me
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setMode("reset")}
+                              className="font-medium text-accent transition-colors hover:text-foreground login-forgot-link bg-transparent border-none p-0 outline-none cursor-pointer"
+                            >
+                              Forgot password?
+                            </button>
+                          </div>
+
+                          {/* CTA */}
+                          <motion.button
+                            type="submit"
+                            disabled={loading !== "idle"}
+                            whileHover={loading === "idle" ? { y: -1 } : undefined}
+                            whileTap={loading === "idle" ? { y: 0, scale: 0.99 } : undefined}
+                            className="group relative mt-2 sm:mt-3 2xl:mt-6 inline-flex h-[clamp(44px,3.3vw,100px)] w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-primary text-[clamp(14px,1.1vw,30px)] font-semibold tracking-tight text-primary-foreground shadow-[0_12px_40px_-12px_rgba(59,130,246,0.55)] transition-all disabled:opacity-95 login-cta-button"
                           >
-                            <Check className="h-4 w-4" />
-                            Welcome back
-                          </motion.span>
-                        )}
-                      </motion.button>
+                            <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-transparent" />
+                            <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
+                            <span className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+                            <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                            {loading === "idle" && (
+                              <>
+                                Sign In to Workspace
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                              </>
+                            )}
+                            {loading === "loading" && (
+                              <>
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                Signing In...
+                              </>
+                            )}
+                            {loading === "success" && (
+                              <motion.span
+                                initial={{ scale: 0.6, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="flex items-center gap-2"
+                              >
+                                <Check className="h-4 w-4" />
+                                Welcome back
+                              </motion.span>
+                            )}
+                          </motion.button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </motion.form>
+                  </motion.form>
+                ) : (
+                  <motion.form
+                    key="reset"
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -16, scale: 0.98 }}
+                    transition={{ duration: 0.3 }}
+                    onSubmit={handleResetSubmit}
+                    className="relative w-full login-card-form"
+                  >
+                    {/* Card Container */}
+                    <div
+                      className="relative overflow-hidden rounded-[clamp(20px,2vw,48px)] p-[clamp(1.25rem,2.2vw,4rem)] login-card-container border border-white/[0.08]"
+                      style={{
+                        backgroundColor: "rgba(14, 24, 40, 0.55)",
+                        backdropFilter: "blur(24px)",
+                        WebkitBackdropFilter: "blur(24px)",
+                        boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                      }}
+                    >
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
+                      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+                      <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-info/10 blur-3xl" />
+
+                      <div className="relative">
+                        {/* Header */}
+                        <div className="flex items-center gap-3.5 2xl:gap-5">
+                          <div className="relative flex h-[clamp(44px,3vw,80px)] w-[clamp(44px,3vw,80px)] items-center justify-center rounded-2xl bg-white shadow-soft shrink-0">
+                            <Key className="h-[clamp(20px,1.5vw,40px)] w-[clamp(20px,1.5vw,40px)] text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="text-[clamp(15px,1.3vw,38px)] font-semibold tracking-tight text-foreground login-card-title">
+                              Reset your password
+                            </div>
+                            <div className="mt-0.5 text-[clamp(11.5px,0.9vw,24px)] text-muted-foreground login-card-subtitle">
+                              Enter your username to request a reset.
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Inputs */}
+                        <div className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
+                          <div className="flex flex-col gap-[clamp(4px,0.3vw,12px)]">
+                            <label className="text-[clamp(10.5px,0.8vw,20px)] font-semibold tracking-wide text-muted-foreground/80 uppercase">
+                              USERNAME
+                            </label>
+                            <div
+                              className="group relative flex h-[clamp(42px,3.2vw,96px)] items-center gap-2.5 2xl:gap-3.5 overflow-hidden rounded-full border px-[clamp(1rem,1.2vw,2.5rem)] border-white/[0.10] bg-white/[0.04] hover:border-white/[0.18] transition-all duration-300"
+                              style={{
+                                boxShadow:
+                                  "inset 0 1px 0 rgba(255, 255, 255, 0.10), inset 0 -1px 0 rgba(255, 255, 255, 0.02), 0 8px 24px -12px rgba(0, 0, 0, 0.6)",
+                                backgroundImage:
+                                  "linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 45%, rgba(255, 255, 255, 0.00) 100%)",
+                              }}
+                            >
+                              <span className="relative text-muted-foreground">
+                                <User className="h-4 w-4" />
+                              </span>
+                              <div className="relative flex-1">
+                                <input
+                                  type="text"
+                                  required
+                                  placeholder="Enter your username"
+                                  className="peer relative h-full w-full bg-transparent py-0 text-[clamp(13px,0.95vw,26px)] text-foreground outline-none placeholder:text-muted-foreground/40"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* CTA */}
+                          <motion.button
+                            type="submit"
+                            whileHover={{ y: -1 }}
+                            whileTap={{ y: 0, scale: 0.99 }}
+                            className="group relative mt-2 sm:mt-3 2xl:mt-6 inline-flex h-[clamp(44px,3.3vw,100px)] w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-primary text-[clamp(14px,1.1vw,30px)] font-semibold tracking-tight text-primary-foreground shadow-[0_12px_40px_-12px_rgba(59,130,246,0.55)] transition-all login-cta-button"
+                          >
+                            <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/20 via-transparent to-transparent" />
+                            <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
+                            <span className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+                            <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                            Request reset
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          </motion.button>
+
+                          {/* Back Link */}
+                          <div className="pt-1 text-left">
+                            <button
+                              type="button"
+                              onClick={() => setMode("signin")}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0 outline-none"
+                            >
+                              <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
 
               {/* Privacy Policy · Terms of Service · About Footer links under login box */}
               <div className="mt-5 flex items-center justify-center gap-3 text-xs font-semibold text-muted-foreground/60 select-none">
-                <a href="#" className="hover:text-foreground/90 transition-colors">Privacy Policy</a>
+                <button
+                  type="button"
+                  onClick={() => setPolicyType("privacy")}
+                  className="hover:text-foreground/90 transition-colors cursor-pointer bg-transparent border-none p-0 outline-none font-semibold text-xs text-muted-foreground/60"
+                >
+                  Privacy Policy
+                </button>
                 <span className="text-muted-foreground/30">•</span>
-                <a href="#" className="hover:text-foreground/90 transition-colors">Terms of Service</a>
+                <button
+                  type="button"
+                  onClick={() => setPolicyType("terms")}
+                  className="hover:text-foreground/90 transition-colors cursor-pointer bg-transparent border-none p-0 outline-none font-semibold text-xs text-muted-foreground/60"
+                >
+                  Terms of Service
+                </button>
                 <span className="text-muted-foreground/30">•</span>
                 <button
                   type="button"
@@ -796,6 +923,9 @@ function Login() {
 
       {/* About Platform Overlay Info Section */}
       <AboutOverlay isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+      {/* Privacy Policy & Terms of Service Overlay Modal */}
+      <PolicyOverlay isOpen={policyType !== null} type={policyType} onClose={() => setPolicyType(null)} />
     </div>
   );
 }
@@ -1354,6 +1484,147 @@ function AboutOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           </div>
         </motion.div>
       )}
+    </AnimatePresence>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Privacy Policy & Terms of Service Overlay Component                 */
+/* ------------------------------------------------------------------ */
+
+function PolicyOverlay({
+  isOpen,
+  type,
+  onClose,
+}: {
+  isOpen: boolean;
+  type: "privacy" | "terms" | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !type) return null;
+
+  const isPrivacy = type === "privacy";
+  const title = isPrivacy ? "Privacy Policy" : "Terms of Service";
+  const subtitle = isPrivacy
+    ? "Last updated: July 2026 • Data Protection & Security Guidelines"
+    : "Last updated: July 2026 • Platform Agreement & Compliance Rules";
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-3xl border border-white/[0.08] bg-[#0c1424] text-foreground shadow-2xl overflow-hidden"
+        >
+          {/* Header */}
+          <div className="p-6 border-b border-white/[0.06] flex items-center justify-between shrink-0">
+            <div>
+              <h2 className="text-xl font-bold text-white">{title}</h2>
+              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/10 text-muted-foreground hover:text-white transition-colors cursor-pointer border-none bg-transparent"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 font-medium leading-relaxed scrollbar-thin">
+            {isPrivacy ? (
+              <>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">1. Introduction & Overview</h3>
+                  <p>
+                    Data Automation Studio (DAS) is committed to protecting your privacy and ensuring the security of all credentials, metadata, and operational workflows stored in the platform. This policy outlines our data collection, storage, and protection practices.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">2. Information We Collect</h3>
+                  <p>
+                    We collect user account identifiers (usernames, email addresses), system action records (audit logs of onboarding requests, parameter configurations, and schema mapping changes), and network diagnostics (IP addresses, connection logs) to maintain security audit compliance.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">3. Purpose of Processing</h3>
+                  <p>
+                    Collected information is used exclusively to facilitate automated data delivery tasks, generate system quality reports, and enforce user access control policies (RBAC). We do not share telemetry or analytics data with third parties.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">4. Data Protection & Encryption</h3>
+                  <p>
+                    All databases, session caches, and connections are encrypted using industry-standard TLS 1.3/256-bit AES mechanisms. Granular permission rules ensure that only verified stakeholders can view sensitive layer mappings.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">5. User Audits & Retention</h3>
+                  <p>
+                    In accordance with government audit compliance, interaction trails are stored securely and remain immutable. If you require access log details, please contact your workspace administrator.
+                  </p>
+                </section>
+              </>
+            ) : (
+              <>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">1. Acceptance of Terms</h3>
+                  <p>
+                    By logging into the Data Automation Studio (DAS) workspace, you agree to follow the enterprise data governance guidelines and use this platform only for official department tasks.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">2. Authorized Access Only</h3>
+                  <p>
+                    DAS contains sensitive spatial features and department configurations. Only authorized users who have been granted explicit RBAC roles may enter. Unauthorized connection attempts will be logged and reported to security services.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">3. User Responsibilities</h3>
+                  <p>
+                    You are responsible for keeping your login credentials, API tokens, and access keys secure. Any action performed under your credentials is logged as your responsibility. Multi-factor authentication must be enabled if required by policy.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">4. System Logging & Service Level SLA</h3>
+                  <p>
+                    All automations, quality check execution rules, and file delivery steps are fully logged. The studio offers standard high-availability SLAs for scheduled runs but is not liable for upstream data delivery source failures.
+                  </p>
+                </section>
+                <section className="space-y-2 text-left">
+                  <h3 className="text-white font-bold text-sm">5. Termination & Suspension</h3>
+                  <p>
+                    We reserve the right to temporarily suspend user access to protect workspace data integrity if suspicious operations or unauthorized pipeline creations are detected.
+                  </p>
+                </section>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 bg-[#0a1220] border-t border-white/[0.06] flex justify-end shrink-0">
+            <button
+              onClick={onClose}
+              className="h-9 px-4 rounded-full bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white transition-colors cursor-pointer border-none"
+            >
+              Acknowledge & Close
+            </button>
+          </div>
+        </motion.div>
+      </div>
     </AnimatePresence>
   );
 }

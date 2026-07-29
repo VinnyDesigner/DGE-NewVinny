@@ -79,6 +79,7 @@ interface DatabaseItem {
   instanceId: string;
   name: string;
   remarks: string;
+  owner?: string;
 }
 
 interface SchemaItem {
@@ -86,6 +87,8 @@ interface SchemaItem {
   dbId: string;
   name: string;
   remarks: string;
+  owner?: string;
+  sdeFile?: string;
 }
 
 interface MappingItem {
@@ -108,6 +111,9 @@ const initialInstances: DBInstance[] = [
     hostname: "Test",
     ipAddress: "10.10.10.10",
     remarks: "SDI Internal Database",
+    dataLoaderSde: "\\\\server\\connections\\loader.sde",
+    adminSde: "\\\\server\\connections\\loader.sde",
+    onboardingEnabled: true,
   },
   {
     id: "inst_2",
@@ -117,6 +123,9 @@ const initialInstances: DBInstance[] = [
     hostname: "External",
     ipAddress: "10.10.10.10",
     remarks: "—",
+    dataLoaderSde: "\\\\server\\connections\\loader.sde",
+    adminSde: "\\\\server\\connections\\loader.sde",
+    onboardingEnabled: true,
   },
 ];
 
@@ -125,25 +134,29 @@ const initialDatabases: DatabaseItem[] = [
     id: "db_1",
     instanceId: "inst_1",
     name: "DMT",
-    remarks: "This database contains the information landbase data from the Department of Municipalities and Transportation.",
+    remarks: "This database contains the information landbase data from the Department of Municipalites and Transportation.",
+    owner: "DMT",
   },
   {
     id: "db_2",
     instanceId: "inst_1",
     name: "EAD",
     remarks: "Environment Agency - Abu Dhabi data repository.",
+    owner: "EAD",
   },
   {
     id: "db_3",
     instanceId: "inst_1",
     name: "COMPFAC",
     remarks: "Company Facilities database.",
+    owner: "COMPFAC",
   },
   {
     id: "db_4",
     instanceId: "inst_1",
     name: "TAQA",
     remarks: "Abu Dhabi National Energy Company database.",
+    owner: "TAQA",
   },
 ];
 
@@ -152,7 +165,17 @@ const initialSchemas: SchemaItem[] = [
     id: "sch_1",
     dbId: "db_1",
     name: "DMT",
-    remarks: "Auto-mapped main schema",
+    remarks: "The Main Scheme",
+    owner: "DMT",
+    sdeFile: "test.sde",
+  },
+  {
+    id: "sch_2",
+    dbId: "db_2",
+    name: "EAD",
+    remarks: "",
+    owner: "UNKNOWN",
+    sdeFile: "",
   },
 ];
 
@@ -253,6 +276,8 @@ function DatabaseMapping() {
   const [isInstanceModalOpen, setIsInstanceModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDbModalOpen, setIsDbModalOpen] = useState(false);
+  const [isEditDbModalOpen, setIsEditDbModalOpen] = useState(false);
+  const [isDeleteDbModalOpen, setIsDeleteDbModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
 
@@ -279,8 +304,17 @@ function DatabaseMapping() {
   const [editAdminSde, setEditAdminSde] = useState("\\\\server\\connections\\loader.sde");
   const [editOnboarding, setEditOnboarding] = useState(true);
 
+  // Form states (Databases & Schemas)
   const [dbName, setDbName] = useState("");
+  const [dbOwner, setDbOwner] = useState("");
   const [dbRemarks, setDbRemarks] = useState("");
+
+  const [editingDbId, setEditingDbId] = useState("");
+  const [editDbName, setEditDbName] = useState("");
+  const [editDbOwner, setEditDbOwner] = useState("");
+  const [editDbRemarks, setEditDbRemarks] = useState("");
+
+  const [deletingDbItem, setDeletingDbItem] = useState<{ id: string; name: string } | null>(null);
 
   const [schemaName, setSchemaName] = useState("");
   const [schemaRemarks, setSchemaRemarks] = useState("");
@@ -399,14 +433,38 @@ function DatabaseMapping() {
     const newDb: DatabaseItem = {
       id: "db_" + Math.random().toString(),
       instanceId: selectedInstanceId,
-      name: dbName.toLowerCase(),
+      name: dbName,
       remarks: dbRemarks,
+      owner: dbOwner || dbName,
     };
     saveDatabases([...databases, newDb]);
     setIsDbModalOpen(false);
     setDbName("");
+    setDbOwner("");
     setDbRemarks("");
     toast.success(`Database "${newDb.name}" added successfully`);
+  };
+
+  const handleUpdateDatabase = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editDbName.trim()) {
+      toast.error("Database name is required");
+      return;
+    }
+    const updated = databases.map((db) => {
+      if (db.id === editingDbId) {
+        return {
+          ...db,
+          name: editDbName,
+          remarks: editDbRemarks,
+          owner: editDbOwner,
+        };
+      }
+      return db;
+    });
+    saveDatabases(updated);
+    setIsEditDbModalOpen(false);
+    toast.success(`Database "${editDbName}" updated successfully`);
   };
 
   const handleAddSchema = (e: React.FormEvent) => {
@@ -462,12 +520,19 @@ function DatabaseMapping() {
   };
 
   const handleDeleteDb = (id: string, name: string) => {
-    if (confirm(`Delete database "${name}"?`)) {
-      saveDatabases(databases.filter((d) => d.id !== id));
-      saveSchemas(schemas.filter((s) => s.dbId !== id));
-      saveMappings(mappings.filter((m) => m.dbId !== id));
-      toast.success(`Database "${name}" deleted`);
-    }
+    setDeletingDbItem({ id, name });
+    setIsDeleteDbModalOpen(true);
+  };
+
+  const handleDeleteDbConfirmed = () => {
+    if (!deletingDbItem) return;
+    const { id, name } = deletingDbItem;
+    saveDatabases(databases.filter((d) => d.id !== id));
+    saveSchemas(schemas.filter((s) => s.dbId !== id));
+    saveMappings(mappings.filter((m) => m.dbId !== id));
+    setIsDeleteDbModalOpen(false);
+    setDeletingDbItem(null);
+    toast.success(`Database "${name}" deleted`);
   };
 
   const handleDeleteSchema = (id: string, name: string) => {
@@ -854,17 +919,14 @@ function DatabaseMapping() {
                                   {dbSchemas.length} schemas
                                 </span>
                                 <div className="flex items-center gap-1.5 select-none">
-                                  <Button
-                                    onClick={() => {
-                                      setTargetDbId(db.id);
-                                      setIsSchemaModalOpen(true);
-                                    }}
-                                    className="h-8 px-2.5 bg-foreground/[0.04] border border-border hover:bg-foreground/[0.07] text-foreground font-semibold text-xs flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <Plus className="h-3.5 w-3.5" /> Add Schema
-                                  </Button>
                                   <button
-                                    onClick={() => toast.success(`Edit action for DB "${db.name}"`)}
+                                    onClick={() => {
+                                      setEditingDbId(db.id);
+                                      setEditDbName(db.name);
+                                      setEditDbOwner(db.owner || db.name);
+                                      setEditDbRemarks(db.remarks || "");
+                                      setIsEditDbModalOpen(true);
+                                    }}
                                     className="p-1.5 text-amber-500 hover:bg-amber-500/10 border border-amber-500/30 rounded cursor-pointer transition-colors"
                                     title="Edit Database"
                                   >
@@ -881,50 +943,87 @@ function DatabaseMapping() {
                               </div>
                             </div>
 
-                            {/* Collapsible Schema list table */}
+                            {/* Collapsible Schema Card Grid (3rd screenshot) */}
                             {isExpanded && (
-                              <div className="w-full rounded-xl border border-border/30 overflow-hidden pt-2">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow className="bg-foreground/[0.01]">
-                                      <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs w-[250px]">SCHEMA</TableHead>
-                                      <TableHead className="py-2 font-semibold text-muted-foreground text-xs">REMARKS</TableHead>
-                                      <TableHead className="px-4 py-2 font-semibold text-muted-foreground text-xs text-center w-[100px]">ACTIONS</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {dbSchemas.length === 0 ? (
-                                      <TableRow>
-                                        <TableCell colSpan={3} className="text-center py-6 text-muted-foreground/80 text-[11px]">
-                                          No schemas registered. Map a schema table logic under this database.
-                                        </TableCell>
-                                      </TableRow>
-                                    ) : (
-                                      dbSchemas.map((sch) => (
-                                        <TableRow key={sch.id} className="hover:bg-foreground/[0.01]">
-                                          <TableCell className="px-4 py-2 font-bold text-xs text-foreground">
-                                            <div className="flex items-center gap-1.5">
-                                              <TableProperties className="h-3.5 w-3.5 text-muted-foreground/75" />
-                                              {sch.name}
+                              <div className="border-t border-border/40 pt-4 mt-2 space-y-4">
+                                <div className="flex items-center justify-between">
+                                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-500 uppercase tracking-wider select-none">
+                                    <TableProperties className="h-3.5 w-3.5" /> SCHEMAS — {dbSchemas.length} active
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => toast.success("Refreshed schemas successfully")}
+                                      className="h-8 px-2.5 text-[10.5px] font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                                    >
+                                      <RefreshCw className="h-3 w-3" /> Refresh
+                                    </Button>
+                                    <Button
+                                      onClick={() => {
+                                        setTargetDbId(db.id);
+                                        setIsSchemaModalOpen(true);
+                                      }}
+                                      className="h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer rounded-lg shadow-sm border-0"
+                                    >
+                                      <Plus className="h-3.5 w-3.5" /> Add Schema
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-4 pt-1">
+                                  {dbSchemas.length === 0 ? (
+                                    <div className="text-xs text-muted-foreground/80 font-semibold py-4 px-2 w-full border border-dashed border-border/60 rounded-xl text-center select-none bg-foreground/[0.01]">
+                                      No schemas registered. Map a schema table logic under this database.
+                                    </div>
+                                  ) : (
+                                    dbSchemas.map((sch) => (
+                                      <div 
+                                        key={sch.id} 
+                                        className="w-full max-w-[280px] bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 space-y-3 relative group shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all select-none"
+                                      >
+                                        {/* Card Top Row */}
+                                        <div className="flex items-start justify-between">
+                                          <div className="flex items-center gap-2.5 min-w-0">
+                                            <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 dark:text-emerald-400 shrink-0">
+                                              <TableProperties className="h-4.5 w-4.5" />
                                             </div>
-                                          </TableCell>
-                                          <TableCell className="py-2 text-[11px] text-muted-foreground">
-                                            {sch.remarks || "—"}
-                                          </TableCell>
-                                          <TableCell className="px-4 py-2 text-center">
-                                            <button
-                                              onClick={() => handleDeleteSchema(sch.id, sch.name)}
-                                              className="p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded cursor-pointer transition-colors"
-                                              title="Delete Schema"
-                                            >
-                                              <Trash className="h-3.5 w-3.5" />
-                                            </button>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))
-                                    )}
-                                  </TableBody>
-                                </Table>
+                                            <div className="min-w-0">
+                                              <h5 className="text-xs font-bold text-foreground truncate">{sch.name}</h5>
+                                              <span className="text-[9.5px] text-muted-foreground block mt-0.5 select-none">
+                                                owner: <strong className="text-slate-500 dark:text-slate-400">{sch.owner || "UNKNOWN"}</strong>
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          <button
+                                            onClick={() => handleDeleteSchema(sch.id, sch.name)}
+                                            className="p-1 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded cursor-pointer transition-colors"
+                                            title="Delete Schema"
+                                          >
+                                            <X className="h-3.5 w-3.5" />
+                                          </button>
+                                        </div>
+
+                                        {/* Card Badges Row */}
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                          <span className="inline-flex px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-500">
+                                            owner: {sch.owner || "UNKNOWN"}
+                                          </span>
+                                          {sch.sdeFile && (
+                                            <span className="inline-flex px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-border/80 text-[9.5px] font-mono text-muted-foreground font-bold">
+                                              {sch.sdeFile}
+                                            </span>
+                                          )}
+                                        </div>
+
+                                        {/* Card Description */}
+                                        <p className="text-[10px] text-muted-foreground leading-normal font-semibold">
+                                          {sch.remarks || "No description provided"}
+                                        </p>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1236,23 +1335,23 @@ function DatabaseMapping() {
       {/* MODAL: CREATE INSTANCE                     */}
       {/* ========================================== */}
       <Dialog open={isInstanceModalOpen} onOpenChange={setIsInstanceModalOpen}>
-        <DialogContent className="max-w-[550px] border border-slate-800 bg-[#0B0F19] p-6 shadow-glow select-none">
+        <DialogContent className="max-w-[550px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
           {/* Custom Dialog Header matching 1st screenshot */}
-          <div className="flex items-start justify-between border-b border-slate-800/80 pb-4 mb-4">
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-500 dark:text-blue-400">
                 <Database className="h-5.5 w-5.5" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-white tracking-wide">Create DB Instance</h3>
-                <p className="text-[10.5px] text-slate-400 font-semibold mt-0.5">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Create DB Instance</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
                   Database Mapping registry · no credentials collected
                 </p>
               </div>
             </div>
             <button 
               onClick={() => setIsInstanceModalOpen(false)}
-              className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
             >
               <X className="h-4.5 w-4.5" />
             </button>
@@ -1260,7 +1359,7 @@ function DatabaseMapping() {
 
           <form onSubmit={handleCreateInstance} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                 Instance Name <span className="text-red-500">*</span>
               </label>
               <Input
@@ -1268,23 +1367,23 @@ function DatabaseMapping() {
                 onChange={(e) => setInstName(e.target.value)}
                 required
                 placeholder="ADGE Main SQL"
-                className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
               />
-              <div className="text-[10px] text-slate-400 font-semibold tracking-wide">
-                Instance code (auto-generated): <span className="text-slate-200 font-bold font-mono">{instName ? instName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold tracking-wide">
+                Instance code (auto-generated): <span className="text-slate-700 dark:text-slate-200 font-bold font-mono">{instName ? instName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Database Type <span className="text-red-500">*</span>
                 </label>
                 <Select value={instType} onValueChange={setInstType}>
-                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                  <SelectTrigger className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg">
                     <SelectValue placeholder="PostgreSQL" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                  <SelectContent className="bg-white dark:bg-[#121824] border-slate-200 dark:border-slate-850 text-slate-900 dark:text-white">
                     <SelectItem value="SQL Server">SQL Server</SelectItem>
                     <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                     <SelectItem value="Oracle">Oracle</SelectItem>
@@ -1295,14 +1394,14 @@ function DatabaseMapping() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Environment <span className="text-red-500">*</span>
                 </label>
                 <Select value={instEnv} onValueChange={setInstEnv}>
-                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                  <SelectTrigger className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg">
                     <SelectValue placeholder="Production" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                  <SelectContent className="bg-white dark:bg-[#121824] border-slate-200 dark:border-slate-850 text-slate-900 dark:text-white">
                     <SelectItem value="Production">Production</SelectItem>
                     <SelectItem value="Staging">Staging</SelectItem>
                     <SelectItem value="Development">Development</SelectItem>
@@ -1314,7 +1413,7 @@ function DatabaseMapping() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Hostname <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -1322,41 +1421,41 @@ function DatabaseMapping() {
                   onChange={(e) => setInstHost(e.target.value)}
                   required
                   placeholder="adge-sql-01"
-                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                  className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   IP Address (optional)
                 </label>
                 <Input
                   value={instIp}
                   onChange={(e) => setInstIp(e.target.value)}
                   placeholder="10.0.0.5"
-                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                  className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Remarks</label>
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remarks</label>
               <textarea
                 value={instRemarks}
                 onChange={(e) => setInstRemarks(e.target.value)}
                 placeholder="Free-form notes about this instance..."
-                className="flex w-full rounded-lg border border-slate-800 bg-[#121824] px-3 py-2 text-xs text-white shadow-xs transition-colors placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
+                className="flex w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121824] px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
               />
             </div>
 
             {/* Connection files (.sde) panel */}
-            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-4 space-y-3.5">
-              <span className="text-[10px] text-slate-400 font-semibold block leading-relaxed">
+            <div className="bg-slate-50 dark:bg-[#121824]/60 border border-slate-200 dark:border-slate-800/80 rounded-lg p-4 space-y-3.5">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold block leading-relaxed">
                 Connection files (.sde) — server-side paths only; no credentials are stored (the .sde holds those).
               </span>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Data Loading Connection (.sde path)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1364,23 +1463,23 @@ function DatabaseMapping() {
                     value={instDataLoaderSde}
                     onChange={(e) => setInstDataLoaderSde(e.target.value)}
                     placeholder="\\\\server\\connections\\loader.sde"
-                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                    className="h-9 bg-white dark:bg-[#0B0F19] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-[11px] font-mono rounded-lg flex-1"
                   />
                   <button 
                     type="button"
                     onClick={() => toast.info("Browse connection files (.sde)")}
-                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                    className="h-9 bg-slate-100 dark:bg-[#1c2333] border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-[#252f44] text-slate-700 dark:text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
                   >
                     Browse...
                   </button>
                 </div>
-                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                <span className="text-[9.5px] text-slate-450 dark:text-slate-500 font-semibold block leading-none">
                   Used by the load process to WRITE delivered data into this database (Data Load).
                 </span>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Admin Connection (.sde path)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1388,53 +1487,53 @@ function DatabaseMapping() {
                     value={instAdminSde}
                     onChange={(e) => setInstAdminSde(e.target.value)}
                     placeholder="\\\\server\\connections\\loader.sde"
-                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                    className="h-9 bg-white dark:bg-[#0B0F19] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-[11px] font-mono rounded-lg flex-1"
                   />
                   <button 
                     type="button"
                     onClick={() => toast.info("Browse admin connection files (.sde)")}
-                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                    className="h-9 bg-slate-100 dark:bg-[#1c2333] border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-[#252f44] text-slate-700 dark:text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
                   >
                     Browse...
                   </button>
                 </div>
-                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                <span className="text-[9.5px] text-slate-450 dark:text-slate-500 font-semibold block leading-none">
                   Used for database maintenance — Compress / Analyze (Maintenance).
                 </span>
               </div>
             </div>
 
             {/* Onboarding checkbox panel */}
-            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
+            <div className="bg-slate-50 dark:bg-[#121824]/60 border border-slate-200 dark:border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="onboardingCheckbox"
                 checked={instOnboarding}
                 onChange={(e) => setInstOnboarding(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-slate-800 bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-[#0B0F19] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-[#0B0F19] cursor-pointer"
               />
               <div className="space-y-0.5">
-                <label htmlFor="onboardingCheckbox" className="text-xs font-bold text-slate-200 cursor-pointer">
+                <label htmlFor="onboardingCheckbox" className="text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer">
                   Enable for Data Source Onboarding
                 </label>
-                <span className="text-[10px] text-slate-400 leading-normal font-semibold block">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-semibold block">
                   When enabled, this instance appears in the Data Source Onboarding wizard's instance picker. Uncheck to hide it from onboarding without removing it from the registry.
                 </span>
               </div>
             </div>
 
             {/* Footer buttons */}
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800/80">
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
               <button
                 type="button"
                 onClick={() => setIsInstanceModalOpen(false)}
-                className="h-9 px-4 border border-slate-800 hover:bg-slate-900 text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
               >
                 <Database className="h-3.5 w-3.5" /> Create Instance
               </button>
@@ -1447,23 +1546,23 @@ function DatabaseMapping() {
       {/* MODAL: EDIT INSTANCE                       */}
       {/* ========================================== */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-[550px] border border-slate-800 bg-[#0B0F19] p-6 shadow-glow select-none">
+        <DialogContent className="max-w-[550px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
           {/* Custom Dialog Header matching 2nd screenshot */}
-          <div className="flex items-start justify-between border-b border-slate-800/80 pb-4 mb-4">
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-500 dark:text-blue-400">
                 <Database className="h-5.5 w-5.5" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-white tracking-wide">Edit DB Instance</h3>
-                <p className="text-[10.5px] text-slate-400 font-semibold mt-0.5">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Edit DB Instance</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
                   Database Mapping registry · no credentials collected
                 </p>
               </div>
             </div>
             <button 
               onClick={() => setIsEditModalOpen(false)}
-              className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
             >
               <X className="h-4.5 w-4.5" />
             </button>
@@ -1471,7 +1570,7 @@ function DatabaseMapping() {
 
           <form onSubmit={handleUpdateInstance} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                 Instance Name <span className="text-red-500">*</span>
               </label>
               <Input
@@ -1479,23 +1578,23 @@ function DatabaseMapping() {
                 onChange={(e) => setEditName(e.target.value)}
                 required
                 placeholder="Internal Database"
-                className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg focus:ring-1 focus:ring-blue-500"
               />
-              <div className="text-[10px] text-slate-400 font-semibold tracking-wide">
-                Instance code (auto-generated): <span className="text-slate-200 font-bold font-mono">{editName ? editName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold tracking-wide">
+                Instance code (auto-generated): <span className="text-slate-700 dark:text-slate-200 font-bold font-mono">{editName ? editName.toUpperCase().replace(/\s+/g, "_") : "—"}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Database Type <span className="text-red-500">*</span>
                 </label>
                 <Select value={editType} onValueChange={setEditType}>
-                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                  <SelectTrigger className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg">
                     <SelectValue placeholder="SQL Server" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                  <SelectContent className="bg-white dark:bg-[#121824] border-slate-200 dark:border-slate-850 text-slate-900 dark:text-white">
                     <SelectItem value="SQL Server">SQL Server</SelectItem>
                     <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
                     <SelectItem value="Oracle">Oracle</SelectItem>
@@ -1506,14 +1605,14 @@ function DatabaseMapping() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Environment <span className="text-red-500">*</span>
                 </label>
                 <Select value={editEnv} onValueChange={setEditEnv}>
-                  <SelectTrigger className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg">
+                  <SelectTrigger className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg">
                     <SelectValue placeholder="Production" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121824] border-slate-850 text-white">
+                  <SelectContent className="bg-white dark:bg-[#121824] border-slate-200 dark:border-slate-850 text-slate-900 dark:text-white">
                     <SelectItem value="Production">Production</SelectItem>
                     <SelectItem value="Staging">Staging</SelectItem>
                     <SelectItem value="Development">Development</SelectItem>
@@ -1525,7 +1624,7 @@ function DatabaseMapping() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
                   Hostname <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -1533,41 +1632,41 @@ function DatabaseMapping() {
                   onChange={(e) => setEditHost(e.target.value)}
                   required
                   placeholder="Test"
-                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                  className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   IP Address (optional)
                 </label>
                 <Input
                   value={editIp}
                   onChange={(e) => setEditIp(e.target.value)}
                   placeholder="10.10.10.10"
-                  className="h-9.5 bg-[#121824] border-slate-800 text-white text-xs rounded-lg"
+                  className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Remarks</label>
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remarks</label>
               <textarea
                 value={editRemarks}
                 onChange={(e) => setEditRemarks(e.target.value)}
                 placeholder="Database instance description..."
-                className="flex w-full rounded-lg border border-slate-800 bg-[#121824] px-3 py-2 text-xs text-white shadow-xs transition-colors placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
+                className="flex w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121824] px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-hidden min-h-[60px] resize-none"
               />
             </div>
 
             {/* Connection files (.sde) panel */}
-            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-4 space-y-3.5">
-              <span className="text-[10px] text-slate-400 font-semibold block leading-relaxed">
+            <div className="bg-slate-50 dark:bg-[#121824]/60 border border-slate-200 dark:border-slate-800/80 rounded-lg p-4 space-y-3.5">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold block leading-relaxed">
                 Connection files (.sde) — server-side paths only; no credentials are stored (the .sde holds those).
               </span>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Data Loading Connection (.sde path)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1575,23 +1674,23 @@ function DatabaseMapping() {
                     value={editDataLoaderSde}
                     onChange={(e) => setEditDataLoaderSde(e.target.value)}
                     placeholder="\\\\server\\connections\\loader.sde"
-                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                    className="h-9 bg-white dark:bg-[#0B0F19] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-[11px] font-mono rounded-lg flex-1"
                   />
                   <button 
                     type="button"
                     onClick={() => toast.info("Browse connection files (.sde)")}
-                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                    className="h-9 bg-slate-100 dark:bg-[#1c2333] border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-[#252f44] text-slate-700 dark:text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
                   >
                     Browse...
                   </button>
                 </div>
-                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                <span className="text-[9.5px] text-slate-450 dark:text-slate-500 font-semibold block leading-none">
                   Used by the load process to WRITE delivered data into this database (Data Load).
                 </span>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Admin Connection (.sde path)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1599,33 +1698,33 @@ function DatabaseMapping() {
                     value={editAdminSde}
                     onChange={(e) => setEditAdminSde(e.target.value)}
                     placeholder="\\\\server\\connections\\loader.sde"
-                    className="h-9 bg-[#0B0F19] border-slate-800 text-white text-[11px] font-mono rounded-lg flex-1"
+                    className="h-9 bg-white dark:bg-[#0B0F19] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-[11px] font-mono rounded-lg flex-1"
                   />
                   <button 
                     type="button"
                     onClick={() => toast.info("Browse admin connection files (.sde)")}
-                    className="h-9 bg-[#1c2333] border border-slate-800 hover:bg-[#252f44] text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+                    className="h-9 bg-slate-100 dark:bg-[#1c2333] border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-[#252f44] text-slate-700 dark:text-slate-300 font-bold text-xs px-3.5 rounded-lg shrink-0 transition-colors cursor-pointer"
                   >
                     Browse...
                   </button>
                 </div>
-                <span className="text-[9.5px] text-slate-500 font-semibold block leading-none">
+                <span className="text-[9.5px] text-slate-450 dark:text-slate-500 font-semibold block leading-none">
                   Used for database maintenance — Compress / Analyze (Maintenance).
                 </span>
               </div>
             </div>
 
             {/* Onboarding checkbox panel */}
-            <div className="bg-[#121824]/60 border border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
+            <div className="bg-slate-50 dark:bg-[#121824]/60 border border-slate-200 dark:border-slate-800/80 rounded-lg p-3.5 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="editOnboardingCheckbox"
                 checked={editOnboarding}
                 onChange={(e) => setEditOnboarding(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-slate-800 bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-[#0B0F19] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-blue-600 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-[#0B0F19] cursor-pointer"
               />
               <div className="space-y-0.5">
-                <label htmlFor="editOnboardingCheckbox" className="text-xs font-bold text-slate-200 cursor-pointer">
+                <label htmlFor="editOnboardingCheckbox" className="text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer">
                   Enable for Data Source Onboarding
                 </label>
                 <span className="text-[10px] text-slate-400 leading-normal font-semibold block">
@@ -1635,17 +1734,17 @@ function DatabaseMapping() {
             </div>
 
             {/* Footer buttons */}
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800/80">
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
-                className="h-9 px-4 border border-slate-800 hover:bg-slate-900 text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
               >
                 <Check className="h-3.5 w-3.5" /> Update Instance
               </button>
@@ -1655,58 +1754,219 @@ function DatabaseMapping() {
       </Dialog>
 
       {/* ========================================== */}
-      {/* MODAL: ADD DATABASE                        */}
+      {/* MODAL: ADD DATABASE (2nd Screenshot)        */}
       {/* ========================================== */}
       <Dialog open={isDbModalOpen} onOpenChange={setIsDbModalOpen}>
-        <DialogContent className="max-w-[440px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Database className="h-4.5 w-4.5 text-blue-400" />
-              Add Database
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[480px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
+          {/* Custom Dialog Header matching 2nd screenshot */}
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-500 dark:text-blue-400">
+                <Database className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Add Database</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                  Under instance <strong className="text-slate-700 dark:text-slate-200">{instances.find(i => i.id === selectedInstanceId)?.name || "Internal Database"}</strong>
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsDbModalOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleAddDatabase} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">
-                Database Name <span className="text-red-400">*</span>
+          <form onSubmit={handleAddDatabase} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Database Name <span className="text-red-500">*</span>
               </label>
               <Input
-                placeholder="e.g. dge_spatial_prod"
                 value={dbName}
                 onChange={(e) => setDbName(e.target.value)}
                 required
-                className="h-9.5"
+                placeholder="GISDB"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Remarks</label>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Database Owner <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={dbOwner}
+                onChange={(e) => setDbOwner(e.target.value)}
+                required
+                placeholder="sde_admin"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
+              />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
+                Business / governance owner — not a login credential.
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remarks</label>
               <textarea
-                placeholder="What this database is used for..."
                 value={dbRemarks}
                 onChange={(e) => setDbRemarks(e.target.value)}
-                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[70px] resize-none"
+                placeholder="Database description..."
+                className="flex w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121824] px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-hidden min-h-[70px] resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
-              <Button
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+              <button
                 type="button"
-                variant="outline"
-                className="h-9 px-4 font-semibold text-xs"
                 onClick={() => setIsDbModalOpen(false)}
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0 animate-pulse-subtle"
               >
-                <Plus className="h-3.5 w-3.5" /> Add
-              </Button>
+                <Database className="h-3.5 w-3.5" /> Add Database
+              </button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========================================== */}
+      {/* MODAL: EDIT DATABASE (4th Screenshot)       */}
+      {/* ========================================== */}
+      <Dialog open={isEditDbModalOpen} onOpenChange={setIsEditDbModalOpen}>
+        <DialogContent className="max-w-[480px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
+          {/* Custom Dialog Header matching 4th screenshot */}
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-500 dark:text-blue-400">
+                <Database className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Edit Database</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                  Under instance <strong className="text-slate-700 dark:text-slate-200">{instances.find(i => i.id === selectedInstanceId)?.name || "Internal Database"}</strong>
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsEditDbModalOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleUpdateDatabase} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Database Name <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={editDbName}
+                onChange={(e) => setEditDbName(e.target.value)}
+                required
+                placeholder="DMT"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Database Owner <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={editDbOwner}
+                onChange={(e) => setEditDbOwner(e.target.value)}
+                required
+                placeholder="DMT"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
+              />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
+                Business / governance owner — not a login credential.
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remarks</label>
+              <textarea
+                value={editDbRemarks}
+                onChange={(e) => setEditDbRemarks(e.target.value)}
+                placeholder="Database description..."
+                className="flex w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121824] px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-hidden min-h-[70px] resize-none"
+              />
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => setIsEditDbModalOpen(false)}
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
+              >
+                <Check className="h-3.5 w-3.5" /> Update
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========================================== */}
+      {/* MODAL: DELETE CONFIRM (5th Screenshot)      */}
+      {/* ========================================== */}
+      <Dialog open={isDeleteDbModalOpen} onOpenChange={setIsDeleteDbModalOpen}>
+        <DialogContent className="max-w-[440px] border border-red-100 dark:border-red-950/40 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
+          {/* Custom Header Layout matching 5th screenshot */}
+          <div className="flex items-start justify-between pb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200/60 dark:border-red-500/30 text-red-650 dark:text-red-450 shrink-0 shadow-sm">
+                <XCircle className="h-5.5 w-5.5" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Delete Database</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                  Permanently remove database "{deletingDbItem?.name}" from this instance?
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsDeleteDbModalOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
+          {/* Footer buttons matching 5th screenshot */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/60 mt-2">
+            <button
+              type="button"
+              onClick={() => setIsDeleteDbModalOpen(false)}
+              className="h-9 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-250 font-bold text-xs rounded-lg transition-colors cursor-pointer border-0"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteDbConfirmed}
+              className="h-9 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
+            >
+              <Trash className="h-3.5 w-3.5" /> Delete Record
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1714,53 +1974,65 @@ function DatabaseMapping() {
       {/* MODAL: ADD SCHEMA                          */}
       {/* ========================================== */}
       <Dialog open={isSchemaModalOpen} onOpenChange={setIsSchemaModalOpen}>
-        <DialogContent className="max-w-[440px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <TableProperties className="h-4.5 w-4.5 text-blue-400" />
-              Add Schema
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[440px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-500">
+                <TableProperties className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Add Schema</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                  Under database <strong className="text-slate-700 dark:text-slate-200">{databases.find(d => d.id === targetDbId)?.name || "—"}</strong>
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsSchemaModalOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleAddSchema} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">
-                Schema Name <span className="text-red-400">*</span>
+          <form onSubmit={handleAddSchema} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Schema Name <span className="text-red-500">*</span>
               </label>
               <Input
                 placeholder="e.g. layers"
                 value={schemaName}
                 onChange={(e) => setSchemaName(e.target.value)}
                 required
-                className="h-9.5"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Remarks</label>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Remarks</label>
               <textarea
                 placeholder="Schema details..."
                 value={schemaRemarks}
                 onChange={(e) => setSchemaRemarks(e.target.value)}
-                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[70px] resize-none"
+                className="flex w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#121824] px-3 py-2 text-xs text-slate-900 dark:text-white shadow-xs transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-hidden min-h-[70px] resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
-              <Button
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+              <button
                 type="button"
-                variant="outline"
-                className="h-9 px-4 font-semibold text-xs"
                 onClick={() => setIsSchemaModalOpen(false)}
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
+                className="h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
               >
-                <Plus className="h-3.5 w-3.5" /> Add
-              </Button>
+                <Plus className="h-3.5 w-3.5" /> Add Schema
+              </button>
             </div>
           </form>
         </DialogContent>
@@ -1770,67 +2042,79 @@ function DatabaseMapping() {
       {/* MODAL: ADD MAPPING                         */}
       {/* ========================================== */}
       <Dialog open={isMappingModalOpen} onOpenChange={setIsMappingModalOpen}>
-        <DialogContent className="max-w-[460px] border border-border/80 bg-card p-6 shadow-glow backdrop-blur-xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-              <LinkIcon className="h-4.5 w-4.5 text-blue-400" />
-              Add Entity Mapping
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[460px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-slate-200 p-6 shadow-glow select-none">
+          <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 border border-blue-500/30 text-blue-500">
+                <LinkIcon className="h-5.5 w-5.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-wide">Add Entity Mapping</h3>
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                  Logical mapping details
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsMappingModalOpen(false)}
+              className="text-slate-400 hover:text-slate-650 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+          </div>
 
-          <form onSubmit={handleAddMapping} className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                Entity Name <span className="text-red-400">*</span>
+          <form onSubmit={handleAddMapping} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Entity Name <span className="text-red-500">*</span>
               </label>
               <Input
                 placeholder="e.g. LandParcel"
                 value={mapEntity}
                 onChange={(e) => setMapEntity(e.target.value)}
                 required
-                className="h-9.5"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-0.5">
-                Schema Table Path <span className="text-red-400">*</span>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-0.5">
+                Schema Table Path <span className="text-red-500">*</span>
               </label>
               <Input
                 placeholder="e.g. layers.land_parcel"
                 value={mapTable}
                 onChange={(e) => setMapTable(e.target.value)}
                 required
-                className="h-9.5"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Mapped Columns Count</label>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Mapped Columns Count</label>
               <Input
                 type="number"
                 placeholder="8"
                 value={mapCols}
                 onChange={(e) => setMapCols(e.target.value)}
-                className="h-9.5"
+                className="h-9.5 bg-slate-50 dark:bg-[#121824] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs rounded-lg"
               />
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
-              <Button
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+              <button
                 type="button"
-                variant="outline"
-                className="h-9 px-4 font-semibold text-xs"
                 onClick={() => setIsMappingModalOpen(false)}
+                className="h-9 px-4 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-300 font-bold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                className="h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/95 font-semibold text-xs flex items-center gap-1.5"
+                className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md transition-colors cursor-pointer border-0"
               >
                 <Plus className="h-3.5 w-3.5" /> Map Entity
-              </Button>
+              </button>
             </div>
           </form>
         </DialogContent>

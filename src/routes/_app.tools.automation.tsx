@@ -597,13 +597,22 @@ function AutomationToolsPage() {
           }
         }}
       >
-        <DialogContent className="max-w-xl p-0 overflow-hidden bg-[#111c2e] border-border/80 text-foreground rounded-2xl">
+        <DialogContent className={cn(
+          "max-w-xl p-0 overflow-hidden text-foreground rounded-2xl border transition-all",
+          isLight ? "bg-white border-slate-200" : "bg-[#111c2e] border-border/80"
+        )}>
           {selectedTool && (
             <>
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-border/60">
+              <div className={cn(
+                "flex items-center justify-between px-6 py-5 border-b",
+                isLight ? "border-slate-100" : "border-border/60"
+              )}>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-blue-600 ring-1 ring-slate-200">
+                  <div className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-lg ring-1",
+                    isLight ? "bg-slate-100 text-blue-600 ring-slate-200" : "bg-white text-blue-600 ring-slate-200"
+                  )}>
                     <Wrench className="h-5 w-5" />
                   </div>
                   <DialogTitle className="text-xl font-bold text-foreground">
@@ -676,13 +685,21 @@ function AutomationToolsPage() {
                   </div>
 
                   {/* View Mode Footer */}
-                  <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#0a111a]/40 border-t border-border/60">
+                  <div className={cn(
+                    "flex items-center justify-end gap-3 px-6 py-4 border-t",
+                    isLight ? "bg-slate-50 border-slate-100" : "bg-[#0a111a]/40 border-border/60"
+                  )}>
                     <button
                       onClick={() => {
                         setSelectedTool(null);
                         setModalMode(null);
                       }}
-                      className="px-5 py-2.5 text-[14px] font-medium text-slate-300 bg-transparent hover:bg-white/5 border border-border/80 rounded-lg transition cursor-pointer"
+                      className={cn(
+                        "px-5 py-2.5 text-[14px] font-medium rounded-lg border transition cursor-pointer",
+                        isLight 
+                          ? "text-slate-600 hover:bg-slate-100 border-slate-200" 
+                          : "text-slate-300 hover:bg-white/5 border-border/80"
+                      )}
                     >
                       Close
                     </button>
@@ -708,20 +725,20 @@ function AutomationToolsPage() {
                     {/* Row 1: Tool Key & Tier */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[13px] font-medium text-slate-300">
+                        <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>
                           Tool Key <span className="text-red-500">*</span>
                         </label>
                         <Input
                           disabled
                           value={selectedTool.key || selectedTool.name.replace(/\s+/g, "")}
-                          className="bg-[#0b121f] border-border/60 text-slate-500 font-mono mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80"
+                          className={cn("border-border/60 text-slate-500 font-mono mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80", isLight ? "bg-slate-100/80" : "bg-[#0b121f]")}
                         />
                         <p className="mt-1 text-[11px] text-muted-foreground/80">Tool key cannot be changed.</p>
                       </div>
                       <div>
-                        <label className="text-[13px] font-medium text-slate-300">Tier</label>
+                        <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>Tier</label>
                         <Select disabled defaultValue={selectedTool.tier}>
-                          <SelectTrigger className="bg-[#0b121f] border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80">
+                          <SelectTrigger className={cn("border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80", isLight ? "bg-slate-100/80" : "bg-[#0b121f]")}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -734,21 +751,21 @@ function AutomationToolsPage() {
 
                     {/* Row 2: Tool Name */}
                     <div>
-                      <label className="text-[13px] font-medium text-slate-300">
+                      <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>
                         Tool Name <span className="text-red-500">*</span>
                       </label>
                       <Input
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 h-9.5 text-[13px]"
+                        className={cn("border-border/60 text-foreground mt-1 h-9.5 text-[13px]", isLight ? "bg-white" : "bg-[#18253c]/50")}
                       />
                     </div>
 
                     {/* Row 3: Pipeline Group */}
                     <div>
-                      <label className="text-[13px] font-medium text-slate-300">Pipeline Group</label>
+                      <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>Pipeline Group</label>
                       <Select disabled defaultValue={selectedTool.group}>
-                        <SelectTrigger className="bg-[#0b121f] border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80">
+                        <SelectTrigger className={cn("border-border/60 text-slate-500 mt-1 h-9.5 text-[13px] cursor-not-allowed opacity-80", isLight ? "bg-slate-100/80" : "bg-[#0b121f]")}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -762,14 +779,14 @@ function AutomationToolsPage() {
 
                     {/* Row 4: Category */}
                     <div>
-                      <label className="text-[13px] font-medium text-slate-300">
+                      <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>
                         Category <span className="text-red-500">*</span>
                       </label>
                       <Select value={editCategory} onValueChange={setEditCategory}>
-                        <SelectTrigger className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 h-9.5 text-[13px]">
+                        <SelectTrigger className={cn("border-border/60 text-foreground mt-1 h-9.5 text-[13px]", isLight ? "bg-white" : "bg-[#18253c]/50")}>
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#111c2e] border-border/80 text-foreground">
+                        <SelectContent className={cn("text-foreground", isLight ? "bg-white border-slate-200" : "bg-[#111c2e] border-border/80")}>
                           <SelectItem value="Collection">Collection</SelectItem>
                           <SelectItem value="Discovery">Discovery</SelectItem>
                           <SelectItem value="Quality">Quality</SelectItem>
@@ -784,11 +801,11 @@ function AutomationToolsPage() {
 
                     {/* Row 5: Description */}
                     <div>
-                      <label className="text-[13px] font-medium text-slate-300">Description</label>
+                      <label className={cn("text-[13px] font-medium", isLight ? "text-slate-700" : "text-slate-300")}>Description</label>
                       <Textarea
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
-                        className="bg-[#18253c]/50 border-border/60 text-foreground mt-1 min-h-[80px] resize-none text-[13px]"
+                        className={cn("border-border/60 text-foreground mt-1 min-h-[80px] resize-none text-[13px]", isLight ? "bg-white" : "bg-[#18253c]/50")}
                       />
                     </div>
 
@@ -815,12 +832,20 @@ function AutomationToolsPage() {
                   </div>
 
                   {/* Edit Mode Footer */}
-                  <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#0a111a]/40 border-t border-border/60">
+                  <div className={cn(
+                    "flex items-center justify-end gap-3 px-6 py-4 border-t",
+                    isLight ? "bg-slate-50 border-slate-100" : "bg-[#0a111a]/40 border-border/60"
+                  )}>
                     <button
                       onClick={() => {
                         setModalMode("view");
                       }}
-                      className="px-5 py-2.5 text-[14px] font-medium text-slate-300 bg-transparent hover:bg-white/5 border border-border/80 rounded-lg transition cursor-pointer"
+                      className={cn(
+                        "px-5 py-2.5 text-[14px] font-medium rounded-lg border transition cursor-pointer",
+                        isLight 
+                          ? "text-slate-600 hover:bg-slate-100 border-slate-200" 
+                          : "text-slate-300 hover:bg-white/5 border-border/80"
+                      )}
                     >
                       Cancel
                     </button>

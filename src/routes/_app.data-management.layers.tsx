@@ -21,6 +21,10 @@ import {
   Tag,
   Share2,
   Check,
+  X,
+  Briefcase,
+  GitBranch,
+  Lock,
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -35,6 +39,18 @@ import {
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const PolygonIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z" />
+  </svg>
+);
+
+const PolylineIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="m3 16 4-6 5 7 5-11 4 5" />
+  </svg>
+);
 
 export const Route = createFileRoute("/_app/data-management/layers")({
   head: () => ({
@@ -63,28 +79,52 @@ const STORAGE_KEY_LAYERS = "dge_layers_data";
 
 const initialLayers: DataLayerItem[] = [
   {
-    alias: "EAD Boundary Map",
-    dbName: "ead_boundary_map_as",
-    entity: "EAD",
+    alias: "L_DMAUDM_DISTRICT",
+    dbName: "L_DMAUDM_DISTRICT",
+    entity: "ADDA",
     geometry: "Polygon",
-    sensitivity: "Restricted",
+    sensitivity: "Open Data",
     status: "Active",
     layerType: "Vector",
-    schema: "EAD_SPATIAL_DB",
-    remarks: "Initial boundary reference layers",
-    onboardedDate: "22/07/2026",
+    schema: "DMT dmt",
+    remarks: "Not provided",
+    onboardedDate: "20/06/2026",
   },
   {
-    alias: "ADDA Fiber Network",
-    dbName: "adda_fiber_net_as",
+    alias: "L_DMAUDM_DISTRICTBOUNDARY",
+    dbName: "L_DMAUDM_DISTRICTBOUNDARY",
     entity: "ADDA",
-    geometry: "Line",
-    sensitivity: "Sensitive",
+    geometry: "Polyline",
+    sensitivity: "Open Data",
     status: "Active",
     layerType: "Vector",
-    schema: "ADDA_NETWORK_SCHEMA",
-    remarks: "Telecommunications backbone routes",
-    onboardedDate: "21/07/2026",
+    schema: "DMT dmt",
+    remarks: "Not provided",
+    onboardedDate: "20/06/2026",
+  },
+  {
+    alias: "L_DMAUDM_MUNICIPALITY",
+    dbName: "L_DMAUDM_MUNICIPALITY",
+    entity: "ADDA",
+    geometry: "Polygon",
+    sensitivity: "Open Data",
+    status: "Active",
+    layerType: "Vector",
+    schema: "DMT dmt",
+    remarks: "Not provided",
+    onboardedDate: "20/06/2026",
+  },
+  {
+    alias: "L_DMAUDM_MUNICIPALITYBOUNDARY",
+    dbName: "L_DMAUDM_MUNICIPALITYBOUNDARY",
+    entity: "ADDA",
+    geometry: "Polyline",
+    sensitivity: "Open Data",
+    status: "Active",
+    layerType: "Vector",
+    schema: "DMT dmt",
+    remarks: "Not provided",
+    onboardedDate: "20/06/2026",
   },
 ];
 
@@ -103,6 +143,7 @@ const ENTITIES = [
   { code: "ADDC", name: "Abu Dhabi Distribution Company" },
   { code: "ADHA", name: "Abu Dhabi Housing Authority" },
   { code: "DGE", name: "Dept of Government Enablement" },
+  { code: "DMT", name: "Department of Municipalities" },
   { code: "EAD", name: "Environment Agency Abu Dhabi" },
 ];
 
@@ -114,10 +155,6 @@ const STATUSES = ["Active", "Inactive"];
 function LayersPage() {
   const { theme } = useTheme();
   const isLight = theme === "light";
-
-  // Navigation state
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [selectedLayerNames, setSelectedLayerNames] = useState<string[]>([]);
 
   // Dynamic layers list state
   const [layersList, setLayersList] = useState<DataLayerItem[]>(() => {
@@ -141,6 +178,65 @@ function LayersPage() {
       localStorage.setItem(STORAGE_KEY_LAYERS, JSON.stringify(newList));
     }
   };
+
+  // Navigation state
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [selectedLayerNames, setSelectedLayerNames] = useState<string[]>([]);
+  const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
+  const [viewingLayerDbName, setViewingLayerDbName] = useState<string | null>(null);
+  const [editingLayerDbName, setEditingLayerDbName] = useState<string | null>(null);
+  const [layerTab, setLayerTab] = useState("overview");
+  const [editTab, setEditTab] = useState("info");
+  const [deleteLayerDbName, setDeleteLayerDbName] = useState<string | null>(null);
+
+  const [editAlias, setEditAlias] = useState("");
+  const [editAgencyName, setEditAgencyName] = useState("");
+  const [editRemarks, setEditRemarks] = useState("");
+  const [editSensitivity, setEditSensitivity] = useState("");
+  const [editGeometry, setEditGeometry] = useState("");
+  const [editStatus, setEditStatus] = useState("Active");
+  const [editPublished, setEditPublished] = useState(false);
+
+  useEffect(() => {
+    if (editingLayerDbName) {
+      const selected = layersList.find(l => l.dbName === editingLayerDbName);
+      if (selected) {
+        setEditAlias(selected.alias);
+        setEditAgencyName(selected.alias);
+        setEditRemarks(selected.remarks || "Not provided");
+        setEditSensitivity(selected.sensitivity);
+        setEditGeometry(selected.geometry);
+        setEditStatus(selected.status);
+        setEditPublished(selected.sensitivity === "Open Data");
+      }
+    }
+  }, [editingLayerDbName, layersList]);
+  
+  const [visibleCols, setVisibleCols] = useState({
+    layerName: true,
+    dbLayerName: true,
+    entity: true,
+    type: false,
+    geometry: true,
+    coverage: false,
+    sensitivity: true,
+    onboardedDate: true,
+  });
+
+  const activeHeaders = useMemo(() => {
+    const list: string[] = ["Layer Name"];
+    if (visibleCols.dbLayerName) list.push("DB Layer Name");
+    if (visibleCols.entity) list.push("Entity");
+    if (visibleCols.type) list.push("Type");
+    if (visibleCols.geometry) list.push("Geometry");
+    if (visibleCols.coverage) list.push("Coverage");
+    if (visibleCols.sensitivity) list.push("Sensitivity");
+    if (visibleCols.onboardedDate) list.push("Onboarded Date");
+    list.push("ACTIONS");
+    return list;
+  }, [visibleCols]);
+
+
 
   // Filters state
   const [query, setQuery] = useState("");
@@ -609,6 +705,826 @@ function LayersPage() {
     );
   }
 
+  if (editingLayerDbName) {
+    const selectedLayer = layersList.find((l) => l.dbName === editingLayerDbName) || layersList[0];
+
+    const handleEditSave = (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      const updated = layersList.map((l) => {
+        if (l.dbName === editingLayerDbName) {
+          return {
+            ...l,
+            alias: editAlias.trim(),
+            remarks: editRemarks.trim(),
+            sensitivity: editSensitivity,
+            geometry: editGeometry,
+            status: editStatus,
+          };
+        }
+        return l;
+      });
+      
+      saveLayers(updated);
+      toast.success("Layer changes saved successfully.");
+      setViewingLayerDbName(editingLayerDbName);
+      setEditingLayerDbName(null);
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Header Ribbon card */}
+        <Surface className="!p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white shadow-soft">
+                <Database className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-[17px] font-black text-foreground">Edit Data Layer</h2>
+                <span className="text-[11px] font-bold text-muted-foreground block uppercase tracking-wide">
+                  Editing {selectedLayer?.alias || editingLayerDbName}
+                </span>
+              </div>
+            </div>
+
+            {/* Cancel & Save Action Buttons */}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setViewingLayerDbName(editingLayerDbName);
+                  setEditingLayerDbName(null);
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card hover:bg-muted px-4 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSave}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+              >
+                <Check className="h-3.5 w-3.5" /> Save Changes
+              </button>
+            </div>
+          </div>
+        </Surface>
+
+        {/* Entity and Status Fields block */}
+        <Surface className="!p-5 space-y-4">
+          <div className="flex items-center gap-3.5 pb-3 border-b border-border/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500 text-white font-bold text-xs">
+              AD
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground">Abu Dhabi Digital Authority</div>
+              <div className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider">ADDA</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
+            {/* Entity Select dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                Entity <span className="text-danger ml-0.5">*</span>
+              </label>
+              <Select value={selectedLayer?.entity} disabled>
+                <SelectTrigger className="h-9 w-full border-border/60 bg-muted/30 dark:bg-muted/10 text-[13px] text-muted-foreground cursor-not-allowed">
+                  <SelectValue placeholder="ADDA — Abu Dhabi Digital Authority" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border/60">
+                  <SelectItem value="adda">ADDA — Abu Dhabi Digital Authority</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status Select dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                Status <span className="text-danger ml-0.5">*</span>
+              </label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground cursor-pointer focus:ring-1 focus:ring-primary/40">
+                  <SelectValue placeholder="Active" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border/60">
+                  <SelectItem value="Active" className="cursor-pointer">Active</SelectItem>
+                  <SelectItem value="Inactive" className="cursor-pointer">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Surface>
+
+        {/* Tab selector inside form */}
+        <div className="flex items-center gap-2 border-b border-border/60 pb-px text-xs font-bold select-none">
+          <button
+            onClick={() => setEditTab("info")}
+            className={cn(
+              "px-4 py-2.5 border-b-2 -mb-px transition-colors cursor-pointer",
+              editTab === "info"
+                ? "border-purple-500 text-purple-500 font-extrabold"
+                : "border-transparent text-muted-foreground/85 hover:text-foreground"
+            )}
+          >
+            1 Layer Info
+          </button>
+          <button
+            onClick={() => setEditTab("attributes")}
+            className={cn(
+              "px-4 py-2.5 border-b-2 -mb-px transition-colors cursor-pointer",
+              editTab === "attributes"
+                ? "border-purple-500 text-purple-500 font-extrabold"
+                : "border-transparent text-muted-foreground/85 hover:text-foreground"
+            )}
+          >
+            2 Attributes (17)
+          </button>
+        </div>
+
+        {/* Dynamic Tab Edit Contents */}
+        {editTab === "info" ? (
+          <Surface className="!p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              
+              {/* Alias Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Alias Layer Name <span className="text-danger ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editAlias}
+                  onChange={(e) => setEditAlias(e.target.value)}
+                  className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                />
+              </div>
+
+              {/* Agency Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Agency Layer Name <span className="text-danger ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editAgencyName}
+                  onChange={(e) => setEditAgencyName(e.target.value)}
+                  className="h-9 w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 px-3 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                />
+              </div>
+
+              {/* DB Layer Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  DB Layer Name <span className="text-danger ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={selectedLayer?.dbName}
+                  disabled
+                  className="h-9 w-full rounded-lg border border-border/40 bg-muted/30 dark:bg-muted/10 px-3 text-[13px] text-muted-foreground cursor-not-allowed font-mono font-medium"
+                />
+              </div>
+
+              {/* Coordinate System */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Coordinate System
+                </label>
+                <input
+                  type="text"
+                  value="WGS 1984"
+                  disabled
+                  className="h-9 w-full rounded-lg border border-border/40 bg-muted/30 dark:bg-muted/10 px-3 text-[13px] text-muted-foreground cursor-not-allowed font-medium"
+                />
+              </div>
+
+              {/* Layer Type */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Layer Type <span className="text-danger ml-0.5">*</span>
+                </label>
+                <Select value={selectedLayer?.layerType} disabled>
+                  <SelectTrigger className="h-9 w-full border-border/40 bg-muted/30 dark:bg-muted/10 text-[13px] text-muted-foreground cursor-not-allowed">
+                    <SelectValue placeholder="Vector" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border/60">
+                    <SelectItem value="Vector">Vector</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Layer Sensitivity */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Layer Sensitivity <span className="text-danger ml-0.5">*</span>
+                </label>
+                <Select value={editSensitivity} onValueChange={setEditSensitivity}>
+                  <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground cursor-pointer focus:ring-1 focus:ring-primary/40">
+                    <SelectValue placeholder="Open Data" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border/60">
+                    <SelectItem value="Open Data" className="cursor-pointer">Open Data</SelectItem>
+                    <SelectItem value="Restricted" className="cursor-pointer">Restricted</SelectItem>
+                    <SelectItem value="Sensitive" className="cursor-pointer">Sensitive</SelectItem>
+                    <SelectItem value="Confidential" className="cursor-pointer">Confidential</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Geometry Type */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Layer Geometry Type <span className="text-danger ml-0.5">*</span>
+                </label>
+                <Select value={editGeometry} onValueChange={setEditGeometry}>
+                  <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground cursor-pointer focus:ring-1 focus:ring-primary/40">
+                    <SelectValue placeholder="Polygon" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border/60">
+                    <SelectItem value="Polygon" className="cursor-pointer">Polygon</SelectItem>
+                    <SelectItem value="Point" className="cursor-pointer">Point</SelectItem>
+                    <SelectItem value="Polyline" className="cursor-pointer">Polyline</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Coverage Area */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Coverage Area
+                </label>
+                <Select defaultValue="Abu Dhabi Island">
+                  <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground cursor-pointer focus:ring-1 focus:ring-primary/40">
+                    <SelectValue placeholder="Abu Dhabi Island" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border/60">
+                    <SelectItem value="Abu Dhabi Island" className="cursor-pointer">Abu Dhabi Island</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Database Name */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                    Database Name
+                  </label>
+                  <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold">
+                    from Data Mapping
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={selectedLayer?.entity}
+                  disabled
+                  className="h-9 w-full rounded-lg border border-border/45 bg-muted/30 dark:bg-muted/10 px-3 text-[13px] text-muted-foreground cursor-not-allowed font-medium"
+                />
+              </div>
+
+              {/* Schema Name */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                    Schema Name
+                  </label>
+                  <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold">
+                    from Data Mapping
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value="DMT"
+                  disabled
+                  className="h-9 w-full rounded-lg border border-border/45 bg-muted/30 dark:bg-muted/10 px-3 text-[13px] text-muted-foreground cursor-not-allowed font-medium"
+                />
+              </div>
+
+              {/* Record Count */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Record Count
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value="193"
+                    disabled
+                    className="h-9 w-full rounded-lg border border-border/45 bg-muted/30 dark:bg-muted/10 pl-3 pr-20 text-[13px] text-muted-foreground cursor-not-allowed font-bold"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-extrabold uppercase text-muted-foreground/85 tracking-wider">
+                    RECORDS
+                  </span>
+                </div>
+              </div>
+
+              {/* Data Theme */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Data Theme
+                </label>
+                <Select defaultValue="Dark Gray Canvas">
+                  <SelectTrigger className="h-9 w-full border-border/60 bg-card/90 dark:bg-card/50 text-[13px] text-foreground cursor-pointer focus:ring-1 focus:ring-primary/40">
+                    <SelectValue placeholder="Dark Gray Canvas" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border/60">
+                    <SelectItem value="Dark Gray Canvas" className="cursor-pointer">Dark Gray Canvas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Remarks textarea */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/85 block">
+                  Remarks / Service URL
+                </label>
+                <textarea
+                  value={editRemarks}
+                  onChange={(e) => setEditRemarks(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-border/60 bg-card/90 dark:bg-card/50 p-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-semibold"
+                />
+              </div>
+
+              {/* Is Published Toggle */}
+              <div className="md:col-span-2 border border-border/60 bg-foreground/[0.01] rounded-xl p-4 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <span className="text-[12.5px] font-bold text-foreground block">Is Published</span>
+                  <span className="text-[11px] text-muted-foreground font-semibold">
+                    When ON, the layer's data is published and accessible to authorised users.
+                  </span>
+                </div>
+                <div className="relative inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editPublished}
+                    onChange={(e) => setEditPublished(e.target.checked)}
+                    className="sr-only peer"
+                    id="is-published-toggle"
+                  />
+                  <div
+                    onClick={() => setEditPublished(!editPublished)}
+                    className="w-9 h-5 bg-border/60 dark:bg-border/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+            </div>
+          </Surface>
+        ) : (
+          /* Attributes list edit tab */
+          <Surface className="!p-0 overflow-hidden">
+            <div className="p-5 border-b border-border/30 bg-foreground/[0.01]">
+              <h3 className="text-[13.5px] font-bold text-foreground">Attribute Classification</h3>
+              <p className="text-[11.5px] text-muted-foreground font-semibold mt-0.5">
+                Set alias, sensitivity and PII per attribute. Edits save when you click Save Changes.
+              </p>
+              
+              <div className="mt-3.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 px-3 py-1 text-xs font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>Distribution: • Total: 17</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="table-container-scrollable scrollbar-thin">
+              <table className="w-full text-left text-[14px]">
+                <thead>
+                  <tr className="border-b border-border/60 bg-foreground/[0.04] text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                    <th className="px-5 py-3 whitespace-nowrap">Attribute Name</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Data Type</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Alias Name</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Sensitivity</th>
+                    <th className="px-5 py-3 whitespace-nowrap">PII / Info</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: "ENGID", type: "String", alias: "ENGID" },
+                    { name: "POSITIONALACCURACY", type: "Double", alias: "POSITIONALACCURACY" },
+                    { name: "TYPEOFDATASOURCE", type: "String", alias: "TYPEOFDATASOURCE" },
+                    { name: "PROJECTLIST", type: "String", alias: "PROJECTLIST" },
+                    { name: "SOURCEOFORIGIN", type: "String", alias: "SOURCEOFORIGIN" },
+                    { name: "MUNICIPALITYNAME", type: "String", alias: "MUNICIPALITYNAME" },
+                    { name: "AD_FGDREPRESENTATION", type: "String", alias: "AD_FGDREPRESENTATION" },
+                    { name: "DISTRICTID", type: "Integer", alias: "DISTRICTID" },
+                    { name: "NAMEARABIC", type: "String", alias: "NAMEARABIC" },
+                    { name: "NAMEENGLISH", type: "String", alias: "NAMEENGLISH" },
+                    { name: "NAMEPOPULARARABIC", type: "String", alias: "NAMEPOPULARARABIC" },
+                    { name: "NAMEPOPULARENGLISH", type: "String", alias: "NAMEPOPULARENGLISH" },
+                    { name: "POPULATION", type: "Double", alias: "POPULATION" },
+                    { name: "CH_FID", type: "String", alias: "CH_FID" },
+                    { name: "SHAPE", type: "Geometry", alias: "SHAPE" },
+                    { name: "SHAPE_Length", type: "Double", alias: "SHAPE_Length" },
+                    { name: "SHAPE_Area", type: "Double", alias: "SHAPE_Area" },
+                  ].map((attr) => (
+                    <tr key={attr.name} className="border-b border-border/40 hover:bg-foreground/[0.01] transition-colors">
+                      <td className="px-5 py-3 font-semibold text-muted-foreground/90 text-xs">{attr.name}</td>
+                      <td className="px-5 py-3 text-xs">
+                        <span className="px-2 py-0.5 rounded bg-muted border border-border/30 font-mono text-[10.5px] font-bold text-muted-foreground/80">
+                          {attr.type}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-xs">
+                        <input
+                          type="text"
+                          defaultValue={attr.alias}
+                          className="h-8 w-60 rounded border border-border/60 bg-card px-2.5 text-[12.5px] font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                        />
+                      </td>
+                      <td className="px-5 py-3 text-xs">
+                        <Select defaultValue="inherit">
+                          <SelectTrigger className="h-8 w-44 border-border/60 bg-card text-[12px] text-foreground font-semibold cursor-pointer">
+                            <SelectValue placeholder="— Inherit layer —" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border/60">
+                            <SelectItem value="inherit" className="cursor-pointer">— Inherit layer —</SelectItem>
+                            <SelectItem value="Open Data" className="cursor-pointer">Open Data</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-5 py-3 text-xs">
+                        <label className="flex items-center gap-1.5 font-bold text-muted-foreground/85 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            defaultChecked
+                            className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary"
+                          />
+                          <span>Not PII</span>
+                        </label>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Surface>
+        )}
+      </div>
+    );
+  }
+
+  if (viewingLayerDbName) {
+    const selectedLayer = layersList.find((l) => l.dbName === viewingLayerDbName) || layersList[0];
+    
+    return (
+      <div className="space-y-6">
+        {/* Header & Tabs Ribbon */}
+        <Surface className="!p-4 pb-0">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5">
+              <button
+                onClick={() => setViewingLayerDbName(null)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground hover:text-foreground transition cursor-pointer"
+                title="Back to layers list"
+              >
+                <ArrowLeft className="h-4.5 w-4.5" />
+              </button>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white shadow-soft">
+                <Database className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-[17px] font-black text-foreground">{selectedLayer?.alias || viewingLayerDbName}</h2>
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none font-mono">
+                    Active
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground/85 font-semibold">
+                  <span className="flex items-center gap-1">
+                    <Briefcase className="h-3.5 w-3.5" /> {selectedLayer?.entity === "ADDA" ? "Abu Dhabi Digital Authority" : "Department of Municipalities"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Globe2 className="h-3.5 w-3.5" /> Abu Dhabi Island
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              {layerTab === "overview" && (
+                <button
+                  onClick={() => toast.info("Workflow monitor opened")}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card hover:bg-muted px-3.5 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+                >
+                  <GitBranch className="h-3.5 w-3.5 text-purple-500/80" /> Open Workflow Monitor
+                </button>
+              )}
+              {layerTab === "attributes" && (
+                <button
+                  onClick={() => toast.info("Outdated layers updated")}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card hover:bg-muted px-3.5 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 text-amber-500" /> Show outdated layers
+                </button>
+              )}
+              {layerTab === "metadata" && (
+                <button
+                  onClick={() => toast.info("DMT deliveries filtering active")}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card hover:bg-muted px-3.5 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+                >
+                  <Search className="h-3.5 w-3.5 text-blue-500" /> Find DMT deliveries
+                </button>
+              )}
+              {layerTab === "status" && (
+                <button
+                  onClick={() => toast.info("Navigating to Metadata Registry")}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card hover:bg-muted px-3.5 text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+                >
+                  <Database className="h-3.5 w-3.5 text-emerald-500" /> Go to Metadata Registry
+                </button>
+              )}
+              
+              <button
+                onClick={() => {
+                  setEditingLayerDbName(selectedLayer.dbName);
+                  setEditTab("info");
+                  setViewingLayerDbName(null);
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+              >
+                <Pencil className="h-3.5 w-3.5" /> Edit Layer
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-border/20 mt-4" />
+
+          {/* Tab Selection Row */}
+          <div className="flex items-center gap-2 text-xs font-bold select-none -mb-[2px]">
+            <button
+              onClick={() => setLayerTab("overview")}
+              className={cn(
+                "px-4 py-3 border-b-2 transition-colors cursor-pointer",
+                layerTab === "overview"
+                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  : "border-transparent text-muted-foreground/85 hover:text-foreground"
+              )}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setLayerTab("attributes")}
+              className={cn(
+                "px-4 py-3 border-b-2 transition-colors cursor-pointer",
+                layerTab === "attributes"
+                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  : "border-transparent text-muted-foreground/85 hover:text-foreground"
+              )}
+            >
+              # Attributes (17)
+            </button>
+            <button
+              onClick={() => setLayerTab("metadata")}
+              className={cn(
+                "px-4 py-3 border-b-2 transition-colors cursor-pointer",
+                layerTab === "metadata"
+                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  : "border-transparent text-muted-foreground/85 hover:text-foreground"
+              )}
+            >
+              Metadata
+            </button>
+            <button
+              onClick={() => setLayerTab("status")}
+              className={cn(
+                "px-4 py-3 border-b-2 transition-colors cursor-pointer",
+                layerTab === "status"
+                  ? "border-purple-500 text-purple-500 font-extrabold"
+                  : "border-transparent text-muted-foreground/85 hover:text-foreground"
+              )}
+            >
+              Processing Status
+            </button>
+          </div>
+        </Surface>
+
+        {/* Dynamic Tab Contents */}
+        {layerTab === "overview" ? (
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
+            
+            {/* Left Column Card: Layer Info */}
+            <Surface className="!p-5 space-y-4">
+              <h3 className="text-sm font-bold text-foreground">Layer Info</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 border-t border-border/20 pt-4">
+                {/* ALIAS NAME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Alias Name (Display)</span>
+                  <span className="text-xs font-semibold text-foreground">{selectedLayer?.alias}</span>
+                </div>
+
+                {/* AGENCY LAYER NAME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Agency Layer Name</span>
+                  <span className="text-xs font-semibold text-foreground">{selectedLayer?.alias}</span>
+                </div>
+
+                {/* DB LAYER NAME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">DB Layer Name</span>
+                  <span className="text-xs font-mono font-semibold text-foreground">{selectedLayer?.dbName}</span>
+                </div>
+
+                {/* LAYER TYPE */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Layer Type</span>
+                  <span className="text-xs font-semibold text-foreground">{selectedLayer?.layerType}</span>
+                </div>
+
+                {/* COORDINATE SYSTEM */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Coordinate System</span>
+                  <div className="rounded-lg border border-border bg-foreground/[0.02] p-2 font-mono text-[11px] leading-relaxed text-foreground/80 w-fit">
+                    WGS 1984<br />EPSG:4326
+                  </div>
+                </div>
+
+                {/* GEOMETRY */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Geometry</span>
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <span className="h-3 w-3 bg-blue-500/10 border border-blue-500/35 rounded" /> {selectedLayer?.geometry}
+                  </span>
+                </div>
+
+                {/* SENSITIVITY */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Sensitivity</span>
+                  <div>
+                    <span className="inline-flex items-center rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 px-2 py-0.5 text-[10.5px] font-extrabold uppercase">
+                      {selectedLayer?.sensitivity}
+                    </span>
+                  </div>
+                </div>
+
+                {/* SCHEMA NAME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Schema Name</span>
+                  <div>
+                    <span className="inline-flex items-center rounded bg-purple-500/10 text-purple-500 border border-purple-500/25 px-2 py-0.5 text-[10.5px] font-mono font-bold">
+                      {selectedLayer?.schema}
+                    </span>
+                  </div>
+                </div>
+
+                {/* DATABASE NAME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Database Name</span>
+                  <span className="text-xs font-semibold text-foreground">{selectedLayer?.entity}</span>
+                </div>
+
+                {/* REGISTERED DATA SOURCE */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Registered Data Source</span>
+                  <span className="text-xs font-bold text-purple-500 hover:underline cursor-pointer">FGDB1</span>
+                </div>
+
+                {/* DATA THEME */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Data Theme</span>
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" /> Dark Gray Canvas
+                  </span>
+                </div>
+
+                {/* IS PUBLISHED */}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Is Published</span>
+                  <div>
+                    <span className="inline-flex items-center gap-1 rounded border border-border bg-foreground/[0.03] text-muted-foreground px-2 py-0.5 text-[10.5px] font-bold">
+                      <AlertCircle className="h-3 w-3" /> Not Published
+                    </span>
+                  </div>
+                </div>
+
+                {/* REMARKS */}
+                <div className="space-y-1 md:col-span-2">
+                  <span className="text-[10px] text-muted-foreground/80 font-bold uppercase tracking-wider block">Remarks / Service URL</span>
+                  <span className="text-xs font-semibold text-muted-foreground/85">{selectedLayer?.remarks}</span>
+                </div>
+              </div>
+            </Surface>
+
+            {/* Right Column (Stats) */}
+            <div className="space-y-6">
+              <Surface className="!p-5 space-y-4">
+                <h3 className="text-[11.5px] font-extrabold text-muted-foreground uppercase tracking-wider border-b border-border/30 pb-3 select-none">
+                  Stats
+                </h3>
+
+                <div className="space-y-3.5 text-xs font-semibold pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground/85"># Attributes</span>
+                    <span className="font-extrabold text-foreground">17</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground/85">Record Count</span>
+                    <span className="font-extrabold text-foreground">193</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground/85">Onboarded</span>
+                    <span className="font-extrabold text-foreground">{selectedLayer?.onboardedDate}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground/85">Last Sync</span>
+                    <span className="font-extrabold text-foreground">{selectedLayer?.onboardedDate}</span>
+                  </div>
+                </div>
+              </Surface>
+            </div>
+          </div>
+        ) : layerTab === "attributes" ? (
+          <Surface className="!p-0 overflow-hidden">
+            <div className="table-container-scrollable scrollbar-thin">
+              <table className="w-full text-left text-[14px]">
+                <thead>
+                  <tr className="border-b border-border/60 bg-foreground/[0.04] text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                    <th className="px-5 py-3 whitespace-nowrap">Attribute Name</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Data Type</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Alias</th>
+                    <th className="px-5 py-3 whitespace-nowrap">Sensitivity</th>
+                    <th className="px-5 py-3 whitespace-nowrap">PII</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: "ENGID", type: "String", alias: "ENGID", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "POSITIONALACCURACY", type: "Double", alias: "POSITIONALACCURACY", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "TYPEOFDATASOURCE", type: "String", alias: "TYPEOFDATASOURCE", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "PROJECTLIST", type: "String", alias: "PROJECTLIST", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "SOURCEOFORIGIN", type: "String", alias: "SOURCEOFORIGIN", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "MUNICIPALITYNAME", type: "String", alias: "MUNICIPALITYNAME", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "AD_FGDREPRESENTATION", type: "String", alias: "AD_FGDREPRESENTATION", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "DISTRICTID", type: "Integer", alias: "DISTRICTID", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "NAMEARABIC", type: "String", alias: "NAMEARABIC", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "NAMEENGLISH", type: "String", alias: "NAMEENGLISH", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "NAMEPOPULARARABIC", type: "String", alias: "NAMEPOPULARARABIC", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "NAMEPOPULARENGLISH", type: "String", alias: "NAMEPOPULARENGLISH", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "POPULATION", type: "Double", alias: "POPULATION", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "CH_FID", type: "String", alias: "CH_FID", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "SHAPE", type: "Geometry", alias: "SHAPE", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "SHAPE_Length", type: "Double", alias: "SHAPE_Length", sensitivity: "Inherit layer", pii: "—" },
+                    { name: "SHAPE_Area", type: "Double", alias: "SHAPE_Area", sensitivity: "Inherit layer", pii: "—" },
+                  ].map((attr) => (
+                    <tr key={attr.name} className="border-b border-border/40 hover:bg-foreground/[0.01] transition-colors">
+                      <td className="px-5 py-3 font-bold text-foreground text-xs">{attr.name}</td>
+                      <td className="px-5 py-3 text-xs">
+                        <span className="px-1.5 py-0.5 rounded bg-muted border border-border/30 font-mono text-[10.5px] font-bold text-muted-foreground">
+                          {attr.type}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-xs text-foreground/80 font-semibold">{attr.alias}</td>
+                      <td className="px-5 py-3 text-xs text-amber-600/90 dark:text-amber-500/90 font-bold">{attr.sensitivity}</td>
+                      <td className="px-5 py-3 text-xs text-muted-foreground/75 font-semibold">{attr.pii}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Surface>
+        ) : layerTab === "metadata" ? (
+          <Surface className="p-12">
+            <div className="flex flex-col items-center justify-center text-center py-6 space-y-4 max-w-lg mx-auto">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground/[0.04] border border-border/50 text-muted-foreground">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="text-[15px] font-bold text-foreground">No metadata records linked to this layer.</h4>
+                <p className="text-[12px] text-muted-foreground/85 leading-relaxed font-semibold">
+                  Metadata records live in <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-purple-400">daf__mk.metadata_record</code>; wire the metadata module to populate this tab.
+                </p>
+              </div>
+            </div>
+          </Surface>
+        ) : (
+          <Surface className="p-12">
+            <div className="flex flex-col items-center justify-center text-center py-6 space-y-4 max-w-lg mx-auto">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground/[0.04] border border-border/50 text-muted-foreground">
+                <Database className="h-6 w-6" />
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="text-[15px] font-bold text-foreground">No processing-status entries yet.</h4>
+                <p className="text-[12px] text-muted-foreground/85 leading-relaxed font-semibold">
+                  Wire to <code className="font-mono bg-muted/70 px-1.5 py-0.5 rounded text-[11px] text-purple-400">daf__mk.layer_processing_status</code> when the workflow monitor module lands.
+                </p>
+              </div>
+              
+              <div className="pt-2">
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 px-4 py-2 text-xs font-bold shadow-soft">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span>Layer is currently active and accepting deliveries.</span>
+                </div>
+              </div>
+            </div>
+          </Surface>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -669,61 +1585,129 @@ function LayersPage() {
             />
           </div>
 
-          {/* Entities Select dropdown */}
-          <Select value={entityFilter} onValueChange={setEntityFilter}>
-            <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
-              <SelectValue placeholder="All Entities" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border/60">
-              <SelectItem value="all-entities" className="cursor-pointer text-[13px]">All Entities</SelectItem>
-              <SelectItem value="adda" className="cursor-pointer text-[13px]">ADDA — Abu Dhabi Digital Authority</SelectItem>
-              <SelectItem value="addc" className="cursor-pointer text-[13px]">ADDC — Abu Dhabi Distribution Company</SelectItem>
-              <SelectItem value="adha" className="cursor-pointer text-[13px]">ADHA — Abu Dhabi Housing Authority</SelectItem>
-              <SelectItem value="dge" className="cursor-pointer text-[13px]">DGE — Dept of Government Enablement</SelectItem>
-              <SelectItem value="ead" className="cursor-pointer text-[13px]">EAD — Environment Agency Abu Dhabi</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Right-aligned filters group */}
+          <div className="flex items-center gap-3 ml-auto flex-wrap shrink-0">
+            {/* Entities Select dropdown */}
+            <Select value={entityFilter} onValueChange={setEntityFilter}>
+              <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
+                <SelectValue placeholder="All Entities" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border/60">
+                <SelectItem value="all-entities" className="cursor-pointer text-[13px]">All Entities</SelectItem>
+                <SelectItem value="adda" className="cursor-pointer text-[13px]">ADDA — Abu Dhabi Digital Authority</SelectItem>
+                <SelectItem value="addc" className="cursor-pointer text-[13px]">ADDC — Abu Dhabi Distribution Company</SelectItem>
+                <SelectItem value="adha" className="cursor-pointer text-[13px]">ADHA — Abu Dhabi Housing Authority</SelectItem>
+                <SelectItem value="dge" className="cursor-pointer text-[13px]">DGE — Dept of Government Enablement</SelectItem>
+                <SelectItem value="dmt" className="cursor-pointer text-[13px]">DMT — Department of Municipalities</SelectItem>
+                <SelectItem value="ead" className="cursor-pointer text-[13px]">EAD — Environment Agency Abu Dhabi</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Sensitivity Select dropdown */}
-          <Select value={sensitivityFilter} onValueChange={setSensitivityFilter}>
-            <SelectTrigger className="h-9 w-auto min-w-[140px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
-              <SelectValue placeholder="All Sensitivity" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border/60">
-              <SelectItem value="all-sensitivity" className="cursor-pointer text-[13px]">All Sensitivity</SelectItem>
-              <SelectItem value="open data" className="cursor-pointer text-[13px]">Open Data</SelectItem>
-              <SelectItem value="restricted" className="cursor-pointer text-[13px]">Restricted</SelectItem>
-              <SelectItem value="sensitive" className="cursor-pointer text-[13px]">Sensitive</SelectItem>
-              <SelectItem value="secured" className="cursor-pointer text-[13px]">Secured</SelectItem>
-              <SelectItem value="secret" className="cursor-pointer text-[13px]">Secret</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Sensitivity Select dropdown */}
+            <Select value={sensitivityFilter} onValueChange={setSensitivityFilter}>
+              <SelectTrigger className="h-9 w-auto min-w-[140px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
+                <SelectValue placeholder="All Sensitivity" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border/60">
+                <SelectItem value="all-sensitivity" className="cursor-pointer text-[13px]">All Sensitivity</SelectItem>
+                <SelectItem value="open data" className="cursor-pointer text-[13px]">Open Data</SelectItem>
+                <SelectItem value="restricted" className="cursor-pointer text-[13px]">Restricted</SelectItem>
+                <SelectItem value="sensitive" className="cursor-pointer text-[13px]">Sensitive</SelectItem>
+                <SelectItem value="secured" className="cursor-pointer text-[13px]">Secured</SelectItem>
+                <SelectItem value="secret" className="cursor-pointer text-[13px]">Secret</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border/60">
-              <SelectItem value="all-statuses" className="cursor-pointer text-[13px]">All Statuses</SelectItem>
-              <SelectItem value="active" className="cursor-pointer text-[13px]">Active</SelectItem>
-              <SelectItem value="inactive" className="cursor-pointer text-[13px]">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border/60">
+                <SelectItem value="all-statuses" className="cursor-pointer text-[13px]">All Statuses</SelectItem>
+                <SelectItem value="active" className="cursor-pointer text-[13px]">Active</SelectItem>
+                <SelectItem value="inactive" className="cursor-pointer text-[13px]">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
 
+            {/* Action buttons columns & reload */}
+            <div className="relative">
+              <button
+                onClick={() => setIsColumnsMenuOpen(!isColumnsMenuOpen)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-card/50 px-3 text-[13px] font-bold text-muted-foreground hover:text-foreground transition cursor-pointer"
+              >
+                <Columns3 className="h-4 w-4" /> Columns
+              </button>
+              
+              {isColumnsMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsColumnsMenuOpen(false)} />
+                  <div className={cn(
+                    "absolute right-0 mt-1.5 w-60 rounded-xl border z-50 p-4 space-y-3.5 shadow-lg select-none",
+                    isLight ? "bg-white border-slate-200 text-slate-800" : "bg-slate-950 border-border text-foreground"
+                  )}>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground/80">Toggle Columns</div>
+                    
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between text-xs font-semibold opacity-70">
+                        <span className="flex items-center gap-1.5">
+                          <span className="px-1.5 py-0.5 rounded bg-muted text-[9px] font-extrabold uppercase text-muted-foreground">Lock</span>
+                          Layer Name
+                        </span>
+                        <input type="checkbox" checked disabled className="rounded border-border/65 h-3.5 w-3.5 cursor-not-allowed opacity-60" />
+                      </div>
 
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, dbLayerName: !prev.dbLayerName }))}>
+                        <span>DB Layer Name</span>
+                        <input type="checkbox" checked={visibleCols.dbLayerName} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
 
-          {/* Action buttons columns & reload */}
-          <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-card/50 px-3 text-[13px] font-bold text-muted-foreground hover:text-foreground transition cursor-pointer">
-            <Columns3 className="h-4 w-4" /> Columns
-          </button>
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, entity: !prev.entity }))}>
+                        <span>Entity</span>
+                        <input type="checkbox" checked={visibleCols.entity} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
 
-          <button
-            onClick={handleResetFilters}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground hover:text-foreground transition cursor-pointer"
-            title="Reload table"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, type: !prev.type }))}>
+                        <span>Type</span>
+                        <input type="checkbox" checked={visibleCols.type} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, geometry: !prev.geometry }))}>
+                        <span>Geometry</span>
+                        <input type="checkbox" checked={visibleCols.geometry} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, coverage: !prev.coverage }))}>
+                        <span>Coverage</span>
+                        <input type="checkbox" checked={visibleCols.coverage} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, sensitivity: !prev.sensitivity }))}>
+                        <span>Sensitivity</span>
+                        <input type="checkbox" checked={visibleCols.sensitivity} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-semibold cursor-pointer" onClick={() => setVisibleCols(prev => ({ ...prev, onboardedDate: !prev.onboardedDate }))}>
+                        <span>Onboarded Date</span>
+                        <input type="checkbox" checked={visibleCols.onboardedDate} readOnly className="rounded border-border/65 h-3.5 w-3.5 cursor-pointer accent-primary" />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-border/20 pt-2 text-[10px] text-muted-foreground/80 leading-relaxed font-semibold italic">
+                      Locked columns cannot be deselected.
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button
+              onClick={handleResetFilters}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title="Reload table"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Data Table */}
@@ -774,7 +1758,7 @@ function LayersPage() {
                     className="rounded border-border/65 cursor-pointer"
                   />
                 </th>
-                {columns.map((c) => (
+                {activeHeaders.map((c) => (
                   <th
                     key={c}
                     className={cn(
@@ -839,41 +1823,97 @@ function LayersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3 font-mono text-[13px] text-foreground/80">{layer.dbName}</td>
-                    <td className="px-5 py-3 font-mono text-[13.5px] font-semibold text-foreground/80">
-                      <span className="px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-accent text-[11px] uppercase">
-                        {layer.entity}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-foreground/80">{layer.geometry}</td>
-                    <td className="px-5 py-3">
-                      <span className={cn(
-                        "px-1.5 py-0.5 rounded text-[11px] font-bold border",
-                        layer.sensitivity === "Public" && "bg-success/15 border-success/35 text-success",
-                        layer.sensitivity === "Restricted" && "bg-warning/15 border-warning/35 text-warning",
-                        layer.sensitivity === "Confidential" && "bg-danger/15 border-danger/35 text-danger"
-                      )}>
-                        {layer.sensitivity}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">{layer.onboardedDate}</td>
+                    
+                    {visibleCols.dbLayerName && (
+                      <td className="px-5 py-3 font-mono text-[13px] text-foreground/80">{layer.dbName}</td>
+                    )}
+                    
+                    {visibleCols.entity && (
+                      <td className="px-5 py-3 font-mono text-[13.5px] font-semibold text-foreground/80">
+                        <span className="px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-accent text-[11px] uppercase">
+                          {layer.entity}
+                        </span>
+                      </td>
+                    )}
+
+                    {visibleCols.type && (
+                      <td className="px-5 py-3 text-foreground/80">{layer.layerType}</td>
+                    )}
+
+                    {visibleCols.geometry && (
+                      <td className="px-5 py-3 text-foreground/80 animate-fade-in">
+                        <span className={cn(
+                          "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-semibold border shadow-xs select-none",
+                          layer.geometry === "Polygon"
+                            ? "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 border-blue-200/60 dark:border-blue-800/40"
+                            : "bg-teal-50 dark:bg-teal-950/20 text-teal-700 dark:text-teal-400 border-teal-200/60 dark:border-teal-800/40"
+                        )}>
+                          {layer.geometry === "Polygon" ? (
+                            <PolygonIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          ) : (
+                            <PolylineIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                          )}
+                          <span>{layer.geometry}</span>
+                        </span>
+                      </td>
+                    )}
+
+                    {visibleCols.coverage && (
+                      <td className="px-5 py-3 text-foreground/80">—</td>
+                    )}
+
+                    {visibleCols.sensitivity && (
+                      <td className="px-5 py-3">
+                        <span className={cn(
+                          "px-1.5 py-0.5 rounded text-[11px] font-bold border",
+                          (layer.sensitivity === "Public" || layer.sensitivity === "Open Data") && "bg-success/15 border-success/35 text-success",
+                          layer.sensitivity === "Restricted" && "bg-warning/15 border-warning/35 text-warning",
+                          layer.sensitivity === "Sensitive" && "bg-amber-500/15 border-amber-500/35 text-amber-500",
+                          layer.sensitivity === "Confidential" && "bg-danger/15 border-danger/35 text-danger"
+                        )}>
+                          {layer.sensitivity}
+                        </span>
+                      </td>
+                    )}
+
+                    {visibleCols.onboardedDate && (
+                      <td className="px-5 py-3 text-muted-foreground">{layer.onboardedDate}</td>
+                    )}
+
                     <td className="px-5 py-3 table-sticky-actions text-right bg-card group-hover:bg-foreground/[0.02] transition-colors">
-                      <div className="flex justify-end gap-1 opacity-70 transition-opacity group-hover:opacity-100">
-                        <button className="flex h-7 w-7 items-center justify-center rounded-md border border-foreground/10 bg-foreground/[0.03] text-muted-foreground hover:text-foreground hover:border-accent/45 hover:bg-foreground/[0.06] cursor-pointer">
+                      <div className="flex justify-end gap-1.5">
+                        <button
+                          onClick={() => setViewingLayerDbName(layer.dbName)}
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/70 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100/80 hover:text-blue-700 transition cursor-pointer"
+                          title="View"
+                        >
                           <Eye className="h-3.5 w-3.5" />
                         </button>
-                        <button className="flex h-7 w-7 items-center justify-center rounded-md border border-foreground/10 bg-foreground/[0.03] text-muted-foreground hover:text-foreground hover:border-accent/45 hover:bg-foreground/[0.06] cursor-pointer">
+                        <button
+                          onClick={() => {
+                            setEditingLayerDbName(layer.dbName);
+                            setEditTab("info");
+                          }}
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-amber-200/60 dark:border-amber-800/40 bg-amber-50/70 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100/80 hover:text-amber-700 transition cursor-pointer"
+                          title="Edit"
+                        >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => {
-                            const updated = layersList.filter((l) => l.dbName !== layer.dbName);
-                            saveLayers(updated);
-                            toast.success(`Data layer "${layer.alias}" deleted successfully.`);
+                            setDeleteLayerDbName(layer.dbName);
                           }}
-                          className="flex h-7 w-7 items-center justify-center rounded-md border border-foreground/10 bg-foreground/[0.03] text-danger hover:bg-danger/10 hover:border-danger/40 cursor-pointer"
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-rose-200/60 dark:border-rose-800/40 bg-rose-50/70 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100/80 hover:text-rose-700 transition cursor-pointer"
+                          title="Delete"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          disabled
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 dark:border-slate-800/60 bg-slate-50/70 dark:bg-slate-900/10 text-slate-400 dark:text-slate-600 cursor-not-allowed"
+                          title="Locked"
+                        >
+                          <Lock className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </td>
@@ -894,6 +1934,65 @@ function LayersPage() {
           itemNameSingular="layer"
           itemNamePlural="layers"
         />
+        {/* Delete Confirmation Modal Overlay */}
+        {deleteLayerDbName && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs animate-fade-in">
+            <div className="relative w-full max-w-[440px] rounded-2xl bg-card border border-border/80 p-5 shadow-2xl overflow-hidden border-t-4 border-t-rose-600 animate-in fade-in zoom-in-95 duration-150">
+              <button
+                onClick={() => setDeleteLayerDbName(null)}
+                className="absolute top-4 right-4 text-muted-foreground/80 hover:text-foreground cursor-pointer transition-colors"
+                title="Close"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+
+              <div className="flex gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
+                  <AlertCircle className="h-5.5 w-5.5" />
+                </div>
+                
+                <div className="space-y-1.5 flex-1 pt-1.5">
+                  <h3 className="text-[15.5px] font-bold text-foreground">Permanently delete this layer?</h3>
+                  
+                  {/* Confirmed Value Textbox matching Image 2 */}
+                  <div className="pt-2">
+                    <div className="w-full h-9 rounded-lg border border-border/70 bg-foreground/[0.02] px-3 font-mono text-[12.5px] font-bold text-foreground/80 select-all flex items-center">
+                      "{deleteLayerDbName}"
+                    </div>
+                  </div>
+
+                  {/* Informational checklist description */}
+                  <div className="pt-3 text-[11.5px] text-muted-foreground/90 font-semibold space-y-1.5 leading-normal">
+                    <p>This will delete the layer configuration and related mappings.</p>
+                    <p>The original data source will not be deleted.</p>
+                    <p className="text-muted-foreground/75 italic">Audit logs will be preserved.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons footer */}
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  onClick={() => setDeleteLayerDbName(null)}
+                  className="h-9 px-4 rounded-lg border border-border/80 bg-card hover:bg-muted text-xs font-bold text-foreground cursor-pointer transition-colors shadow-soft"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const updated = layersList.filter((l) => l.dbName !== deleteLayerDbName);
+                    saveLayers(updated);
+                    toast.success("Layer deleted successfully.");
+                    setDeleteLayerDbName(null);
+                  }}
+                  className="h-9 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white flex items-center gap-1.5 cursor-pointer transition-colors shadow-soft"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete Layer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </Surface>
     </div>
   );

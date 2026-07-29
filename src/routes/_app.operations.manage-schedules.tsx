@@ -1430,7 +1430,7 @@ function ManageSchedulesPage() {
           </div>
         )}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-4">
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-grow min-w-[240px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -1440,38 +1440,42 @@ function ManageSchedulesPage() {
               className="h-9 w-full rounded-lg border border-border/60 bg-card/50 pl-10 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
             />
           </div>
-          <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card/40 p-1">
-            {tabs.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={cn(
-                  "rounded-md px-3 py-1 text-[13px] font-medium transition cursor-pointer",
-                  tab === t ? "bg-accent/20 text-accent ring-1 ring-inset ring-accent/40" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          <button className="inline-flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-[13px] font-bold text-foreground/80 cursor-pointer">
-            All Frequencies <ChevronDown className="h-4 w-4 opacity-70" />
-          </button>
-          
-          <div className="flex-1 min-w-[10px]" />
 
-          <span className="text-[14px] text-muted-foreground font-bold">
-            {filteredSchedules.length} {filteredSchedules.length === 1 ? "schedule" : "schedules"}
-          </span>
-          <div className="inline-flex items-center rounded-lg border border-border/60 bg-card/40 p-1">
-            <button
-              onClick={() => setView("grid")}
-              className={cn("flex h-8 w-8 items-center justify-center rounded-md cursor-pointer", view === "grid" ? "bg-accent/20 text-accent" : "text-muted-foreground")}
-            ><LayoutGrid className="h-4 w-4" /></button>
-            <button
-              onClick={() => setView("list")}
-              className={cn("flex h-8 w-8 items-center justify-center rounded-md cursor-pointer", view === "list" ? "bg-accent/20 text-accent" : "text-muted-foreground")}
-            ><List className="h-4 w-4" /></button>
+          {/* Right-aligned filters group */}
+          <div className="flex items-center gap-3 ml-auto flex-wrap shrink-0">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card/40 p-1">
+              {tabs.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "rounded-md px-3 py-1 text-[13px] font-medium transition cursor-pointer",
+                    tab === t ? "bg-accent/20 text-accent ring-1 ring-inset ring-accent/40" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <button className="inline-flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-[13px] font-bold text-foreground/80 cursor-pointer">
+              All Frequencies <ChevronDown className="h-4 w-4 opacity-70" />
+            </button>
+
+            <span className="text-[14px] text-muted-foreground font-bold">
+              {filteredSchedules.length} {filteredSchedules.length === 1 ? "schedule" : "schedules"}
+            </span>
+
+            <div className="inline-flex items-center rounded-lg border border-border/60 bg-card/40 p-1">
+              <button
+                onClick={() => setView("grid")}
+                className={cn("flex h-8 w-8 items-center justify-center rounded-md cursor-pointer", view === "grid" ? "bg-accent/20 text-accent" : "text-muted-foreground")}
+              ><LayoutGrid className="h-4 w-4" /></button>
+              <button
+                onClick={() => setView("list")}
+                className={cn("flex h-8 w-8 items-center justify-center rounded-md cursor-pointer", view === "list" ? "bg-accent/20 text-accent" : "text-muted-foreground")}
+              ><List className="h-4 w-4" /></button>
+            </div>
           </div>
         </div>
 

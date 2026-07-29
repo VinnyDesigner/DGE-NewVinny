@@ -1457,7 +1457,7 @@ function RepsPage() {
           </div>
         )}
         <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-grow min-w-[240px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
@@ -1466,8 +1466,8 @@ function RepsPage() {
               className="h-9 w-full rounded-lg border border-border/60 bg-card/50 pl-10 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
             />
           </div>
-          <div className="flex-1 min-w-[10px]" />
-          <div className="flex flex-wrap items-center gap-2 font-bold text-xs">
+
+          <div className="flex flex-wrap items-center gap-2 font-bold text-xs ml-auto shrink-0">
             <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-foreground/80 hover:bg-muted cursor-pointer"><Filter className="h-3.5 w-3.5" /> All Entities</button>
             <div className="flex overflow-hidden rounded-lg border border-border bg-card">
               <button className="bg-primary/20 px-2.5 py-2 text-accent">All</button>

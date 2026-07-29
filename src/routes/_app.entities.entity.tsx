@@ -1284,7 +1284,7 @@ function EntitiesPage() {
           </div>
         )}
         <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-grow min-w-[240px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
@@ -1293,8 +1293,8 @@ function EntitiesPage() {
               className="h-9 w-full rounded-lg border border-border/60 bg-card/50 pl-10 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/45"
             />
           </div>
-          <div className="flex-1 min-w-[10px]" />
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 ml-auto flex-wrap shrink-0">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-bold cursor-pointer">
                 <SelectValue placeholder="All Types" />

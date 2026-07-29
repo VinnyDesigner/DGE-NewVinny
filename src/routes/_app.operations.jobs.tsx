@@ -16,7 +16,16 @@ import {
   ChevronDown,
   AlertTriangle,
   Pencil,
-  Check
+  Check,
+  ArrowLeft,
+  Play,
+  ExternalLink,
+  Calendar,
+  FileText,
+  Sliders,
+  Globe,
+  Database,
+  AlertCircle
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -81,6 +90,7 @@ function JobsPage() {
   const [query, setQuery] = useState("");
   const [flowFilter, setFlowFilter] = useState("all-flow-types");
   const [statusFilter, setStatusFilter] = useState("all-statuses");
+  const [viewingJobId, setViewingJobId] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -154,6 +164,330 @@ function JobsPage() {
     }
   };
 
+  if (viewingJobId) {
+    return (
+      <div className="space-y-6">
+        {/* Detail view header ribbon */}
+        <Surface className="!p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5">
+              <button
+                onClick={() => setViewingJobId(null)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground hover:text-foreground transition cursor-pointer"
+                title="Back to jobs list"
+              >
+                <ArrowLeft className="h-4.5 w-4.5" />
+              </button>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white shadow-soft">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-[17px] font-black text-foreground">{viewingJobId}</h2>
+                  <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none">
+                    Running
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-purple-500/10 text-purple-500 border border-purple-500/20 px-2 py-0.5 text-[10px] font-extrabold uppercase select-none">
+                    Primary
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground/85 font-semibold">
+                  <span className="flex items-center gap-1">
+                    <Briefcase className="h-3.5 w-3.5" /> Abu Dhabi Digital Authority
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <GitBranch className="h-3.5 w-3.5" /> Scheduled pipeline
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" /> 27/06/2026, 10:25 PM
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" /> 759h 24m
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <button
+                onClick={() => toast.info("Job run scheduled.")}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Run Again
+              </button>
+              <Link
+                to="/operations/workflow"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-850 px-4 text-xs font-bold text-white shadow-soft cursor-pointer transition-colors"
+              >
+                <Eye className="h-3.5 w-3.5" /> Live Monitor
+              </Link>
+            </div>
+          </div>
+        </Surface>
+
+        {/* Content Layout */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_360px] items-start">
+          {/* Left Column */}
+          <div className="space-y-6">
+            
+            {/* Pipeline Stages */}
+            <Surface className="!p-5 space-y-5">
+              <div className="flex items-center justify-between border-b border-border/30 pb-3">
+                <h3 className="text-sm font-bold text-foreground">Pipeline Stages</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground/80 font-bold">1/3 done</span>
+                  <button className="h-7 w-7 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer">
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Stepper Progress Visualizer */}
+              <div className="relative flex items-center justify-between px-6 sm:px-12 py-3 select-none">
+                {/* Horizontal connective track line */}
+                <div className="absolute left-[12%] right-[12%] top-[24px] h-0.5 bg-border/60 -translate-y-1/2" />
+                <div className="absolute left-[12%] w-[38%] top-[24px] h-0.5 bg-blue-500 -translate-y-1/2" />
+
+                {/* Step 1: Data Collection */}
+                <div className="relative z-10 flex flex-col items-center gap-1 text-center">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500 text-white border-4 border-card shadow-soft">
+                    <Check className="h-5 w-5" />
+                  </div>
+                  <span className="text-[12.5px] font-bold text-emerald-500 mt-1">Data Collection</span>
+                  <span className="text-[10px] text-muted-foreground font-semibold">Completed</span>
+                </div>
+
+                {/* Step 2: Data Quality */}
+                <div className="relative z-10 flex flex-col items-center gap-1 text-center">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500/10 border-4 border-blue-500 text-blue-500 bg-card shadow-soft">
+                    <span className="h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                  <span className="text-[12.5px] font-bold text-blue-500 mt-1">Data Quality</span>
+                  <span className="text-[10px] text-blue-400 font-semibold">Running</span>
+                </div>
+
+                {/* Step 3: Data Loading */}
+                <div className="relative z-10 flex flex-col items-center gap-1 text-center">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground/35" />
+                  </div>
+                  <span className="text-[12.5px] font-bold text-muted-foreground/60 mt-1">Data Loading</span>
+                  <span className="text-[10px] text-muted-foreground/60 font-semibold">Pending</span>
+                </div>
+              </div>
+
+              {/* Progress bar info */}
+              <div className="space-y-1.5 pt-2 border-t border-border/20">
+                <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/90 uppercase tracking-wide">
+                  <span>Overall Progress</span>
+                  <span className="text-blue-500">53%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-border/40 overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: "53%" }} />
+                </div>
+              </div>
+            </Surface>
+
+            {/* Stage Details */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-foreground pl-1">Stage Details</h3>
+              
+              {/* Step 1 Details */}
+              <div className="rounded-xl border border-border/70 bg-card overflow-hidden border-l-4 border-l-emerald-500">
+                <div className="p-4 flex items-center justify-between border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
+                    <span className="font-bold text-foreground text-[13px]">Step 1 Data Collection</span>
+                    <span className="inline-flex items-center rounded bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 text-[9.5px] font-black uppercase select-none leading-none">
+                      Completed
+                    </span>
+                  </div>
+                  <button className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground cursor-pointer">
+                    <FileText className="h-3.5 w-3.5" /> Logs
+                  </button>
+                </div>
+                <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Started</span>
+                    <span className="font-bold text-foreground">27/06/2026, 10:15 PM</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Finished</span>
+                    <span className="font-bold text-foreground">27/06/2026, 10:18 PM</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Duration</span>
+                    <span className="font-bold text-foreground">3m</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Node</span>
+                    <span className="font-bold text-muted-foreground">—</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 Details */}
+              <div className="rounded-xl border border-border/70 bg-card overflow-hidden border-l-4 border-l-blue-500">
+                <div className="p-4 flex items-center justify-between border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <span className="h-4.5 w-4.5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span className="font-bold text-foreground text-[13px]">Step 2 Data Quality</span>
+                    <span className="inline-flex items-center rounded bg-blue-500/10 text-blue-400 px-1.5 py-0.5 text-[9.5px] font-black uppercase select-none leading-none">
+                      Running
+                    </span>
+                  </div>
+                  <button className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground cursor-pointer">
+                    <FileText className="h-3.5 w-3.5" /> Logs
+                  </button>
+                </div>
+                <div className="p-4 space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Started</span>
+                      <span className="font-bold text-foreground">27/06/2026, 10:18 PM</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Finished</span>
+                      <span className="font-bold text-muted-foreground">—</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Duration</span>
+                      <span className="font-bold text-foreground">759h 21m</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Node</span>
+                      <span className="font-bold text-muted-foreground">—</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <div className="h-1.5 w-full rounded-full bg-border/45 overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: "60%" }} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-mono font-bold text-blue-500">rule:TOPOLOGY</span>
+                      <span className="text-[11px] font-bold text-blue-400">60%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 Details */}
+              <div className="rounded-xl border border-border/70 bg-card overflow-hidden border-l-4 border-l-border">
+                <div className="p-4 flex items-center justify-between border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4.5 w-4.5 text-muted-foreground" />
+                    <span className="font-bold text-foreground text-[13px]">Step 3 Data Loading</span>
+                    <span className="inline-flex items-center rounded bg-foreground/5 text-muted-foreground px-1.5 py-0.5 text-[9.5px] font-black uppercase select-none leading-none border border-border/20">
+                      Pending
+                    </span>
+                  </div>
+                  <button className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground cursor-pointer">
+                    <FileText className="h-3.5 w-3.5" /> Logs
+                  </button>
+                </div>
+                <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Started</span>
+                    <span className="font-bold text-muted-foreground">—</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Finished</span>
+                    <span className="font-bold text-muted-foreground">—</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Duration</span>
+                    <span className="font-bold text-muted-foreground">—</span>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Node</span>
+                    <span className="font-bold text-muted-foreground">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column (Sidebar) */}
+          <div className="space-y-6">
+            
+            {/* Delivery Details */}
+            <Surface className="!p-5">
+              <h3 className="text-[11.5px] font-extrabold text-muted-foreground uppercase tracking-wider border-b border-border/30 pb-3 select-none">
+                Delivery Details
+              </h3>
+
+              <div className="mt-4 space-y-5">
+                {/* PIPELINE SECTION */}
+                <div className="space-y-3.5">
+                  <span className="text-[9px] font-extrabold text-muted-foreground/75 tracking-wider uppercase block select-none">Pipeline</span>
+                  
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold"># DELIVERY ID</span>
+                      <span className="font-bold text-foreground">Del-3</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">FLOW TYPE</span>
+                      <span className="font-bold text-foreground">Collect</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">SCHEDULE</span>
+                      <span className="font-bold text-foreground">Ad-hoc</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">DATA CONNECTOR</span>
+                      <span className="font-bold text-muted-foreground">—</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">LAYERS</span>
+                      <span className="font-bold text-foreground">4</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">MAX ATTEMPT</span>
+                      <span className="font-bold text-foreground">#1</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">TRIGGERED BY</span>
+                      <span className="font-bold text-foreground">Scheduler</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SOURCE & TARGET SECTION */}
+                <div className="space-y-3.5 pt-4 border-t border-border/20">
+                  <span className="text-[9px] font-extrabold text-muted-foreground/75 tracking-wider uppercase block select-none">Source & Target</span>
+                  
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">SOURCE NAME</span>
+                      <span className="font-bold text-muted-foreground">—</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">TARGET DATABASE</span>
+                      <span className="font-bold text-foreground">DMT</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">TARGET SDE</span>
+                      <span className="font-bold text-muted-foreground">—</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground/80 font-bold">REGISTER PATH</span>
+                      <span className="font-bold text-blue-500 hover:underline cursor-pointer select-all break-all text-right">
+                        Deliveries/DEMO-WF-1042
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Surface>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -221,7 +555,7 @@ function JobsPage() {
       <Surface className="!p-0 overflow-hidden">
         {/* Filters ribbon matching Image 2 dropdown layout */}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 p-4">
-          <div className="relative w-full sm:w-[300px] shrink-0">
+          <div className="relative flex-grow min-w-[240px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -232,51 +566,54 @@ function JobsPage() {
             />
           </div>
 
-          {/* Flow Types Dropdown */}
-          <Select value={flowFilter} onValueChange={setFlowFilter}>
-            <SelectTrigger className="h-9 w-auto min-w-[140px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
-              <SelectValue placeholder="All Flow Types" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border/60">
-              <SelectItem value="all-flow-types" className="cursor-pointer text-[13px]">All Flow Types</SelectItem>
-              <SelectItem value="data-collection" className="cursor-pointer text-[13px]">Data Collection</SelectItem>
-              <SelectItem value="primary-delivery" className="cursor-pointer text-[13px]">Primary Delivery</SelectItem>
-              <SelectItem value="delta-sync" className="cursor-pointer text-[13px]">Delta Sync</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Right-aligned filters group */}
+          <div className="flex items-center gap-3 ml-auto flex-wrap shrink-0">
+            {/* Flow Types Dropdown */}
+            <Select value={flowFilter} onValueChange={setFlowFilter}>
+              <SelectTrigger className="h-9 w-auto min-w-[140px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
+                <SelectValue placeholder="All Flow Types" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border/60">
+                <SelectItem value="all-flow-types" className="cursor-pointer text-[13px]">All Flow Types</SelectItem>
+                <SelectItem value="data-collection" className="cursor-pointer text-[13px]">Data Collection</SelectItem>
+                <SelectItem value="primary-delivery" className="cursor-pointer text-[13px]">Primary Delivery</SelectItem>
+                <SelectItem value="delta-sync" className="cursor-pointer text-[13px]">Delta Sync</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Statuses Dropdown */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border/60">
-              <SelectItem value="all-statuses" className="cursor-pointer text-[13px]">All Statuses</SelectItem>
-              <SelectItem value="running" className="cursor-pointer text-[13px]">Running</SelectItem>
-              <SelectItem value="completed" className="cursor-pointer text-[13px]">Completed</SelectItem>
-              <SelectItem value="failed" className="cursor-pointer text-[13px]">Failed</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Statuses Dropdown */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-9 w-auto min-w-[130px] border-border/60 bg-card/50 text-[13px] text-foreground/80 hover:bg-card/85 font-medium cursor-pointer">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border/60">
+                <SelectItem value="all-statuses" className="cursor-pointer text-[13px]">All Statuses</SelectItem>
+                <SelectItem value="running" className="cursor-pointer text-[13px]">Running</SelectItem>
+                <SelectItem value="completed" className="cursor-pointer text-[13px]">Completed</SelectItem>
+                <SelectItem value="warning" className="cursor-pointer text-[13px]">Warning</SelectItem>
+                <SelectItem value="failed" className="cursor-pointer text-[13px]">Failed</SelectItem>
+                <SelectItem value="pending" className="cursor-pointer text-[13px]">Pending</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <div className="flex-1 min-w-[10px]" />
+            {/* Reload action */}
+            <button
+              onClick={() => {
+                setQuery("");
+                setFlowFilter("all-flow-types");
+                setStatusFilter("all-statuses");
+              }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground hover:text-foreground transition cursor-pointer"
+              title="Reload table"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
 
-          {/* Reload action */}
-          <button
-            onClick={() => {
-              setQuery("");
-              setFlowFilter("all-flow-types");
-              setStatusFilter("all-statuses");
-            }}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground hover:text-foreground transition cursor-pointer"
-            title="Reload table"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
-
-          {/* Record counter indicator */}
-          <span className="text-[12.5px] font-semibold text-muted-foreground ml-auto">
-            1 of 1
-          </span>
+            {/* Record counter indicator */}
+            <span className="text-[12.5px] font-semibold text-muted-foreground ml-1">
+              {filteredJobs.length} of {jobsList.length}
+            </span>
+          </div>
         </div>
 
         {/* Data Table */}
@@ -362,7 +699,10 @@ function JobsPage() {
                           {/* View details */}
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button className="h-7 w-7 flex items-center justify-center rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/15 cursor-pointer">
+                              <button
+                                onClick={() => setViewingJobId(j.delivery)}
+                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/15 cursor-pointer"
+                              >
                                 <Eye className="h-3.5 w-3.5" />
                               </button>
                             </TooltipTrigger>

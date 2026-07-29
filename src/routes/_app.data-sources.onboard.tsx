@@ -634,7 +634,7 @@ function Onboard() {
           )}
 
           {/* Right Summary Sidebar matching the screenshots */}
-          <aside className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <aside className="rounded-2xl border border-border bg-card p-5 shadow-soft lg:sticky lg:top-[90px] h-fit">
             <div className="flex items-start gap-2.5 pb-3 border-b border-border/30 mb-4">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary">
                 <Sparkles className="h-4 w-4" />

@@ -182,8 +182,8 @@ function SecurityAuthentication() {
       name: "Test3 SMTP Configuration",
       host: "smtp.gmail.com:465",
       port: "465",
-      user: "galabamaheshispatial@gmail.com",
-      sender: "galabamaheshispatial@gmail.com",
+      user: "random@ispatialtec.com",
+      sender: "random@ispatialtec.com",
       secure: true, // SSL/TLS
       active: false,
     }

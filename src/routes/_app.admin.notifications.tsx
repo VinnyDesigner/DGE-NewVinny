@@ -79,10 +79,124 @@ function JobNotificationsPage() {
   const severityDropdownRef = useRef<HTMLDivElement>(null);
 
   // Mock initial templates
-  const [templates, setTemplates] = useState<TemplateItem[]>([]);
+  const [templates, setTemplates] = useState<TemplateItem[]>([
+    {
+      id: "1",
+      name: "Data Quality Success Notification",
+      severity: "Success",
+      subject: "Data Quality {{entity_name}} / Delivery {{delivery_id}} — Job Status — Success",
+      body: "The data quality check for {{entity_name}} has completed successfully. Delivery ID: {{delivery_id}}.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "2",
+      name: "Data Quality Failure Notification",
+      severity: "Failure",
+      subject: "Data Quality {{entity_name}} / Delivery {{delivery_id}} — Job Status — Failure",
+      body: "The data quality check for {{entity_name}} has failed. Delivery ID: {{delivery_id}}.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "3",
+      name: "Data Quality Warning Notification",
+      severity: "Warning",
+      subject: "Data Quality {{entity_name}} / Delivery {{delivery_id}} — Job Status — Partial Success",
+      body: "The data quality check for {{entity_name}} completed with warnings. Delivery ID: {{delivery_id}}.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "4",
+      name: "Info Notification",
+      severity: "Info",
+      subject: "Delivery {{delivery_code}} – Information",
+      body: "Information update for Delivery {{delivery_code}}.",
+      enabled: false,
+      isHtml: false,
+    },
+    {
+      id: "5",
+      name: "Delivery Registered Notification",
+      severity: "Info",
+      subject: "New delivery has been registered to Clearing House",
+      body: "A new delivery has been successfully registered to the Clearing House.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "6",
+      name: "Data Loading Success Notification",
+      severity: "Success",
+      subject: "[DA] Data Loading SUCCESS — {{entity_name}} / Delivery {{delivery_id}}",
+      body: "Data loading completed successfully for {{entity_name}}.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "7",
+      name: "Data Loading Warning Notification",
+      severity: "Warning",
+      subject: "[DA] Data Loading PARTIAL SUCCESS — {{entity_name}} / Delivery {{delivery_id}}",
+      body: "Data loading completed with warnings for {{entity_name}}.",
+      enabled: true,
+      isHtml: false,
+    },
+    {
+      id: "8",
+      name: "Data Loading Failure Notification",
+      severity: "Failure",
+      subject: "[DA] Data Loading FAILED — {{entity_name}} / Delivery {{delivery_id}}",
+      body: "Data loading failed for {{entity_name}}.",
+      enabled: true,
+      isHtml: false,
+    }
+  ]);
 
   // Mock initial groups
-  const [groups, setGroups] = useState<GroupItem[]>([]);
+  const [groups, setGroups] = useState<GroupItem[]>([
+    {
+      id: "1",
+      entity: "Global (Admin)",
+      groupName: "Admin group",
+      recipientsCount: 3,
+      representatives: "admin@ispatialtec.com",
+      internalUsers: "supervisor@ispatialtec.com",
+      externalUsers: "—",
+      status: "Active",
+    },
+    {
+      id: "2",
+      entity: "Abu Dhabi Digital Authority",
+      groupName: "ADDA-Group Mail",
+      recipientsCount: 2,
+      representatives: "adda.admin@adda.gov.ae",
+      internalUsers: "adda.supervisor@adda.gov.ae",
+      externalUsers: "—",
+      status: "Active",
+    },
+    {
+      id: "3",
+      entity: "Environment Agency Abu Dhabi",
+      groupName: "Test group for EAD",
+      recipientsCount: 1,
+      representatives: "ead.user@ead.gov.ae",
+      internalUsers: "—",
+      externalUsers: "—",
+      status: "Active",
+    },
+    {
+      id: "4",
+      entity: "Department of Municipalities",
+      groupName: "DMT-Test-GroupMail",
+      recipientsCount: 2,
+      representatives: "dmt.admin@dmt.gov.ae",
+      internalUsers: "dmt.user@dmt.gov.ae",
+      externalUsers: "—",
+      status: "Active",
+    }
+  ]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -253,16 +367,19 @@ function JobNotificationsPage() {
                   <select
                     value={selectedEntityFilter}
                     onChange={(e) => setSelectedEntityFilter(e.target.value)}
-                    className="h-9.5 rounded-lg border border-border/60 bg-card px-3 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    className="h-9.5 rounded-lg border border-border/60 bg-card px-3 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
                   >
                     <option value="all">All Entities</option>
+                    <option value="Global (Admin)">Global (Admin)</option>
                     <option value="Abu Dhabi Digital Authority">Abu Dhabi Digital Authority</option>
+                    <option value="Environment Agency Abu Dhabi">Environment Agency Abu Dhabi</option>
+                    <option value="Department of Municipalities">Department of Municipalities</option>
                   </select>
 
                   <select
                     value={selectedStatusFilter}
                     onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                    className="h-9.5 rounded-lg border border-border/60 bg-card px-3 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                    className="h-9.5 rounded-lg border border-border/60 bg-card px-3 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
                   >
                     <option value="all">All Statuses</option>
                     <option value="active">Active</option>
@@ -271,8 +388,8 @@ function JobNotificationsPage() {
                 </div>
 
                 <button
-                  disabled
-                  className="h-9.5 px-4 bg-muted text-muted-foreground font-extrabold text-xs rounded-lg cursor-not-allowed transition-colors flex items-center gap-1.5 ml-auto opacity-60"
+                  onClick={() => setIsAddingGroup(true)}
+                  className="h-9.5 px-4 bg-primary hover:bg-primary/95 text-white font-extrabold text-xs rounded-lg transition-colors flex items-center gap-1.5 ml-auto cursor-pointer shadow-soft"
                 >
                   <Plus className="h-4 w-4" /> Add new group
                 </button>
@@ -285,48 +402,70 @@ function JobNotificationsPage() {
                     <tr className="border-b border-border/40 bg-foreground/[0.02] text-muted-foreground font-bold select-none h-11">
                       <th className="px-4 py-2">Entity</th>
                       <th className="px-4 py-2">Group name</th>
-                      <th className="px-4 py-2">Recipients Count</th>
-                      <th className="px-4 py-2">Representatives</th>
-                      <th className="px-4 py-2">Internal Users</th>
-                      <th className="px-4 py-2">External Users</th>
                       <th className="px-4 py-2">Status</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
+                      <th className="px-4 py-2 text-right">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredGroups.length > 0 ? (
                       filteredGroups.map((g) => (
                         <tr key={g.id} className="border-b border-border/40 hover:bg-muted/10 h-12">
-                          <td className="px-4 py-2 text-foreground font-bold">{g.entity}</td>
+                          <td className="px-4 py-2 text-foreground font-bold">
+                            {g.entity === "Global (Admin)" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-500 select-none">
+                                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                                Global (Admin)
+                              </span>
+                            ) : (
+                              g.entity
+                            )}
+                          </td>
                           <td className="px-4 py-2 font-extrabold text-foreground">{g.groupName}</td>
-                          <td className="px-4 py-2 font-mono">{g.recipientsCount}</td>
-                          <td className="px-4 py-2 text-muted-foreground">{g.representatives}</td>
-                          <td className="px-4 py-2 text-muted-foreground">{g.internalUsers}</td>
-                          <td className="px-4 py-2 text-muted-foreground">{g.externalUsers}</td>
                           <td className="px-4 py-2">
                             <span className={cn(
-                              "inline-flex items-center gap-1 rounded px-1.5 py-0.2 text-[9px] font-extrabold border",
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold border select-none",
                               g.status === "Active" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
                             )}>
-                              {g.status}
+                              Enabled
                             </span>
                           </td>
-                          <td className="px-4 py-2 text-right">
-                            <button className="p-1 hover:text-primary transition-colors cursor-pointer mr-1">
-                              <Edit3 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setGroups(groups.filter(item => item.id !== g.id))}
-                              className="p-1 hover:text-rose-500 transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                          <td className="px-4 py-2 text-right select-none">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  toast.info(`Viewing details for group: ${g.groupName}`);
+                                }}
+                                className="p-1.5 text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="View"
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setNewGroupName(g.groupName);
+                                  setNewGroupEntity(g.entity === "Global (Admin)" ? "Abu Dhabi Digital Authority" : g.entity);
+                                  setNewGroupRecipients(g.representatives + (g.internalUsers !== "—" ? `, ${g.internalUsers}` : ""));
+                                  setIsAddingGroup(true);
+                                }}
+                                className="p-1.5 text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="Edit"
+                              >
+                                <Edit3 className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setGroups(groups.filter(item => item.id !== g.id))}
+                                className="p-1.5 text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={8}>
+                        <td colSpan={4}>
                           <div className="py-12 bg-slate-50 dark:bg-[#0B0F19] flex flex-col items-center justify-center text-center select-none rounded-b-xl">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 mb-3 shadow-soft">
                               <Users className="h-6 w-6" />
@@ -375,9 +514,12 @@ function JobNotificationsPage() {
                   <select
                     value={newGroupEntity}
                     onChange={(e) => setNewGroupEntity(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold cursor-pointer"
                   >
+                    <option value="Global (Admin)">Global (Admin)</option>
                     <option value="Abu Dhabi Digital Authority">Abu Dhabi Digital Authority</option>
+                    <option value="Environment Agency Abu Dhabi">Environment Agency Abu Dhabi</option>
+                    <option value="Department of Municipalities">Department of Municipalities</option>
                   </select>
                 </div>
 
@@ -432,65 +574,97 @@ function JobNotificationsPage() {
                 </button>
               </div>
 
-              {/* Data Table / List */}
-              {templates.length > 0 ? (
-                <div className="grid gap-4.5 sm:grid-cols-2 lg:grid-cols-3">
-                  {templates.map((t) => (
-                    <Surface key={t.id} className="border border-border space-y-3.5 !p-4.5">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="font-extrabold text-foreground text-xs">{t.name}</div>
-                          <div className="text-[10px] text-muted-foreground font-bold mt-0.5">{t.subject}</div>
-                        </div>
-
-                        <span className={cn(
-                          "px-2 py-0.5 rounded text-[9px] font-extrabold font-mono border leading-none select-none",
-                          t.severity === "Success" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                          t.severity === "Failure" && "bg-rose-500/10 text-rose-400 border-rose-500/20",
-                          t.severity === "Warning" && "bg-amber-500/10 text-amber-500 border-amber-500/25",
-                          t.severity === "Info" && "bg-blue-500/10 text-primary border-blue-500/20"
-                        )}>
-                          {t.severity}
-                        </span>
-                      </div>
-
-                      <p className="text-[11px] text-muted-foreground font-semibold line-clamp-3 bg-muted/30 p-2.5 rounded-lg border border-border/40 select-all font-mono whitespace-pre-wrap leading-relaxed">
-                        {t.body}
-                      </p>
-
-                      <div className="flex items-center justify-between border-t border-border/30 pt-3 text-[10px] font-extrabold">
-                        <label className="flex items-center gap-2 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={t.enabled}
-                            onChange={() => toggleTemplateEnabled(t.id)}
-                            className="h-4 w-4 rounded border-border/60 bg-card accent-primary"
-                          />
-                          <span className={t.enabled ? "text-foreground" : "text-muted-foreground"}>
-                            {t.enabled ? "Enabled" : "Disabled"}
-                          </span>
-                        </label>
-
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => deleteTemplate(t.id)}
-                            className="text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </Surface>
-                  ))}
-                </div>
-              ) : (
-                /* Empty state matching 2nd screenshot */
-                <div className="py-12 bg-slate-50 dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center select-none shadow-soft">
-                  <div className="text-xs font-bold text-slate-700 dark:text-slate-400 max-w-md px-6 leading-relaxed">
-                    No templates yet. Click "Add new template" to create one.
-                  </div>
-                </div>
-              )}
+              {/* Data Table */}
+              <Surface className="overflow-x-auto !p-0 border border-border">
+                <table className="w-full text-left border-collapse text-xs font-semibold">
+                  <thead>
+                    <tr className="border-b border-border/40 bg-foreground/[0.02] text-muted-foreground font-bold select-none h-11">
+                      <th className="px-4 py-2">TEMPLATE NAME</th>
+                      <th className="px-4 py-2">EMAIL SUBJECT</th>
+                      <th className="px-4 py-2">SEVERITY</th>
+                      <th className="px-4 py-2">STATUS</th>
+                      <th className="px-4 py-2 text-right">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {templates.length > 0 ? (
+                      templates.map((t) => (
+                        <tr key={t.id} className="border-b border-border/40 hover:bg-muted/10 h-12">
+                          <td className="px-4 py-2 text-foreground font-extrabold">{t.name}</td>
+                          <td className="px-4 py-2 text-muted-foreground font-mono truncate max-w-[320px]" title={t.subject}>
+                            {t.subject}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold border select-none",
+                              t.severity === "Success" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                              t.severity === "Failure" && "bg-rose-500/10 text-rose-400 border-rose-500/20",
+                              t.severity === "Warning" && "bg-amber-500/10 text-amber-500 border-amber-500/25",
+                              t.severity === "Info" && "bg-blue-500/10 text-primary border-blue-500/20"
+                            )}>
+                              {t.severity}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold border select-none cursor-pointer",
+                              t.enabled ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-500/10 text-muted-foreground border-slate-500/20"
+                            )}
+                            onClick={() => toggleTemplateEnabled(t.id)}
+                            title="Click to toggle status"
+                            >
+                              {t.enabled ? "Enabled" : "Disabled"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-right select-none">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  toast.info(`Viewing body of: ${t.name}\n\nSubject: ${t.subject}\n\nBody:\n${t.body}`);
+                                }}
+                                className="p-1.5 text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="View Body"
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setTemplateName(t.name);
+                                  setTemplateSeverity(t.severity);
+                                  setTemplateSubject(t.subject);
+                                  setTemplateBody(t.body);
+                                  setTemplateEnabled(t.enabled);
+                                  setTemplateIsHtml(t.isHtml);
+                                  setIsAddingTemplate(true);
+                                }}
+                                className="p-1.5 text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="Edit Template"
+                              >
+                                <Edit3 className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => deleteTemplate(t.id)}
+                                className="p-1.5 text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 rounded-lg transition-colors cursor-pointer"
+                                title="Delete Template"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5}>
+                          <div className="py-12 bg-slate-50 dark:bg-[#0B0F19] flex flex-col items-center justify-center text-center select-none rounded-b-xl">
+                            <div className="text-xs font-bold text-slate-750 dark:text-slate-300">No templates yet. Click "Add new template" to create one.</div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </Surface>
             </>
           ) : (
             /* Add Template form view matching 3rd and 4th screenshot */

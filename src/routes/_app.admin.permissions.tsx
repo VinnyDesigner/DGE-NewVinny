@@ -169,7 +169,7 @@ function SecurityAuthentication() {
   const [smtpConfigs, setSmtpConfigs] = useState<SMTPConfigItem[]>([
     {
       id: "1",
-      name: "بوابة إرسال البريد الرئيسية (Master SMTP)",
+      name: "Master SMTP Configuration - Ahmed",
       host: "smtp.office365.com:587/",
       port: "587",
       user: "ahmed.almansoori@dge.gov.ae",
@@ -179,7 +179,7 @@ function SecurityAuthentication() {
     },
     {
       id: "2",
-      name: "بريد جوجل الاحتياطي (Gmail SMTP - Ahmed)",
+      name: "Gmail SMTP Configuration - Ahmed",
       host: "smtp.gmail.com:465",
       port: "465",
       user: "ahmed.almansoori@gmail.com",

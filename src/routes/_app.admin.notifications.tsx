@@ -320,21 +320,6 @@ function JobNotificationsPage() {
         </span>
       </div>
 
-      {/* Warnings & Errors */}
-      <div className="space-y-3">
-        {/* Missing SMTP configuration warning */}
-        <div className="rounded-xl bg-amber-500/5 border border-amber-500/25 p-4 text-xs font-bold text-amber-500 flex items-start gap-2.5 leading-normal select-none shadow-soft">
-          <AlertTriangle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
-          <div>
-            No active SMTP configuration — notifications will not be delivered. Activate one under{" "}
-            <Link to="/admin/settings" className="underline font-extrabold hover:text-amber-400">
-              SMTP Config
-            </Link>
-            .
-          </div>
-        </div>
-      </div>
-
       {/* Tab control headers */}
       <div className="border-b border-border/60 flex items-center gap-1 select-none">
         <button
@@ -523,7 +508,7 @@ function JobNotificationsPage() {
                   <select
                     value={newGroupEntity}
                     onChange={(e) => setNewGroupEntity(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-border bg-[#0B0F19] px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold cursor-pointer"
+                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold cursor-pointer"
                   >
                     <option value="ADDA — Abu Dhabi Digital Authority">ADDA — Abu Dhabi Digital Authority</option>
                     <option value="EAD — Environment Agency Abu Dhabi">EAD — Environment Agency Abu Dhabi</option>
@@ -544,7 +529,7 @@ function JobNotificationsPage() {
                       value={newGroupName}
                       onChange={(e) => setNewGroupName(e.target.value)}
                       placeholder="e.g. Ops team"
-                      className="h-10 w-full rounded-lg border border-border bg-[#0B0F19] pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                      className="h-10 w-full rounded-lg border border-border bg-card pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-5 select-none shrink-0">
@@ -553,7 +538,7 @@ function JobNotificationsPage() {
                       type="checkbox"
                       checked={isGroupEnabled}
                       onChange={(e) => setIsGroupEnabled(e.target.checked)}
-                      className="h-4.5 w-4.5 rounded border-border bg-[#0B0F19] accent-primary cursor-pointer"
+                      className="h-4.5 w-4.5 rounded border-border bg-card accent-primary cursor-pointer"
                     />
                   </div>
                 </div>
@@ -568,7 +553,7 @@ function JobNotificationsPage() {
                   </div>
 
                   {/* Representatives Table */}
-                  <div className="border border-border rounded-xl overflow-hidden bg-[#0B0F19]">
+                  <div className="border border-border rounded-xl overflow-hidden bg-card">
                     <table className="w-full text-left border-collapse text-xs font-semibold">
                       <thead>
                         <tr className="border-b border-border/40 bg-foreground/[0.02] text-muted-foreground font-bold select-none h-10">

@@ -13,7 +13,8 @@ import {
   Mail,
   Check,
   Trash2,
-  Edit3
+  Edit3,
+  Eye
 } from "lucide-react";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Surface } from "@/components/app/Surface";
@@ -62,8 +63,9 @@ function JobNotificationsPage() {
   // Adding group state
   const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupEntity, setNewGroupEntity] = useState("Abu Dhabi Digital Authority");
-  const [newGroupRecipients, setNewGroupRecipients] = useState("");
+  const [newGroupEntity, setNewGroupEntity] = useState("ADDA — Abu Dhabi Digital Authority");
+  const [selectedReps, setSelectedReps] = useState<string[]>([]);
+  const [isGroupEnabled, setIsGroupEnabled] = useState(true);
 
   // Adding template state
   const [isAddingTemplate, setIsAddingTemplate] = useState(false);
@@ -161,8 +163,8 @@ function JobNotificationsPage() {
       entity: "Global (Admin)",
       groupName: "Admin group",
       recipientsCount: 3,
-      representatives: "admin@ispatialtec.com",
-      internalUsers: "supervisor@ispatialtec.com",
+      representatives: "admin@dge.gov.ae",
+      internalUsers: "supervisor@dge.gov.ae",
       externalUsers: "—",
       status: "Active",
     },
@@ -237,26 +239,43 @@ function JobNotificationsPage() {
     setIsAddingTemplate(false);
   };
 
+  const representativesList = [
+    { id: "rep1", name: "Ahmed Al Mansoori", email: "ahmed.almansoori@gmail.com", role: "Technical", department: "IT" },
+    { id: "rep2", name: "Fatima Al Hosani", email: "fatima.alhosani@gmail.com", role: "Administrator", department: "Operations" },
+  ];
+
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGroupName.trim()) {
       toast.error("Please enter a group name.");
       return;
     }
+    if (selectedReps.length === 0) {
+      toast.error("Please select at least one representative.");
+      return;
+    }
+    
+    const selectedUsers = representativesList.filter(r => selectedReps.includes(r.id));
+    const firstRep = selectedUsers[0];
+    const restReps = selectedUsers.slice(1).map(r => r.email).join(", ") || "—";
+
     const newGroup: GroupItem = {
       id: Math.random().toString(36).substr(2, 9),
       entity: newGroupEntity,
       groupName: newGroupName,
-      recipientsCount: newGroupRecipients ? newGroupRecipients.split(",").length : 0,
-      representatives: newGroupRecipients ? newGroupRecipients.split(",")[0] : "—",
-      internalUsers: newGroupRecipients ? newGroupRecipients.split(",").slice(1).join(", ") || "—" : "—",
+      recipientsCount: selectedUsers.length,
+      representatives: firstRep ? firstRep.email : "—",
+      internalUsers: restReps,
       externalUsers: "—",
-      status: "Active",
+      status: isGroupEnabled ? "Active" : "Inactive",
     };
     setGroups([...groups, newGroup]);
     toast.success(`Notification group "${newGroupName}" added.`);
+    
+    // Reset
     setNewGroupName("");
-    setNewGroupRecipients("");
+    setSelectedReps([]);
+    setIsGroupEnabled(true);
     setIsAddingGroup(false);
   };
 
@@ -481,8 +500,9 @@ function JobNotificationsPage() {
             </>
           ) : (
             /* Add Group form view */
-            <Surface className="!p-5 space-y-4 max-w-xl border border-border select-none">
-              <div className="flex items-center gap-2 border-b border-border/30 pb-3">
+            <Surface className="!p-5 space-y-5 border border-border select-none">
+              {/* Back button and page title */}
+              <div className="flex items-center gap-3 border-b border-border/30 pb-3.5">
                 <button
                   type="button"
                   onClick={() => setIsAddingGroup(false)}
@@ -491,62 +511,142 @@ function JobNotificationsPage() {
                   <ArrowLeft className="h-4 w-4" />
                 </button>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">Add New Group</h3>
-                  <p className="text-[10px] text-muted-foreground font-semibold">Define notification recipients list.</p>
+                  <h3 className="text-sm font-bold text-foreground">New group</h3>
+                  <p className="text-[10px] text-muted-foreground font-semibold">Named recipient set · unique name per entity</p>
                 </div>
               </div>
 
-              <form onSubmit={handleCreateGroup} className="space-y-4 text-xs font-semibold">
+              <form onSubmit={handleCreateGroup} className="space-y-5 text-xs font-semibold">
+                {/* Associated Entity dropdown list */}
                 <div className="space-y-1.5">
-                  <label className="text-muted-foreground block font-bold">Group name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                    placeholder="e.g. Administrators Group"
-                    className="h-10 w-full rounded-lg border border-border bg-card pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-muted-foreground block font-bold">Associated Entity</label>
+                  <label className="text-muted-foreground block font-bold">Entity</label>
                   <select
                     value={newGroupEntity}
                     onChange={(e) => setNewGroupEntity(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold cursor-pointer"
+                    className="h-10 w-full rounded-lg border border-border bg-[#0B0F19] px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold cursor-pointer"
                   >
-                    <option value="Global (Admin)">Global (Admin)</option>
-                    <option value="Abu Dhabi Digital Authority">Abu Dhabi Digital Authority</option>
-                    <option value="Environment Agency Abu Dhabi">Environment Agency Abu Dhabi</option>
-                    <option value="Department of Municipalities">Department of Municipalities</option>
+                    <option value="ADDA — Abu Dhabi Digital Authority">ADDA — Abu Dhabi Digital Authority</option>
+                    <option value="EAD — Environment Agency Abu Dhabi">EAD — Environment Agency Abu Dhabi</option>
+                    <option value="DGE — Dept of Government Enablement">DGE — Dept of Government Enablement</option>
+                    <option value="ADDC — Abu Dhabi Distribution Company">ADDC — Abu Dhabi Distribution Company</option>
+                    <option value="ADHA — Abu Dhabi Housing Authority">ADHA — Abu Dhabi Housing Authority</option>
+                    <option value="DMT — Department of Municipalities">DMT — Department of Municipalities</option>
                   </select>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-muted-foreground block font-bold">Emails list (comma separated) *</label>
-                  <textarea
-                    rows={3}
-                    value={newGroupRecipients}
-                    onChange={(e) => setNewGroupRecipients(e.target.value)}
-                    placeholder="admin@adda.gov.ae, supervisor@adda.gov.ae"
-                    className="w-full rounded-lg border border-border bg-card p-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-bold"
-                  />
+                {/* Group name and Enabled checkbox */}
+                <div className="flex gap-4 items-center">
+                  <div className="flex-1 space-y-1.5">
+                    <label className="text-muted-foreground block font-bold">Group name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newGroupName}
+                      onChange={(e) => setNewGroupName(e.target.value)}
+                      placeholder="e.g. Ops team"
+                      className="h-10 w-full rounded-lg border border-border bg-[#0B0F19] pl-3 pr-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-bold"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pt-5 select-none shrink-0">
+                    <span className="text-muted-foreground font-bold">Enabled</span>
+                    <input
+                      type="checkbox"
+                      checked={isGroupEnabled}
+                      onChange={(e) => setIsGroupEnabled(e.target.checked)}
+                      className="h-4.5 w-4.5 rounded border-border bg-[#0B0F19] accent-primary cursor-pointer"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex gap-2 justify-end pt-3 border-t border-border/20">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingGroup(false)}
-                    className="h-9.5 px-4 bg-transparent border border-border hover:bg-muted text-muted-foreground font-bold text-xs rounded-lg cursor-pointer transition-colors"
-                  >
-                    Cancel
-                  </button>
+                {/* Representatives section */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2 select-none">
+                    <span className="text-muted-foreground font-bold">Representatives</span>
+                    <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-extrabold text-primary border border-blue-500/20">
+                      {selectedReps.length} selected
+                    </span>
+                  </div>
+
+                  {/* Representatives Table */}
+                  <div className="border border-border rounded-xl overflow-hidden bg-[#0B0F19]">
+                    <table className="w-full text-left border-collapse text-xs font-semibold">
+                      <thead>
+                        <tr className="border-b border-border/40 bg-foreground/[0.02] text-muted-foreground font-bold select-none h-10">
+                          <th className="px-4 py-2 w-10">
+                            <input
+                              type="checkbox"
+                              checked={selectedReps.length === representativesList.length}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedReps(representativesList.map(r => r.id));
+                                } else {
+                                  setSelectedReps([]);
+                                }
+                              }}
+                              className="h-4 w-4 accent-primary cursor-pointer"
+                            />
+                          </th>
+                          <th className="px-4 py-2">Name</th>
+                          <th className="px-4 py-2">Email</th>
+                          <th className="px-4 py-2">Role</th>
+                          <th className="px-4 py-2">Department</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {representativesList.map((rep) => {
+                          const isSelected = selectedReps.includes(rep.id);
+                          return (
+                            <tr key={rep.id} className="border-b border-border/40 hover:bg-muted/5 h-11">
+                              <td className="px-4 py-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    if (isSelected) {
+                                      setSelectedReps(selectedReps.filter(id => id !== rep.id));
+                                    } else {
+                                      setSelectedReps([...selectedReps, rep.id]);
+                                    }
+                                  }}
+                                  className="h-4 w-4 accent-primary cursor-pointer"
+                                />
+                              </td>
+                              <td className="px-4 py-2 text-foreground font-bold">{rep.name}</td>
+                              <td className="px-4 py-2 text-muted-foreground font-mono">{rep.email}</td>
+                              <td className="px-4 py-2 text-muted-foreground">{rep.role}</td>
+                              <td className="px-4 py-2 text-muted-foreground">{rep.department}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {selectedReps.length === 0 && (
+                    <p className="text-[11px] text-amber-500 font-semibold select-none">
+                      Select at least one representative to save.
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit / Cancel Buttons */}
+                <div className="flex gap-2 pt-3 border-t border-border/20">
                   <button
                     type="submit"
                     className="h-9.5 px-4 bg-primary hover:bg-primary/95 text-white font-extrabold text-xs rounded-lg cursor-pointer transition-colors shadow-soft"
                   >
-                    Add Group
+                    + Create group
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingGroup(false);
+                      setNewGroupName("");
+                      setSelectedReps([]);
+                    }}
+                    className="h-9.5 px-4 bg-transparent border border-border hover:bg-muted text-muted-foreground font-bold text-xs rounded-lg cursor-pointer transition-colors"
+                  >
+                    Cancel
                   </button>
                 </div>
               </form>

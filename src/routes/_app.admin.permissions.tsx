@@ -169,21 +169,21 @@ function SecurityAuthentication() {
   const [smtpConfigs, setSmtpConfigs] = useState<SMTPConfigItem[]>([
     {
       id: "1",
-      name: "Master SMTP Configuration",
+      name: "بوابة إرسال البريد الرئيسية (Master SMTP)",
       host: "smtp.office365.com:587/",
       port: "587",
-      user: "info.ecubeapps@ispatialtec.com",
-      sender: "info.ecubeapps@ispatialtec.com",
+      user: "ahmed.almansoori@dge.gov.ae",
+      sender: "ahmed.almansoori@dge.gov.ae",
       secure: false, // represents STARTTLS
       active: true,
     },
     {
       id: "2",
-      name: "Test3 SMTP Configuration",
+      name: "بريد جوجل الاحتياطي (Gmail SMTP - Ahmed)",
       host: "smtp.gmail.com:465",
       port: "465",
-      user: "random@ispatialtec.com",
-      sender: "random@ispatialtec.com",
+      user: "ahmed.almansoori@gmail.com",
+      sender: "ahmed.almansoori@gmail.com",
       secure: true, // SSL/TLS
       active: false,
     }

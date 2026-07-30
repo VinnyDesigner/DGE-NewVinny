@@ -1362,7 +1362,7 @@ function SecurityAuthentication() {
                       <Input
                         value={smtpSenderEmail}
                         onChange={(e) => setSmtpSenderEmail(e.target.value)}
-                        placeholder="info.ecubeapps@ispatialtec.com"
+                        placeholder="ahmed.almansoori@dge.gov.ae"
                         required
                         className="h-10"
                       />
@@ -1382,7 +1382,7 @@ function SecurityAuthentication() {
                       <Input
                         value={smtpUser}
                         onChange={(e) => setSmtpUser(e.target.value)}
-                        placeholder="info.ecubeapps@ispatialtec.com"
+                        placeholder="ahmed.almansoori@dge.gov.ae"
                         className="h-10"
                       />
                     </div>
